@@ -8,7 +8,7 @@ import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { onAuthStateChanged, type User } from "firebase/auth"
 import { auth, db } from "@/lib/firebase"
-import { doc, getDoc, type Timestamp } from "firebase/firestore"
+import { doc, getDoc, setDoc, serverTimestamp, type Timestamp } from "firebase/firestore"
 import { Flame, Droplets, Settings, Trophy, TrendingUp, Bot, Star, Sparkles, BellDot, Vibrate, MessageSquareText, Link as LinkIcon, Watch, Mic, BookUser, Info, LogOut, Trash2, ExternalLink, Save } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -27,7 +27,7 @@ import { WaterGlass } from "@/components/water-glass"
 import { BodyMetrics } from "@/components/body-metrics"
 import { generateMotivation, MotivationInput } from "@/ai/flows/personalized-motivation"
 import { Confetti } from "@/components/confetti"
-import { updateUserData, UserData, Tone, deleteUserData, savePhoneNumberAndSendConfirmation, ensureUserDocument } from "@/lib/actions"
+import { updateUserData, UserData, Tone, deleteUserData, savePhoneNumberAndSendConfirmation, defaultUserData } from "@/lib/actions"
 
 type MilestoneStatus = MotivationInput['milestoneStatus'];
 
@@ -73,16 +73,25 @@ function DashboardContents() {
     
     const loadData = async (userId: string) => {
       setLoadingError(null);
+      const userDocRef = doc(db, 'users', userId);
+
       try {
-        let userDocSnap = await getDoc(doc(db, 'users', userId));
+        let userDocSnap = await getDoc(userDocRef);
 
         if (!userDocSnap.exists()) {
           console.log("User document not found, creating one now for user:", userId);
-          await ensureUserDocument(userId);
-          userDocSnap = await getDoc(doc(db, 'users', userId));
+          // Create the document with default data and server timestamps
+          await setDoc(userDocRef, {
+            ...defaultUserData,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          });
+          // Re-fetch the document to get the created data
+          userDocSnap = await getDoc(userDocRef);
 
           if (!userDocSnap.exists()) {
-            throw new Error("Failed to create and retrieve user profile. This is likely a Firestore security rule issue.");
+            // This should now only happen if the rules are wrong
+            throw new Error("DATABASE ACCESS DENIED. Could not create user profile. This is a security rules issue.");
           }
         }
 
@@ -101,7 +110,7 @@ function DashboardContents() {
             } else if ('code' in error) {
                 const firebaseError = error as { code: string; message: string };
                 if (firebaseError.code === 'permission-denied' || firebaseError.code === 'unauthenticated') {
-                    errorMessage = `DATABASE ACCESS DENIED. Could not read user profile. Please check your Firestore security rules.`;
+                    errorMessage = `DATABASE ACCESS DENIED. Could not read or create user profile. Please check your Firestore security rules.`;
                 } else if (firebaseError.code === 'failed-precondition') {
                     errorMessage = "Firestore database has not been created or is misconfigured. Please go to the Firestore Database section of your Firebase Console and ensure a database exists by clicking 'Create database'.";
                 } else {
@@ -283,28 +292,37 @@ function DashboardContents() {
       <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 lg:p-8 font-body flex items-center justify-center">
         <Card className="max-w-2xl bg-destructive/10 border-destructive">
           <CardHeader>
-            <CardTitle className="text-destructive-foreground">Action Required in Firebase Console</CardTitle>
+            <CardTitle className="text-destructive-foreground">Action Required: Database Configuration Error</CardTitle>
             <CardDescription className="text-destructive-foreground/80">
-             {loadingError.includes("DATABASE ACCESS DENIED") 
-                ? "DATABASE ACCESS DENIED. Could not create user profile. Please check your Firestore security rules."
-                : loadingError
-             }
+             The application is being blocked by your database security rules.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="bg-background/80 p-4 rounded-md text-foreground">
-              <h3 className="font-bold">Follow these steps exactly:</h3>
+              <h3 className="font-bold">How to Fix This:</h3>
               <ol className="list-decimal list-inside space-y-2 mt-2">
                 <li>Go to the <strong>Firestore Database</strong> section in your Firebase Console.</li>
                 <li>Make sure you are in the correct project. The project ID this app is using is: <strong className="font-mono bg-muted p-1 rounded">{process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "Not Set"}</strong></li>
                 <li>Click the <strong>Rules</strong> tab at the top.</li>
                 <li>Delete all the existing text in the editor.</li>
-                <li>Paste in the complete, secure ruleset provided in the AI's chat response.</li>
+                <li>Paste in this complete, secure ruleset:
+                  <pre className="mt-2 p-2 bg-muted/50 rounded-md text-xs whitespace-pre-wrap font-code">
+                    {`rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}`}
+                  </pre>
+                </li>
                 <li>Click the <strong>Publish</strong> button.</li>
               </ol>
             </div>
             <p className="text-sm text-destructive-foreground/80">
-              After you publish the new rules, please refresh this page. The application will then work as expected.
+              This new rule allows any logged-in user to access their own data, which is a standard and secure setup for this type of application. After publishing the rule, please refresh this page.
             </p>
           </CardContent>
         </Card>

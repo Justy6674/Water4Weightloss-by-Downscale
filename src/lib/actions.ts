@@ -62,7 +62,7 @@ const defaultBodyMetrics: UserData['bodyMetrics'] = {
 };
 
 // This is the data for a new user, without server-generated timestamps
-const defaultUserData: Omit<UserData, 'updatedAt' | 'createdAt'> = {
+export const defaultUserData: Omit<UserData, 'updatedAt' | 'createdAt'> = {
     hydration: 1250,
     dailyGoal: 3000,
     streak: 14,
