@@ -11,7 +11,6 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
@@ -53,7 +52,7 @@ function LoginPageContents() {
             if (firebaseError.code === 'auth/user-not-found' || firebaseError.code === 'auth/wrong-password' || firebaseError.code === 'auth/invalid-credential') {
                 description = "Invalid email or password.";
             } else if (firebaseError.code === 'auth/api-key-not-valid') {
-                description = "The application is not configured correctly. Please copy your web app keys into your .env.local file.";
+                description = "The application is not configured correctly. Please check your Firebase project settings.";
             } else if (firebaseError.message) {
                 description = firebaseError.message;
             }
@@ -76,7 +75,6 @@ function LoginPageContents() {
         return null; // or a loading spinner
     }
 
-
   return (
     <div className="relative min-h-screen bg-[#0c1a2e] text-white flex items-center justify-center p-4 font-body">
         {/* Background Image & Spotlight */}
@@ -86,18 +84,18 @@ function LoginPageContents() {
                 alt="Brick wall background"
                 fill
                 priority
-                className="object-cover opacity-30"
+                className="object-cover opacity-15"
                 data-ai-hint="dark brick wall"
             />
             <div 
                 className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-[80%]"
                 style={{
-                    background: 'radial-gradient(circle at 50% 0, rgba(255, 215, 139, 0.25) 0%, transparent L, transparent 40%)'
+                    background: 'radial-gradient(circle at 50% 0, rgba(173, 216, 230, 0.1) 0%, transparent 40%)'
                 }}
             />
         </div>
         
-        <Card className="w-full max-w-sm bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-2xl z-10">
+        <Card className="w-full max-w-sm bg-[#1a2233] border border-[#343f54] rounded-2xl shadow-2xl z-10">
             <CardHeader className="p-8 pb-4">
                 <CardTitle className="text-3xl font-bold text-center text-white">Login</CardTitle>
             </CardHeader>
@@ -105,7 +103,7 @@ function LoginPageContents() {
                 <form onSubmit={handleLogin} className="space-y-6">
                     <div className="space-y-4">
                         <div className="relative">
-                            <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/50" />
+                            <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                             <Input
                                 id="email"
                                 type="email"
@@ -114,11 +112,11 @@ function LoginPageContents() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 disabled={isLoading}
-                                className="bg-white/10 border-white/20 placeholder:text-white/50 pl-12 h-12 rounded-lg text-white"
+                                className="bg-[#2a3344] border-[#343f54] placeholder:text-slate-400 pl-12 h-12 rounded-lg text-white"
                             />
                         </div>
                         <div className="relative">
-                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/50" />
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                             <Input
                                 id="password"
                                 type="password"
@@ -127,7 +125,7 @@ function LoginPageContents() {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 disabled={isLoading}
-                                className="bg-white/10 border-white/20 placeholder:text-white/50 pl-12 h-12 rounded-lg text-white"
+                                className="bg-[#2a3344] border-[#343f54] placeholder:text-slate-400 pl-12 h-12 rounded-lg text-white"
                             />
                         </div>
                     </div>
@@ -138,24 +136,24 @@ function LoginPageContents() {
                                 checked={rememberMe}
                                 onCheckedChange={(checked) => setRememberMe(!!checked)}
                                 disabled={isLoading}
-                                className="border-white/50 data-[state=checked]:bg-white data-[state=checked]:text-black"
+                                className="border-slate-400 data-[state=checked]:bg-white data-[state=checked]:text-[#1a2233]"
                             />
                             <label
                                 htmlFor="remember-me"
-                                className="font-medium text-white/80 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                className="font-medium text-slate-300 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                             >
                                 Remember me
                             </label>
                         </div>
-                        <Link href="#" className="font-medium text-white/80 hover:underline">
+                        <Link href="#" className="font-medium text-slate-300 hover:underline">
                             Forgot password?
                         </Link>
                     </div>
-                    <Button type="submit" className="w-full bg-white text-black h-12 rounded-lg font-bold text-base hover:bg-white/90" disabled={isLoading}>
+                    <Button type="submit" className="w-full bg-white text-black h-12 rounded-lg font-bold text-base hover:bg-gray-200" disabled={isLoading}>
                         {isLoading ? 'Logging in...' : 'Login'}
                     </Button>
                 </form>
-                <div className="mt-6 text-center text-sm text-white/80">
+                <div className="mt-6 text-center text-sm text-slate-300">
                     Don&apos;t have an account?{" "}
                     <Link href="/signup" className="underline font-bold text-white">
                         Register
