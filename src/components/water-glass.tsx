@@ -61,9 +61,6 @@ export const WaterGlass = ({ percentage }: { percentage: number }) => {
           transformOrigin: 'bottom center',
         }}
       >
-        <div className="absolute top-0 left-1/2 w-[200%] h-5 bg-background/30 rounded-[45%] animate-wave -translate-x-1/2 -translate-y-1/2"></div>
-        <div className="absolute top-0 left-1/2 w-[200%] h-5 bg-background/20 rounded-[40%] animate-wave-reverse -translate-x-1/2 -translate-y-1/2 opacity-80"></div>
-
         {/* Bubbles */}
         <div className="absolute inset-0 overflow-hidden">
           {bubbleStyles.map((style, i) => (
