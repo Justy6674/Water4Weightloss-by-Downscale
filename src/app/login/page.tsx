@@ -67,6 +67,7 @@ function LoginPageContents() {
                 fill
                 priority
                 className="object-cover opacity-30"
+                data-ai-hint="dark brick wall"
             />
             <div 
                 className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-[80%]"
