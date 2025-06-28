@@ -52,7 +52,6 @@ function SignupPageContents() {
 
   return (
      <div className="relative min-h-screen bg-[#0c1a2e] text-white flex items-center justify-center p-4 font-body">
-        {/* Background Image & Spotlight */}
         <div className="absolute inset-0 z-0">
              <Image
                 src="https://images.unsplash.com/photo-1561057160-b6c70de01399?q=80&w=1920&auto=format&fit=crop"
