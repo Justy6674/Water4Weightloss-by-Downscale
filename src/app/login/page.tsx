@@ -1,3 +1,4 @@
+
 "use client"
 
 import Link from "next/link"
@@ -82,7 +83,7 @@ function LoginPageContents() {
                 alt="Brick wall background"
                 fill
                 priority
-                className="object-cover opacity-50"
+                className="object-cover object-top opacity-50"
             />
             <div 
                 className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-[60%]"
