@@ -53,6 +53,8 @@ function LoginPageContents() {
                 description = "Invalid email or password.";
             } else if (firebaseError.code === 'auth/api-key-not-valid') {
                 description = "The application is not configured correctly. Please check your Firebase project settings.";
+            } else if (firebaseError.code === 'auth/requests-to-this-api-identitytoolkit-method-google.cloud.identitytoolkit.v1.authenticationservice.signinwithpassword-are-blocked') {
+                description = "Email/Password sign-in is not enabled for your Firebase project. Please go to the Firebase console, navigate to Authentication > Sign-in method, and enable the Email/Password provider.";
             } else if (firebaseError.message) {
                 description = firebaseError.message;
             }
@@ -95,7 +97,7 @@ function LoginPageContents() {
             />
         </div>
         
-        <Card className="w-full max-w-sm bg-slate-900/30 border border-slate-700 rounded-2xl shadow-2xl z-10">
+        <Card className="w-full max-w-sm bg-slate-900/30 border-slate-700/0 rounded-2xl shadow-2xl z-10">
             <CardHeader className="p-8 pb-4">
                 <CardTitle className="text-3xl font-bold text-center text-[#f7f2d3]">Login</CardTitle>
             </CardHeader>
@@ -136,7 +138,7 @@ function LoginPageContents() {
                                 checked={rememberMe}
                                 onCheckedChange={(checked) => setRememberMe(!!checked)}
                                 disabled={isLoading}
-                                className="border-[#6a5349] data-[state=checked]:bg-[#6a5349] data-[state=checked]:text-orange-200"
+                                className="border-[#6a5349] data-[state=checked]:bg-[#6a5349] data-[state=checked]:text-[#f7f2d3]"
                             />
                             <label
                                 htmlFor="remember-me"
