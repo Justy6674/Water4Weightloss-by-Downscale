@@ -83,7 +83,7 @@ function LoginPageContents() {
                 alt="Brick wall background"
                 fill
                 priority
-                className="object-cover object-top opacity-50"
+                className="object-cover object-top opacity-100"
             />
             <div 
                 className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-[60%]"
@@ -93,7 +93,7 @@ function LoginPageContents() {
             />
         </div>
         
-        <Card className="w-full max-w-sm bg-[#4f3b31]/20 backdrop-blur-md border border-[#6a5349] rounded-2xl shadow-2xl z-10">
+        <Card className="w-full max-w-sm bg-[#4f3b31]/10 backdrop-blur-md border border-[#6a5349]/50 rounded-2xl shadow-2xl z-10">
             <CardHeader className="p-8 pb-4">
                 <CardTitle className="text-3xl font-bold text-center text-white">Login</CardTitle>
             </CardHeader>
