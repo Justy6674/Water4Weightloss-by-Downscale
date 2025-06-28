@@ -125,9 +125,9 @@ export async function getUserData(userId: string): Promise<UserData> {
         if (error instanceof Error && 'code' in error) {
             const firebaseError = error as { code: string; message: string };
             if (firebaseError.code === 'permission-denied' || firebaseError.code === 'unauthenticated') {
-                errorMessage = "Database access denied. This is a security rules issue. Please go to your Firebase Console -> Firestore Database -> Rules, and ensure they allow reads/writes for authenticated users. For development, you can use 'allow read, write: if request.auth != null;'.";
+                errorMessage = "DATABASE ACCESS DENIED. This is a security rules issue. Go to your Firebase Console -> Firestore Database -> Rules, and change `allow read, write: if false;` to `allow read, write: if request.auth != null;`. This allows any logged-in user to access their data.";
             } else if (firebaseError.code === 'failed-precondition') {
-                 errorMessage = "Firestore database has not been created or is misconfigured. Please go to the Firestore Database section of your Firebase Console and ensure a database exists.";
+                 errorMessage = "Firestore database has not been created or is misconfigured. Please go to the Firestore Database section of your Firebase Console and ensure a database exists by clicking 'Create database'.";
             } else {
                 // Include the specific Firebase error code for better debugging
                 errorMessage = `A Firebase error occurred: ${firebaseError.message} (Code: ${firebaseError.code}). Please check your Firebase setup.`;
