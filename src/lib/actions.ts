@@ -112,14 +112,17 @@ export async function getUserData(): Promise<UserData> {
         }
     } catch (error) {
         console.error("Firebase Error: Failed to get or create document.", error);
-        // Provide a more detailed error for debugging common setup issues.
+        let errorMessage = "Could not connect to the database. Please ensure Firestore is enabled in your Firebase project and that your security rules allow access.";
         if (error instanceof Error && 'code' in error) {
             const firebaseError = error as { code: string; message: string };
             if (firebaseError.code === 'permission-denied' || firebaseError.code === 'unauthenticated') {
-                throw new Error("Could not read data due to a permissions issue. Please check your Firestore Security Rules and that your .env.local file is configured correctly.");
+                errorMessage = "Could not read data due to a permissions issue. Please check your Firestore Security Rules and that your .env.local file is configured correctly.";
+            } else {
+                // Include the specific Firebase error code for better debugging
+                errorMessage = `A Firebase error occurred: ${firebaseError.message} (Code: ${firebaseError.code}). Please check your Firebase setup.`;
             }
         }
-        throw new Error("Could not connect to the database. Please ensure Firestore is enabled in your Firebase project.");
+        throw new Error(errorMessage);
     }
 }
 
@@ -140,12 +143,15 @@ export async function updateUserData(data: Partial<UserData>): Promise<void> {
         }, { merge: true });
     } catch (error) {
         console.error("Firebase Error: Failed to update user data:", error);
-        if (error instanceof Error && 'code' in error) {
+        let errorMessage = "Could not save data to the database. Please check your Firestore connection and permissions.";
+         if (error instanceof Error && 'code' in error) {
             const firebaseError = error as { code: string; message: string };
             if (firebaseError.code === 'permission-denied') {
-                 throw new Error("Could not save data. This is a permissions issue. Please check your Firestore Security Rules in the Firebase console.");
+                 errorMessage = "Could not save data. This is a permissions issue. Please check your Firestore Security Rules in the Firebase console.";
+            } else {
+                errorMessage = `A Firebase error occurred while saving data: ${firebaseError.message} (Code: ${firebaseError.code}).`;
             }
         }
-        throw new Error("Could not save data to the database. Please check your Firestore connection and permissions.");
+        throw new Error(errorMessage);
     }
 }
