@@ -3,9 +3,6 @@
 import { db } from '@/lib/firebase';
 import { doc, getDoc, setDoc, serverTimestamp, type Timestamp } from 'firebase/firestore';
 
-// In a real app, you'd get this from Firebase Auth after implementing a login flow.
-const FAKE_USER_ID = "test-user-123";
-
 export type Tone = "funny" | "supportive" | "sarcastic" | "crass" | "kind";
 
 export interface UserData {
@@ -84,8 +81,8 @@ function makeDataSerializable(data: object): any {
  * Fetches user data from Firestore or creates it if it doesn't exist.
  * This function also ensures the returned data is serializable for Next.js.
  */
-export async function getUserData(): Promise<UserData> {
-    const userDocRef = doc(db, 'users', FAKE_USER_ID);
+export async function getUserData(userId: string): Promise<UserData> {
+    const userDocRef = doc(db, 'users', userId);
     try {
         const userDocSnap = await getDoc(userDocRef);
 
@@ -128,14 +125,15 @@ export async function getUserData(): Promise<UserData> {
 
 /**
  * Updates user data in Firestore with the provided partial data.
+ * @param userId - The ID of the user to update.
  * @param data - An object containing the fields to update.
  */
-export async function updateUserData(data: Partial<UserData>): Promise<void> {
-    if (!FAKE_USER_ID) {
+export async function updateUserData(userId: string, data: Partial<UserData>): Promise<void> {
+    if (!userId) {
         console.error("Update failed: No user ID provided.");
         return;
     };
-    const userDocRef = doc(db, 'users', FAKE_USER_ID);
+    const userDocRef = doc(db, 'users', userId);
     try {
         await setDoc(userDocRef, {
             ...data,

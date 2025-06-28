@@ -14,15 +14,36 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { useToast } from "@/hooks/use-toast"
+import { createUserWithEmailAndPassword } from "firebase/auth"
+import { auth } from "@/lib/firebase"
+
 
 export default function SignupPage() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [isLoading, setIsLoading] = useState(false)
+    const router = useRouter()
+    const { toast } = useToast()
 
-    const handleSignup = (e: React.FormEvent) => {
+    const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault()
-        // TODO: Implement Firebase signup logic
-        console.log("Signing up with:", { email, password })
+        setIsLoading(true)
+        try {
+            await createUserWithEmailAndPassword(auth, email, password)
+            router.push('/dashboard')
+        } catch (error) {
+            const firebaseError = error as { code?: string; message: string };
+            console.error("Signup failed:", firebaseError);
+            toast({
+              variant: "destructive",
+              title: "Signup Failed",
+              description: firebaseError.message || "An unexpected error occurred.",
+            });
+        } finally {
+            setIsLoading(false)
+        }
     }
 
   return (
@@ -49,6 +70,7 @@ export default function SignupPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
                 />
               </div>
               <div className="grid gap-2">
@@ -59,10 +81,11 @@ export default function SignupPage() {
                     required 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    disabled={isLoading}
                 />
               </div>
-              <Button type="submit" className="w-full">
-                Create an account
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? 'Creating account...' : 'Create an account'}
               </Button>
             </div>
           </form>

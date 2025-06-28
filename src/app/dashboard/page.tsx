@@ -5,7 +5,10 @@ import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useState, useEffect, useMemo } from "react"
-import { Flame, Droplets, Settings, Trophy, TrendingUp, Bot, Star, Sparkles, BellDot, Vibrate, MessageSquareText, Link as LinkIcon, Watch, Mic, BookUser, Info } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { onAuthStateChanged, type User } from "firebase/auth"
+import { auth } from "@/lib/firebase"
+import { Flame, Droplets, Settings, Trophy, TrendingUp, Bot, Star, Sparkles, BellDot, Vibrate, MessageSquareText, Link as LinkIcon, Watch, Mic, BookUser, Info, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -27,16 +30,31 @@ type MilestoneStatus = MotivationInput['milestoneStatus'];
 
 export default function Dashboard() {
   const { toast } = useToast()
-  const [userData, setUserData] = useState<UserData | null>(null);
+  const router = useRouter()
+  const [user, setUser] = useState<User | null>(null)
+  const [loadingUser, setLoadingUser] = useState(true)
+  const [userData, setUserData] = useState<UserData | null>(null)
   const [manualAmount, setManualAmount] = useState("")
   const [showConfetti, setShowConfetti] = useState(false)
   const [motivation, setMotivation] = useState("Let's get hydrated!")
   const [isLoadingMotivation, setIsLoadingMotivation] = useState(false)
 
   useEffect(() => {
-    const loadData = async () => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+      } else {
+        router.push('/login');
+      }
+      setLoadingUser(false);
+    });
+    return () => unsubscribe();
+  }, [router]);
+
+  useEffect(() => {
+    const loadData = async (userId: string) => {
       try {
-        const data = await getUserData();
+        const data = await getUserData(userId);
         setUserData(data);
       } catch (error) {
         console.error("Failed to load user data:", error);
@@ -48,8 +66,11 @@ export default function Dashboard() {
         });
       }
     };
-    loadData();
-  }, [toast]);
+
+    if (user) {
+      loadData(user.uid);
+    }
+  }, [user, toast]);
 
   const hydrationPercentage = useMemo(() => {
     if (!userData) return 0;
@@ -117,13 +138,13 @@ export default function Dashboard() {
   }
 
   const handleAddWater = (amount: number) => {
-    if (!userData || amount <= 0) return
+    if (!userData || !user || amount <= 0) return
     const oldHydration = userData.hydration;
     const newHydration = Math.min(userData.dailyGoal, userData.hydration + amount)
     
     const updatedData = { ...userData, hydration: newHydration, lastDrinkSize: amount };
     setUserData(updatedData);
-    updateUserData({ hydration: newHydration, lastDrinkSize: amount });
+    updateUserData(user.uid, { hydration: newHydration, lastDrinkSize: amount });
 
     fetchMotivation(amount);
 
@@ -141,35 +162,38 @@ export default function Dashboard() {
   }
 
   const handleSettingChange = (key: keyof UserData['appSettings'], value: string | boolean) => {
-    if (!userData) return;
+    if (!userData || !user) return;
     const newAppSettings = { ...userData.appSettings, [key]: value };
     setUserData({ ...userData, appSettings: newAppSettings });
-    updateUserData({ appSettings: newAppSettings });
+    updateUserData(user.uid, { appSettings: newAppSettings });
   };
   
   const handleToneChange = (value: Tone) => {
-    if (!userData) return;
+    if (!userData || !user) return;
     setUserData({ ...userData, motivationTone: value });
-    updateUserData({ motivationTone: value });
+    updateUserData(user.uid, { motivationTone: value });
   };
   
   const handleGoalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!userData) return;
+    if (!userData || !user) return;
     const newGoal = Number(e.target.value);
     setUserData({ ...userData, dailyGoal: newGoal });
     // This could be debounced in a real app
-    updateUserData({ dailyGoal: newGoal });
+    updateUserData(user.uid, { dailyGoal: newGoal });
   };
 
   const handleMetricsSave = (metrics: UserData['bodyMetrics']) => {
-    if (!userData) return;
+    if (!userData || !user) return;
     setUserData({ ...userData, bodyMetrics: metrics });
-    updateUserData({ bodyMetrics: metrics });
+    updateUserData(user.uid, { bodyMetrics: metrics });
     toast({ title: "Metrics Saved", description: "Your body metrics have been updated." });
   };
 
+  const handleLogout = () => {
+    auth.signOut();
+  };
 
-  if (!userData) {
+  if (loadingUser || !userData) {
     return (
        <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 lg:p-8 font-body flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -184,10 +208,18 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 lg:p-8 font-body">
       {showConfetti && <Confetti onConfettiComplete={() => setShowConfetti(false)} />}
-      <header className="mb-8 text-center">
-        <Image src="/logo.png" alt="Water4Weightloss Logo" width={100} height={100} className="mx-auto mb-4" />
-        <h1 className="text-4xl lg:text-5xl font-headline font-bold text-secondary tracking-tight">Water4Weightloss</h1>
-        <p className="text-muted-foreground mt-2 text-lg">Your personal hydration and weight loss companion.</p>
+      <header className="mb-8 flex justify-between items-center">
+        <div className="flex items-center gap-4">
+            <Image src="/logo.png" alt="Water4Weightloss Logo" width={60} height={60} />
+            <div>
+              <h1 className="text-3xl lg:text-4xl font-headline font-bold text-secondary tracking-tight">Water4Weightloss</h1>
+              <p className="text-muted-foreground text-md">Welcome, {user.email}</p>
+            </div>
+        </div>
+        <Button variant="outline" size="sm" onClick={handleLogout}>
+          <LogOut className="mr-2 h-4 w-4" />
+          Logout
+        </Button>
       </header>
 
       <main className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8">
