@@ -93,7 +93,7 @@ function LoginPageContents() {
             />
         </div>
         
-        <Card className="w-full max-w-sm bg-[#4f3b31]/60 backdrop-blur-md border border-[#6a5349] rounded-2xl shadow-2xl z-10">
+        <Card className="w-full max-w-sm bg-[#4f3b31]/20 backdrop-blur-md border border-[#6a5349] rounded-2xl shadow-2xl z-10">
             <CardHeader className="p-8 pb-4">
                 <CardTitle className="text-3xl font-bold text-center text-white">Login</CardTitle>
             </CardHeader>
@@ -110,7 +110,7 @@ function LoginPageContents() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 disabled={isLoading}
-                                className="bg-[#6a5349]/50 border-[#6a5349] placeholder:text-orange-200/70 pl-12 h-12 rounded-lg text-white"
+                                className="bg-[#6a5349] border-[#6a5349] placeholder:text-orange-200/70 pl-12 h-12 rounded-lg text-white"
                             />
                         </div>
                         <div className="relative">
@@ -123,7 +123,7 @@ function LoginPageContents() {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 disabled={isLoading}
-                                className="bg-[#6a5349]/50 border-[#6a5349] placeholder:text-orange-200/70 pl-12 h-12 rounded-lg text-white"
+                                className="bg-[#6a5349] border-[#6a5349] placeholder:text-orange-200/70 pl-12 h-12 rounded-lg text-white"
                             />
                         </div>
                     </div>
