@@ -1,3 +1,4 @@
+
 "use client"
 
 import Link from "next/link"
@@ -71,7 +72,7 @@ function SignupPageContents() {
         
         <Card className="w-full max-w-sm bg-slate-900/30 border border-slate-700 rounded-2xl shadow-2xl z-10">
             <CardHeader className="p-8 pb-4">
-                <CardTitle className="text-3xl font-bold text-center text-white">Sign Up</CardTitle>
+                <CardTitle className="text-3xl font-bold text-center text-[#f7f2d3]">Sign Up</CardTitle>
             </CardHeader>
             <CardContent className="p-8 pt-0">
                 <form onSubmit={handleSignup} className="space-y-6">
