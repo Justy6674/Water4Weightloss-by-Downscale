@@ -92,7 +92,7 @@ function LoginPageContents() {
             />
         </div>
         
-        <Card className="w-full max-w-sm bg-black/20 border border-white/20 rounded-2xl shadow-2xl z-10">
+        <Card className="w-full max-w-sm bg-black/20 border-none rounded-2xl shadow-2xl z-10">
             <CardHeader className="p-8 pb-4">
                 <CardTitle className="text-3xl font-bold text-center text-white">Login</CardTitle>
             </CardHeader>
@@ -137,12 +137,12 @@ function LoginPageContents() {
                             />
                             <label
                                 htmlFor="remember-me"
-                                className="font-medium text-orange-100 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                className="font-medium text-white leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                             >
-                                Remember me
+                                Stay logged in
                             </label>
                         </div>
-                        <Link href="#" className="font-medium text-orange-100 hover:underline">
+                        <Link href="#" className="font-medium text-white hover:underline">
                             Forgot password?
                         </Link>
                     </div>
@@ -150,7 +150,7 @@ function LoginPageContents() {
                         {isLoading ? 'Logging in...' : 'Login'}
                     </Button>
                 </form>
-                <div className="mt-6 text-center text-sm text-orange-100">
+                <div className="mt-6 text-center text-sm text-gray-200">
                     Don&apos;t have an account?{" "}
                     <Link href="/signup" className="underline font-bold text-white">
                         Register

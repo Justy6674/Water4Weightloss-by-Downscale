@@ -67,7 +67,7 @@ function SignupPageContents() {
             />
         </div>
         
-        <Card className="w-full max-w-sm bg-black/20 border border-white/20 rounded-2xl shadow-2xl z-10">
+        <Card className="w-full max-w-sm bg-black/20 border-none rounded-2xl shadow-2xl z-10">
             <CardHeader className="p-8 pb-4">
                 <CardTitle className="text-3xl font-bold text-center text-white">Sign Up</CardTitle>
             </CardHeader>
@@ -105,7 +105,7 @@ function SignupPageContents() {
                         {isLoading ? 'Creating account...' : 'Create an account'}
                     </Button>
                 </form>
-                <div className="mt-6 text-center text-sm text-orange-100">
+                <div className="mt-6 text-center text-sm text-gray-200">
                     Already have an account?{" "}
                     <Link href="/login" className="underline font-bold text-white">
                         Login
