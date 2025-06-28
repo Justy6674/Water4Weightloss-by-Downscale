@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -35,10 +34,16 @@ function SignupPageContents() {
         } catch (error) {
             const firebaseError = error as { code?: string; message: string };
             console.error("Signup failed:", firebaseError);
+            let description = "An unexpected error occurred.";
+            if (firebaseError.code === 'auth/email-already-in-use') {
+                description = "This email is already registered. Please log in instead.";
+            } else if (firebaseError.message) {
+                description = firebaseError.message;
+            }
             toast({
               variant: "destructive",
               title: "Signup Failed",
-              description: firebaseError.message || "An unexpected error occurred.",
+              description: description,
             });
         } finally {
             setIsLoading(false)
@@ -46,19 +51,15 @@ function SignupPageContents() {
     }
 
   return (
-     <div 
-        className="flex items-center justify-center min-h-screen bg-cover bg-center bg-background"
-        style={{backgroundImage: "url('https://placehold.co/1920x1080.png')"}}
-        data-ai-hint="brick wall night"
-    >
-      <Card className="mx-auto max-w-sm bg-card/70 backdrop-blur-xl border border-white/10">
-        <CardHeader>
+    <div className="flex items-center justify-center min-h-screen bg-background">
+      <Card className="mx-auto max-w-sm bg-card text-card-foreground p-8 rounded-2xl shadow-2xl">
+        <CardHeader className="p-0 mb-6">
            <div className="flex justify-center mb-4">
-               <Image src="/logo.png" alt="Water4Weightloss Logo" width={60} height={60} />
+               <Image src="/logo.png" alt="Water4Weightloss Logo" width={60} height={60} className="rounded-lg border-4 border-primary" />
             </div>
-          <CardTitle className="text-3xl font-bold text-center">Sign Up</CardTitle>
+          <CardTitle className="text-3xl font-bold text-center text-card-foreground">Sign Up</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           <form onSubmit={handleSignup} className="space-y-6">
             <div className="grid gap-4">
               <div className="grid gap-2">
@@ -71,6 +72,7 @@ function SignupPageContents() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
+                  className="bg-input border-border placeholder:text-muted-foreground focus:bg-slate-900"
                 />
               </div>
               <div className="grid gap-2">
@@ -83,16 +85,17 @@ function SignupPageContents() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={isLoading}
+                    className="bg-input border-border placeholder:text-muted-foreground focus:bg-slate-900"
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={isLoading}>
                 {isLoading ? 'Creating account...' : 'Create an account'}
               </Button>
             </div>
           </form>
-          <div className="mt-4 text-center text-sm">
+          <div className="mt-4 text-center text-sm text-muted-foreground">
             Already have an account?{" "}
-            <Link href="/login" className="underline">
+            <Link href="/login" className="underline text-primary">
               Login
             </Link>
           </div>

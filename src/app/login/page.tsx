@@ -39,10 +39,16 @@ function LoginPageContents() {
         } catch (error) {
             const firebaseError = error as { code?: string; message: string };
             console.error("Login failed:", firebaseError);
+            let description = "An unexpected error occurred. Please check your credentials.";
+            if (firebaseError.code === 'auth/user-not-found' || firebaseError.code === 'auth/wrong-password') {
+                description = "Invalid email or password.";
+            } else if (firebaseError.message) {
+                description = firebaseError.message;
+            }
             toast({
               variant: "destructive",
               title: "Login Failed",
-              description: firebaseError.message || "An unexpected error occurred. Please check your credentials.",
+              description: description,
             });
         } finally {
             setIsLoading(false)
@@ -50,19 +56,15 @@ function LoginPageContents() {
     }
 
   return (
-    <div 
-        className="flex items-center justify-center min-h-screen bg-cover bg-center bg-background"
-        style={{backgroundImage: "url('https://placehold.co/1920x1080.png')"}}
-        data-ai-hint="brick wall night"
-    >
-      <Card className="mx-auto max-w-sm bg-card/70 backdrop-blur-xl border border-white/10">
-        <CardHeader>
+    <div className="flex items-center justify-center min-h-screen bg-background">
+      <Card className="mx-auto max-w-sm bg-card text-card-foreground p-8 rounded-2xl shadow-2xl">
+        <CardHeader className="p-0 mb-6">
             <div className="flex justify-center mb-4">
-               <Image src="/logo.png" alt="Water4Weightloss Logo" width={60} height={60} />
+               <Image src="/logo.png" alt="Water4Weightloss Logo" width={60} height={60} className="rounded-lg border-4 border-primary" />
             </div>
-          <CardTitle className="text-3xl text-center font-bold">Login</CardTitle>
+          <CardTitle className="text-3xl text-center font-bold text-card-foreground">Login</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="grid gap-4">
               <div className="space-y-2">
@@ -75,6 +77,7 @@ function LoginPageContents() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
+                  className="bg-input border-border placeholder:text-muted-foreground focus:bg-slate-900"
                 />
               </div>
               <div className="space-y-2">
@@ -87,6 +90,7 @@ function LoginPageContents() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={isLoading}
+                    className="bg-input border-border placeholder:text-muted-foreground focus:bg-slate-900"
                 />
               </div>
               <div className="flex items-center justify-between">
@@ -99,23 +103,23 @@ function LoginPageContents() {
                   />
                   <label
                     htmlFor="remember-me"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-card-foreground"
                   >
                     Remember me
                   </label>
                 </div>
-                <Link href="#" className="text-sm underline">
+                <Link href="#" className="text-sm text-primary hover:underline">
                   Forgot password?
                 </Link>
               </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={isLoading}>
                 {isLoading ? 'Logging in...' : 'Login'}
               </Button>
             </div>
           </form>
-          <div className="mt-4 text-center text-sm">
+          <div className="mt-4 text-center text-sm text-muted-foreground">
             Don&apos;t have an account?{" "}
-            <Link href="/signup" className="underline">
+            <Link href="/signup" className="underline text-primary">
               Sign up
             </Link>
           </div>
