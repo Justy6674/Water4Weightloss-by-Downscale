@@ -47,26 +47,27 @@ export default function SignupPage() {
     }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background">
-      <Card className="mx-auto max-w-sm">
+     <div 
+        className="flex items-center justify-center min-h-screen bg-cover bg-center bg-background"
+        style={{backgroundImage: "url('https://placehold.co/1920x1080.png')"}}
+        data-ai-hint="brick wall night"
+    >
+      <Card className="mx-auto max-w-sm bg-card/70 backdrop-blur-xl border border-white/10">
         <CardHeader>
            <div className="flex justify-center mb-4">
                <Image src="/logo.png" alt="Water4Weightloss Logo" width={60} height={60} />
             </div>
-          <CardTitle className="text-2xl text-center">Sign Up</CardTitle>
-          <CardDescription className="text-center">
-            Enter your information to create an account
-          </CardDescription>
+          <CardTitle className="text-3xl font-bold text-center">Sign Up</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSignup}>
+          <form onSubmit={handleSignup} className="space-y-6">
             <div className="grid gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="sr-only">Email</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="m@example.com"
+                  placeholder="Email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -74,10 +75,11 @@ export default function SignupPage() {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="sr-only">Password</Label>
                 <Input 
                     id="password" 
-                    type="password" 
+                    type="password"
+                    placeholder="Password"
                     required 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
