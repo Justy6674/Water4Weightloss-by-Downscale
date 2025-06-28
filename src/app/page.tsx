@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { useState, useEffect, useMemo } from "react"
-import { Flame, Droplets, Settings, Trophy, TrendingUp, Bot, Star, Sparkles, BellDot, Vibrate, MessageSquareText, Link, Watch, Mic, GlassWater, Beaker } from "lucide-react"
+import { Flame, Droplets, Settings, Trophy, TrendingUp, Bot, Star, Sparkles, BellDot, Vibrate, MessageSquareText, Link, Watch, Mic } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -20,6 +20,8 @@ import { generateMotivation, MotivationInput } from "@/ai/flows/personalized-mot
 import { Confetti } from "@/components/confetti"
 
 type Tone = "funny" | "supportive" | "sarcastic" | "crass" | "kind"
+type MilestoneStatus = MotivationInput['milestoneStatus'];
+
 
 export default function Dashboard() {
   const { toast } = useToast()
@@ -57,16 +59,48 @@ export default function Dashboard() {
     if (hour < 18) return "afternoon"
     return "evening"
   }
+  
+  const getMilestoneContext = (): { milestoneStatus: MilestoneStatus, nextMilestoneInfo: string } => {
+    const now = new Date();
+    const hour = now.getHours();
+
+    if (hydration >= dailyGoal) {
+      return { milestoneStatus: 'goalMet', nextMilestoneInfo: 'Daily goal achieved!' };
+    }
+
+    // Milestones: 1L by 10am, 2L by 3pm (15:00), goal by 8pm (20:00)
+    const milestones = [
+      { time: 10, goal: 1000 },
+      { time: 15, goal: 2000 },
+      { time: 20, goal: dailyGoal }
+    ];
+
+    for (const milestone of milestones) {
+      if (hour < milestone.time) {
+        // For motivational text, we'll keep it simple. 'ahead' if they passed the milestone, 'onTrack' otherwise.
+        // The more nuanced 'behind' state would be used for triggering push notifications.
+        const status = hydration >= milestone.goal ? 'ahead' : 'onTrack';
+        const nextMilestoneInfo = `${milestone.goal}ml by ${milestone.time}:00`;
+        return { milestoneStatus: status, nextMilestoneInfo };
+      }
+    }
+
+    return { milestoneStatus: 'none', nextMilestoneInfo: 'All daily milestones passed.' };
+  }
 
   const fetchMotivation = async (drinkSize: number) => {
     setIsLoadingMotivation(true)
     try {
+      const { milestoneStatus, nextMilestoneInfo } = getMilestoneContext();
+      
       const input: MotivationInput = {
         hydrationPercentage: Math.round(hydrationPercentage),
         streak,
         lastDrinkSizeMl: drinkSize,
         timeOfDay: getTimeOfDay(),
         preferredTone: motivationTone,
+        milestoneStatus,
+        nextMilestoneInfo,
       }
       const result = await generateMotivation(input)
       setMotivation(result.message)
@@ -133,16 +167,34 @@ export default function Dashboard() {
                 </TabsList>
                 <TabsContent value="quick" className="pt-4">
                    <div className="grid grid-cols-3 gap-2 w-full">
-                    <Button variant="secondary" onClick={() => handleAddWater(50)}><Droplets className="mr-1" />Sip</Button>
-                    <Button variant="secondary" onClick={() => handleAddWater(150)}><GlassWater className="mr-1" />Small</Button>
-                    <Button variant="secondary" onClick={() => handleAddWater(300)}><GlassWater className="mr-1" />Large</Button>
+                    <Button variant="secondary" onClick={() => handleAddWater(50)} className="h-auto flex-col py-2 gap-0">
+                      <span className="font-semibold">Sip</span>
+                      <span className="text-xs text-muted-foreground">50ml</span>
+                    </Button>
+                    <Button variant="secondary" onClick={() => handleAddWater(150)} className="h-auto flex-col py-2 gap-0">
+                      <span className="font-semibold">Small</span>
+                      <span className="text-xs text-muted-foreground">150ml</span>
+                    </Button>
+                    <Button variant="secondary" onClick={() => handleAddWater(300)} className="h-auto flex-col py-2 gap-0">
+                      <span className="font-semibold">Large</span>
+                      <span className="text-xs text-muted-foreground">300ml</span>
+                    </Button>
                   </div>
                 </TabsContent>
                 <TabsContent value="bottles" className="pt-4">
                    <div className="grid grid-cols-3 gap-2 w-full">
-                    <Button variant="secondary" onClick={() => handleAddWater(600)}><Beaker className="mr-1" />600ml</Button>
-                    <Button variant="secondary" onClick={() => handleAddWater(750)}><Beaker className="mr-1" />750ml</Button>
-                    <Button variant="secondary" onClick={() => handleAddWater(1000)}><Beaker className="mr-1" />1L</Button>
+                    <Button variant="secondary" onClick={() => handleAddWater(600)} className="h-auto flex-col py-2 gap-0">
+                      <span className="font-semibold">Bottle</span>
+                      <span className="text-xs text-muted-foreground">600ml</span>
+                    </Button>
+                    <Button variant="secondary" onClick={() => handleAddWater(750)} className="h-auto flex-col py-2 gap-0">
+                      <span className="font-semibold">Bottle</span>
+                      <span className="text-xs text-muted-foreground">750ml</span>
+                    </Button>
+                    <Button variant="secondary" onClick={() => handleAddWater(1000)} className="h-auto flex-col py-2 gap-0">
+                      <span className="font-semibold">Bottle</span>
+                      <span className="text-xs text-muted-foreground">1L</span>
+                    </Button>
                   </div>
                 </TabsContent>
                 <TabsContent value="custom" className="pt-4 space-y-4">
