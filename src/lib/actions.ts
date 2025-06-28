@@ -2,6 +2,7 @@
 
 import { db } from '@/lib/firebase';
 import { doc, getDoc, setDoc, serverTimestamp, type Timestamp, deleteDoc } from 'firebase/firestore';
+import { sendSms } from '@/services/send-sms';
 
 export type Tone = "funny" | "supportive" | "sarcastic" | "crass" | "kind";
 
@@ -26,6 +27,7 @@ export interface UserData {
         waist: string;
         height: string;
         gender?: string;
+        phone?: string;
         medication?: string;
         medicationFrequency?: string;
         medicationDose: string;
@@ -51,6 +53,7 @@ const defaultBodyMetrics: UserData['bodyMetrics'] = {
     weight: "81.2",
     waist: "85",
     height: "175",
+    phone: "",
     medication: undefined,
     medicationFrequency: undefined,
     medicationDose: "",
@@ -125,8 +128,6 @@ export async function getUserData(userId: string): Promise<UserData> {
 
 /**
  * Updates user data in Firestore with the provided partial data.
- * @param userId - The ID of the user to update.
- * @param data - An object containing the fields to update.
  */
 export async function updateUserData(userId: string, data: Partial<UserData>): Promise<void> {
     if (!userId) {
@@ -169,4 +170,30 @@ export async function deleteUserData(userId: string): Promise<void> {
         console.error("Firebase Error: Failed to delete user data:", error);
         throw new Error("Could not delete user data from the database. Please check your permissions.");
     }
+}
+
+
+/**
+ * Saves the user's phone number and sends a confirmation SMS.
+ */
+export async function savePhoneNumberAndSendConfirmation(userId: string, phone: string) {
+  if (!userId || !phone) {
+    throw new Error('User ID and phone number are required.');
+  }
+
+  try {
+    // Save the phone number to the user's document
+    await updateUserData(userId, { bodyMetrics: { phone } as any });
+
+    // Send the confirmation SMS
+    await sendSms(phone, `Thanks for signing up for Water4Weightloss notifications! We'll keep you hydrated.`);
+    
+    return { success: true, message: 'Phone number saved and confirmation sent.' };
+  } catch (error) {
+    console.error('Error in savePhoneNumberAndSendConfirmation:', error);
+    if (error instanceof Error) {
+        return { success: false, message: error.message };
+    }
+    return { success: false, message: 'An unknown error occurred.' };
+  }
 }

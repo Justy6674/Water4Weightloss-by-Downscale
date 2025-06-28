@@ -8,7 +8,7 @@ import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { onAuthStateChanged, type User } from "firebase/auth"
 import { auth } from "@/lib/firebase"
-import { Flame, Droplets, Settings, Trophy, TrendingUp, Bot, Star, Sparkles, BellDot, Vibrate, MessageSquareText, Link as LinkIcon, Watch, Mic, BookUser, Info, LogOut, Trash2, ExternalLink } from "lucide-react"
+import { Flame, Droplets, Settings, Trophy, TrendingUp, Bot, Star, Sparkles, BellDot, Vibrate, MessageSquareText, Link as LinkIcon, Watch, Mic, BookUser, Info, LogOut, Trash2, ExternalLink, Save } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -26,7 +26,7 @@ import { WaterGlass } from "@/components/water-glass"
 import { BodyMetrics } from "@/components/body-metrics"
 import { generateMotivation, MotivationInput } from "@/ai/flows/personalized-motivation"
 import { Confetti } from "@/components/confetti"
-import { getUserData, updateUserData, UserData, Tone, deleteUserData } from "@/lib/actions"
+import { getUserData, updateUserData, UserData, Tone, deleteUserData, savePhoneNumberAndSendConfirmation } from "@/lib/actions"
 
 type MilestoneStatus = MotivationInput['milestoneStatus'];
 
@@ -41,6 +41,9 @@ export default function Dashboard() {
   const [motivation, setMotivation] = useState("Let's get hydrated!")
   const [isLoadingMotivation, setIsLoadingMotivation] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [phone, setPhone] = useState("");
+  const [isSavingPhone, setIsSavingPhone] = useState(false);
+
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -59,6 +62,7 @@ export default function Dashboard() {
       try {
         const data = await getUserData(userId);
         setUserData(data);
+        setPhone(data.bodyMetrics.phone || "");
       } catch (error) {
         console.error("Failed to load user data:", error);
         const description = error instanceof Error ? error.message : "Could not load your data. Please try again later.";
@@ -192,6 +196,27 @@ export default function Dashboard() {
     toast({ title: "Metrics Saved", description: "Your body metrics have been updated." });
   };
 
+  const handleSavePhone = async () => {
+    if (!user || !phone) {
+      toast({ variant: "destructive", title: "Error", description: "Please enter a valid phone number." });
+      return;
+    }
+    setIsSavingPhone(true);
+    try {
+      const result = await savePhoneNumberAndSendConfirmation(user.uid, phone);
+      if (result.success) {
+        toast({ title: "Success", description: result.message });
+      } else {
+        toast({ variant: "destructive", title: "Error", description: result.message });
+      }
+    } catch (error) {
+      const description = error instanceof Error ? error.message : "An unexpected error occurred.";
+      toast({ variant: "destructive", title: "Failed to Save", description });
+    } finally {
+      setIsSavingPhone(false);
+    }
+  };
+  
   const handleLogout = async () => {
     await auth.signOut();
   };
@@ -416,6 +441,26 @@ export default function Dashboard() {
                                 </Label>
                                 <Switch id="sms-reminders" checked={userData.appSettings.smsReminders} onCheckedChange={(v) => handleSettingChange('smsReminders', v)} />
                             </div>
+                             {userData.appSettings.smsReminders && (
+                              <div className="p-3 rounded-lg bg-muted/30 space-y-2">
+                                <Label htmlFor="phone-number">Phone Number for SMS</Label>
+                                <div className="flex gap-2">
+                                  <Input 
+                                    id="phone-number" 
+                                    type="tel" 
+                                    placeholder="e.g. +15551234567" 
+                                    value={phone} 
+                                    onChange={(e) => setPhone(e.target.value)}
+                                    disabled={isSavingPhone}
+                                  />
+                                  <Button onClick={handleSavePhone} disabled={isSavingPhone}>
+                                    <Save className="mr-2 h-4 w-4" />
+                                    {isSavingPhone ? "Saving..." : "Save"}
+                                  </Button>
+                                </div>
+                                <p className="text-xs text-muted-foreground">Please use E.164 format. A confirmation text will be sent.</p>
+                              </div>
+                            )}
                             <div className="p-3 rounded-lg bg-muted/30 space-y-3">
                                 <Label className="flex items-center gap-3 font-medium"><Vibrate className="w-5 h-5 text-primary"/> Vibration Feedback</Label>
                                 <RadioGroup value={userData.appSettings.vibrationFeedback} onValueChange={(v) => handleSettingChange('vibrationFeedback', v)} className="flex space-x-4 pt-1">
