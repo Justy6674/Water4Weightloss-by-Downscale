@@ -444,12 +444,12 @@ service cloud.firestore {
       </header>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4 mb-4">
+            <TabsList className="w-full grid grid-cols-2 sm:grid-cols-5 mb-4">
               <TabsTrigger value="dashboard">Water</TabsTrigger>
               <TabsTrigger value="body-metrics">Body Metrics</TabsTrigger>
               <TabsTrigger value="medication">Medication</TabsTrigger>
               <TabsTrigger value="blood-pressure">Blood Pressure</TabsTrigger>
-              {/* <TabsTrigger value="information">Information</TabsTrigger> */}
+              <TabsTrigger value="information">Information</TabsTrigger>
             </TabsList>
 
             <TabsContent value="dashboard">
