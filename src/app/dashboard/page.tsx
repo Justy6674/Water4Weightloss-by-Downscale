@@ -7,7 +7,8 @@ import Image from "next/image"
 import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { onAuthStateChanged, type User } from "firebase/auth"
-import { auth } from "@/lib/firebase"
+import { auth, db } from "@/lib/firebase"
+import { doc, getDoc, type Timestamp } from "firebase/firestore"
 import { Flame, Droplets, Settings, Trophy, TrendingUp, Bot, Star, Sparkles, BellDot, Vibrate, MessageSquareText, Link as LinkIcon, Watch, Mic, BookUser, Info, LogOut, Trash2, ExternalLink, Save } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -26,7 +27,7 @@ import { WaterGlass } from "@/components/water-glass"
 import { BodyMetrics } from "@/components/body-metrics"
 import { generateMotivation, MotivationInput } from "@/ai/flows/personalized-motivation"
 import { Confetti } from "@/components/confetti"
-import { getUserData, updateUserData, UserData, Tone, deleteUserData, savePhoneNumberAndSendConfirmation } from "@/lib/actions"
+import { updateUserData, UserData, Tone, deleteUserData, savePhoneNumberAndSendConfirmation } from "@/lib/actions"
 
 type MilestoneStatus = MotivationInput['milestoneStatus'];
 
@@ -59,29 +60,59 @@ function DashboardContents() {
   }, [router]);
 
   useEffect(() => {
+    const makeDataSerializable = (data: any): UserData => {
+        const sanitizedData = { ...data };
+        for (const key in sanitizedData) {
+            const value = (sanitizedData as any)[key];
+            if (value && typeof value === 'object' && 'toDate' in value) {
+                (sanitizedData as any)[key] = (value as Timestamp).toDate().toISOString();
+            }
+        }
+        return sanitizedData as UserData;
+    }
+    
     const loadData = async (userId: string) => {
       try {
-        const data = await getUserData(userId);
-        setUserData(data);
-        if (data.bodyMetrics?.phone) {
-          setPhone(data.bodyMetrics.phone);
+        const userDocRef = doc(db, 'users', userId);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (userDocSnap.exists()) {
+            const data = makeDataSerializable(userDocSnap.data() as UserData);
+            setUserData(data);
+            if (data.bodyMetrics?.phone) {
+              setPhone(data.bodyMetrics.phone);
+            }
+        } else {
+             throw new Error("Your user profile was not found. Please try logging out and signing back in.");
         }
       } catch (error) {
         console.error("Failed to load user data:", error);
-        const description = error instanceof Error ? error.message : "Could not load your data. Please try again later.";
-        setLoadingError(description);
-        toast({
-          variant: "destructive",
-          title: "Loading Error",
-          description: description,
-        });
+        
+        let errorMessage = "An unexpected error occurred while loading your data.";
+        if (error instanceof Error) {
+            if ('code' in error) {
+                const firebaseError = error as { code: string; message: string };
+                if (firebaseError.code === 'permission-denied' || firebaseError.code === 'unauthenticated') {
+                    errorMessage = `DATABASE ACCESS DENIED. Your app's code is correct, but it is being blocked by a security setting in your Firebase project.`;
+                } else if (firebaseError.code === 'failed-precondition') {
+                    errorMessage = "Firestore database has not been created or is misconfigured. Please go to the Firestore Database section of your Firebase Console and ensure a database exists by clicking 'Create database'.";
+                } else {
+                    errorMessage = `A Firebase error occurred: ${firebaseError.message} (Code: ${firebaseError.code}). Please check your Firebase setup.`;
+                }
+            } else {
+                 errorMessage = error.message;
+            }
+        }
+        
+        setLoadingError(errorMessage);
+        // Do not show a toast for the main loading error, the on-screen card is better
       }
     };
 
     if (user) {
       loadData(user.uid);
     }
-  }, [user, toast]);
+  }, [user]);
 
   const hydrationPercentage = useMemo(() => {
     if (!userData) return 0;
@@ -247,7 +278,7 @@ function DashboardContents() {
           <CardHeader>
             <CardTitle className="text-destructive-foreground">Action Required in Firebase Console</CardTitle>
             <CardDescription className="text-destructive-foreground/80">
-              Your app's code is working correctly, but it cannot access the database. This is a mandatory security setting in your Firebase project that must be changed manually. The AI cannot perform this step for you.
+              {loadingError}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
