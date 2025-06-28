@@ -62,12 +62,11 @@ function LoginPageContents() {
         {/* Background Image & Spotlight */}
         <div className="absolute inset-0 z-0">
             <Image
-                src="https://placehold.co/1920x1080"
-                data-ai-hint="dark brick"
+                src="https://images.unsplash.com/photo-1603975510795-0556a1b56372?q=80&w=1920&auto=format&fit=crop"
                 alt="Brick wall background"
                 fill
                 priority
-                className="object-cover opacity-20"
+                className="object-cover opacity-30"
             />
             <div 
                 className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-[80%]"
