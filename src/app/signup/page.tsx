@@ -1,4 +1,3 @@
-
 "use client"
 
 import Link from "next/link"
@@ -51,24 +50,24 @@ function SignupPageContents() {
     }
 
   return (
-     <div className="relative min-h-screen bg-[#0c1a2e] text-white flex items-center justify-center p-4 font-body">
+     <div className="relative min-h-screen bg-[#0f172a] text-white flex items-center justify-center p-4 font-body">
         <div className="absolute inset-0 z-0">
             <Image
                 src="/brick wall background login.png"
                 alt="Brick wall background"
                 fill
                 priority
-                className="object-cover opacity-15"
+                className="object-cover opacity-40"
             />
             <div 
                 className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-[80%]"
                 style={{
-                    background: 'radial-gradient(circle at 50% 0, rgba(173, 216, 230, 0.1) 0%, transparent 40%)'
+                    background: 'radial-gradient(circle at 50% 0, rgba(247, 242, 211, 0.15) 0%, transparent 70%)'
                 }}
             />
         </div>
         
-        <Card className="w-full max-w-sm bg-[#1a2233] border border-[#343f54] rounded-2xl shadow-2xl z-10">
+        <Card className="w-full max-w-sm bg-[#4f3b31]/75 backdrop-blur-sm border border-[#6a5349] rounded-2xl shadow-2xl z-10">
             <CardHeader className="p-8 pb-4">
                 <CardTitle className="text-3xl font-bold text-center text-white">Sign Up</CardTitle>
             </CardHeader>
@@ -76,7 +75,7 @@ function SignupPageContents() {
                 <form onSubmit={handleSignup} className="space-y-6">
                     <div className="space-y-4">
                        <div className="relative">
-                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-orange-200/80" />
                             <Input
                                 id="email"
                                 type="email"
@@ -85,11 +84,11 @@ function SignupPageContents() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 disabled={isLoading}
-                                className="bg-[#2a3344] border-[#343f54] placeholder:text-slate-400 pl-12 h-12 rounded-lg text-white"
+                                className="bg-[#6a5349]/50 border-[#6a5349] placeholder:text-orange-200/70 pl-12 h-12 rounded-lg text-white"
                             />
                         </div>
                         <div className="relative">
-                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-orange-200/80" />
                             <Input
                                 id="password"
                                 type="password"
@@ -98,7 +97,7 @@ function SignupPageContents() {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 disabled={isLoading}
-                                className="bg-[#2a3344] border-[#343f54] placeholder:text-slate-400 pl-12 h-12 rounded-lg text-white"
+                                className="bg-[#6a5349]/50 border-[#6a5349] placeholder:text-orange-200/70 pl-12 h-12 rounded-lg text-white"
                             />
                         </div>
                     </div>
@@ -106,7 +105,7 @@ function SignupPageContents() {
                         {isLoading ? 'Creating account...' : 'Create an account'}
                     </Button>
                 </form>
-                <div className="mt-6 text-center text-sm text-slate-300">
+                <div className="mt-6 text-center text-sm text-orange-100">
                     Already have an account?{" "}
                     <Link href="/login" className="underline font-bold text-white">
                         Login
