@@ -356,32 +356,45 @@ service cloud.firestore {
               <p className="text-muted-foreground text-md">Welcome, {user.email}</p>
             </div>
         </div>
-        <div className="flex items-center gap-2">
+        
+        <div className="lg:hidden">
             <Sheet>
                 <SheetTrigger asChild>
                     <Button variant="outline" size="icon">
                         <Menu className="h-6 w-6" />
                     </Button>
                 </SheetTrigger>
-                <SheetContent side="right">
-                    <div className="flex flex-col gap-4 py-8">
+                <SheetContent side="right" className="flex flex-col p-0">
+                   <div className="p-4 border-b">
+                      <p className="font-semibold text-sm text-muted-foreground">Signed in as</p>
+                      <p className="text-foreground truncate font-medium">{user.email}</p>
+                    </div>
+
+                    <nav className="py-4 space-y-1">
                         <SheetClose asChild>
-                            <Button variant={activeTab === 'gamification' ? 'default' : 'secondary'} onClick={() => setActiveTab('gamification')} className="justify-start">
-                                <Trophy className="mr-2 h-4 w-4" /> Gamification
+                            <Button variant={activeTab === 'gamification' ? 'secondary' : 'ghost'} onClick={() => setActiveTab('gamification')} className="w-full justify-start text-base py-6 px-4">
+                                <Trophy className="mr-3 h-5 w-5" /> Gamification
                             </Button>
                         </SheetClose>
                          <SheetClose asChild>
-                            <Button variant={activeTab === 'weight' ? 'default' : 'secondary'} onClick={() => setActiveTab('weight')} className="justify-start">
-                                <TrendingUp className="mr-2 h-4 w-4" /> Body Metrics
+                            <Button variant={activeTab === 'weight' ? 'secondary' : 'ghost'} onClick={() => setActiveTab('weight')} className="w-full justify-start text-base py-6 px-4">
+                                <TrendingUp className="mr-3 h-5 w-5" /> Body Metrics
                             </Button>
                         </SheetClose>
                          <SheetClose asChild>
-                            <Button variant={activeTab === 'settings' ? 'default' : 'secondary'} onClick={() => setActiveTab('settings')} className="justify-start">
-                                <Settings className="mr-2 h-4 w-4" /> Settings
+                            <Button variant={activeTab === 'settings' ? 'secondary' : 'ghost'} onClick={() => setActiveTab('settings')} className="w-full justify-start text-base py-6 px-4">
+                                <Settings className="mr-3 h-5 w-5" /> Settings
                             </Button>
                         </SheetClose>
-                        <Separator className="my-4" />
-                        <Button variant="outline" onClick={handleLogout} className="justify-start">
+                    </nav>
+
+                    <div className="mt-auto border-t p-4 space-y-2">
+                         <Button asChild variant="outline" className="w-full justify-start">
+                           <Link href="https://buy.stripe.com/fZu5kvexV0Mf3Qr3Dsf3a03" target="_blank" rel="noopener noreferrer">
+                             <ExternalLink className="mr-2 h-4 w-4" /> Manage Subscription
+                           </Link>
+                       </Button>
+                        <Button variant="outline" onClick={handleLogout} className="w-full justify-start">
                              <LogOut className="mr-2 h-4 w-4" />
                              Logout
                         </Button>
@@ -505,10 +518,10 @@ service cloud.firestore {
 
         <div className="lg:col-span-3">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="hidden">
-              <TabsTrigger value="gamification"><Trophy className="mr-2 h-4 w-4" />Gamification</TabsTrigger>
-              <TabsTrigger value="weight"><TrendingUp className="mr-2 h-4 w-4" />Body Metrics</TabsTrigger>
-              <TabsTrigger value="settings"><Settings className="mr-2 h-4 w-4" />Settings</TabsTrigger>
+            <TabsList className="hidden lg:grid w-full grid-cols-3 mb-4">
+              <TabsTrigger value="gamification">Gamification &amp; Alerts</TabsTrigger>
+              <TabsTrigger value="weight">Body Metrics</TabsTrigger>
+              <TabsTrigger value="settings">App Settings</TabsTrigger>
             </TabsList>
             <TabsContent value="gamification">
                <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
@@ -633,7 +646,7 @@ service cloud.firestore {
               <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
                 <CardHeader>
                   <CardTitle>Settings</CardTitle>
-                  <CardDescription>Customize your experience.</CardDescription>
+                  <CardDescription>Customize your experience and manage your account.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -687,12 +700,12 @@ service cloud.firestore {
                       <h3 className="text-lg font-medium">Account Management</h3>
                        <Button asChild variant="outline" className="w-full justify-start gap-2">
                            <Link href="https://buy.stripe.com/fZu5kvexV0Mf3Qr3Dsf3a03" target="_blank" rel="noopener noreferrer">
-                             <ExternalLink />
+                             <ExternalLink className="h-4 w-4" />
                              Manage Subscription
                            </Link>
                        </Button>
                        <Button variant="destructive" className="w-full justify-start gap-2" onClick={() => setIsDeleteDialogOpen(true)}>
-                          <Trash2 />
+                          <Trash2 className="h-4 w-4" />
                           Delete Account
                        </Button>
                        <p className="text-xs text-muted-foreground">Note: 'Manage Subscription' should link to your Stripe Customer Portal. Account deletion removes your data but does not cancel your subscription via Stripe.</p>
