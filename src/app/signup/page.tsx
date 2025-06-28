@@ -55,9 +55,11 @@ function SignupPageContents() {
             <Image
                 src="/brick wall background login.png"
                 alt="Brick wall background"
-                fill
+                layout="fill"
+                objectFit="cover"
+                objectPosition="top"
                 priority
-                className="object-cover object-top opacity-100"
+                className="opacity-100"
             />
             <div 
                 className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-[60%]"
@@ -67,9 +69,9 @@ function SignupPageContents() {
             />
         </div>
         
-        <Card className="w-full max-w-sm bg-black/20 border-none rounded-2xl shadow-2xl z-10">
+        <Card className="w-full max-w-sm bg-black/10 border-none rounded-2xl shadow-2xl z-10">
             <CardHeader className="p-8 pb-4">
-                <CardTitle className="text-3xl font-bold text-center text-white">Sign Up</CardTitle>
+                <CardTitle className="text-3xl font-bold text-center text-white [text-shadow:2px_2px_4px_rgba(0,0,0,0.7)]">Sign Up</CardTitle>
             </CardHeader>
             <CardContent className="p-8 pt-0">
                 <form onSubmit={handleSignup} className="space-y-6">
@@ -105,7 +107,7 @@ function SignupPageContents() {
                         {isLoading ? 'Creating account...' : 'Create an account'}
                     </Button>
                 </form>
-                <div className="mt-6 text-center text-sm text-gray-200">
+                <div className="mt-6 text-center text-sm text-white [text-shadow:1px_1px_2px_rgba(0,0,0,0.8)]">
                     Already have an account?{" "}
                     <Link href="/login" className="underline font-bold text-white">
                         Login

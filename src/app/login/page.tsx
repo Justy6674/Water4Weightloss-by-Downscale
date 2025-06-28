@@ -80,9 +80,11 @@ function LoginPageContents() {
             <Image
                 src="/brick wall background login.png"
                 alt="Brick wall background"
-                fill
+                layout="fill"
+                objectFit="cover"
+                objectPosition="top"
                 priority
-                className="object-cover object-top opacity-100"
+                className="opacity-100"
             />
             <div 
                 className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-[60%]"
@@ -92,9 +94,9 @@ function LoginPageContents() {
             />
         </div>
         
-        <Card className="w-full max-w-sm bg-black/20 border-none rounded-2xl shadow-2xl z-10">
+        <Card className="w-full max-w-sm bg-black/10 border-none rounded-2xl shadow-2xl z-10">
             <CardHeader className="p-8 pb-4">
-                <CardTitle className="text-3xl font-bold text-center text-white">Login</CardTitle>
+                <CardTitle className="text-3xl font-bold text-center text-white [text-shadow:2px_2px_4px_rgba(0,0,0,0.7)]">Login</CardTitle>
             </CardHeader>
             <CardContent className="p-8 pt-0">
                 <form onSubmit={handleLogin} className="space-y-6">
@@ -137,12 +139,12 @@ function LoginPageContents() {
                             />
                             <label
                                 htmlFor="remember-me"
-                                className="font-medium text-white leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                className="font-medium text-white leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 [text-shadow:1px_1px_2px_rgba(0,0,0,0.8)]"
                             >
                                 Stay logged in
                             </label>
                         </div>
-                        <Link href="#" className="font-medium text-white hover:underline">
+                        <Link href="#" className="font-medium text-white hover:underline [text-shadow:1px_1px_2px_rgba(0,0,0,0.8)]">
                             Forgot password?
                         </Link>
                     </div>
@@ -150,7 +152,7 @@ function LoginPageContents() {
                         {isLoading ? 'Logging in...' : 'Login'}
                     </Button>
                 </form>
-                <div className="mt-6 text-center text-sm text-gray-200">
+                <div className="mt-6 text-center text-sm text-white [text-shadow:1px_1px_2px_rgba(0,0,0,0.8)]">
                     Don&apos;t have an account?{" "}
                     <Link href="/signup" className="underline font-bold text-white">
                         Register
