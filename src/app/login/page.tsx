@@ -52,10 +52,9 @@ function LoginPageContents() {
             const firebaseError = error as { code?: string; message: string };
             console.error("Login failed:", firebaseError);
             let description = "An unexpected error occurred. Please check your credentials.";
-            if (firebaseError.code === 'auth/user-not-found' || firebaseError.code === 'auth/wrong-password' || firebaseError.code === 'auth/invalid-credential') {
-                description = "Invalid email or password.";
-            } else if (firebaseError.code === 'auth/api-key-not-valid') {
-                description = "The application is not configured correctly. Please check your Firebase project settings.";
+            
+            if (firebaseError.code === 'auth/invalid-credential') {
+                description = "Invalid email or password. Please try again.";
             } else if (firebaseError.code === 'auth/requests-to-this-api-identitytoolkit-method-google.cloud.identitytoolkit.v1.authenticationservice.signinwithpassword-are-blocked') {
                 description = "Email/Password sign-in is not enabled for your Firebase project. Please go to the Firebase console, navigate to Authentication > Sign-in method, and enable the Email/Password provider.";
             } else if (firebaseError.message) {
@@ -63,11 +62,6 @@ function LoginPageContents() {
             }
             
             setAuthError(description);
-            toast({
-              variant: "destructive",
-              title: "Login Failed",
-              description: "Please see the error message on the screen for details.",
-            });
         } finally {
             setIsLoading(false)
         }
@@ -110,7 +104,7 @@ function LoginPageContents() {
                 {authError && (
                     <Alert variant="destructive" className="mb-6 bg-destructive/20 border-destructive/50 text-destructive-foreground">
                         <Terminal className="h-4 w-4" />
-                        <AlertTitle>Configuration Error</AlertTitle>
+                        <AlertTitle>Login Error</AlertTitle>
                         <AlertDescription className="text-destructive-foreground/90">
                             {authError}
                         </AlertDescription>
