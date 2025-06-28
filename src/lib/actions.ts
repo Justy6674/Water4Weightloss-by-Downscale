@@ -165,9 +165,13 @@ export async function savePhoneNumberAndSendConfirmation(userId: string, phone: 
     throw new Error('User ID and phone number are required.');
   }
 
+  const userDocRef = doc(db, 'users', userId);
   try {
-    // Save the phone number to the user's document
-    await updateUserData(userId, { bodyMetrics: { phone } as any });
+    // Use updateDoc with dot notation to avoid overwriting the entire bodyMetrics object
+    await updateDoc(userDocRef, {
+        'bodyMetrics.phone': phone,
+        updatedAt: serverTimestamp()
+    });
 
     // Send the confirmation SMS
     await sendSms(phone, `Thanks for signing up for Water4Weightloss notifications! We'll keep you hydrated.`);
@@ -176,6 +180,9 @@ export async function savePhoneNumberAndSendConfirmation(userId: string, phone: 
   } catch (error) {
     console.error('Error in savePhoneNumberAndSendConfirmation:', error);
     if (error instanceof Error) {
+        if (error.message.includes('permission-denied')) {
+             return { success: false, message: "Could not save phone number due to a permissions issue. Please check your Firestore Security Rules." };
+        }
         return { success: false, message: error.message };
     }
     return { success: false, message: 'An unknown error occurred.' };
