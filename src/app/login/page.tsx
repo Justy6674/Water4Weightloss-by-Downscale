@@ -135,16 +135,16 @@ function LoginPageContents() {
                                 checked={rememberMe}
                                 onCheckedChange={(checked) => setRememberMe(!!checked)}
                                 disabled={isLoading}
-                                className="border-orange-200/80 data-[state=checked]:bg-white data-[state=checked]:text-[#4f3b31]"
+                                className="border-[#6a5349] data-[state=checked]:bg-[#6a5349] data-[state=checked]:text-orange-200"
                             />
                             <label
                                 htmlFor="remember-me"
-                                className="font-medium text-white leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 [text-shadow:1px_1px_2px_rgba(0,0,0,0.8)]"
+                                className="font-medium text-[#5271ff] leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 [text-shadow:1px_1px_2px_rgba(0,0,0,0.8)]"
                             >
                                 Stay logged in
                             </label>
                         </div>
-                        <Link href="#" className="font-medium text-white hover:underline [text-shadow:1px_1px_2px_rgba(0,0,0,0.8)]">
+                        <Link href="#" className="font-medium text-[#5271ff] hover:underline [text-shadow:1px_1px_2px_rgba(0,0,0,0.8)]">
                             Forgot password?
                         </Link>
                     </div>
@@ -152,9 +152,9 @@ function LoginPageContents() {
                         {isLoading ? 'Logging in...' : 'Login'}
                     </Button>
                 </form>
-                <div className="mt-6 text-center text-sm text-white [text-shadow:1px_1px_2px_rgba(0,0,0,0.8)]">
+                <div className="mt-6 text-center text-sm text-[#5271ff] [text-shadow:1px_1px_2px_rgba(0,0,0,0.8)]">
                     Don&apos;t have an account?{" "}
-                    <Link href="/signup" className="underline font-bold text-white">
+                    <Link href="/signup" className="underline font-bold text-[#f7f2d3]">
                         Register
                     </Link>
                 </div>
