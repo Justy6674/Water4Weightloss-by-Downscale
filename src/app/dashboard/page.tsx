@@ -36,6 +36,7 @@ function DashboardContents() {
   const [user, setUser] = useState<User | null>(null)
   const [loadingUser, setLoadingUser] = useState(true)
   const [userData, setUserData] = useState<UserData | null>(null)
+  const [loadingError, setLoadingError] = useState<string | null>(null)
   const [manualAmount, setManualAmount] = useState("")
   const [showConfetti, setShowConfetti] = useState(false)
   const [motivation, setMotivation] = useState("Let's get hydrated!")
@@ -62,10 +63,13 @@ function DashboardContents() {
       try {
         const data = await getUserData(userId);
         setUserData(data);
-        setPhone(data.bodyMetrics.phone || "");
+        if (data.bodyMetrics?.phone) {
+          setPhone(data.bodyMetrics.phone);
+        }
       } catch (error) {
         console.error("Failed to load user data:", error);
         const description = error instanceof Error ? error.message : "Could not load your data. Please try again later.";
+        setLoadingError(description);
         toast({
           variant: "destructive",
           title: "Loading Error",
@@ -234,6 +238,36 @@ function DashboardContents() {
     } finally {
       setIsDeleteDialogOpen(false)
     }
+  }
+  
+  if (loadingError) {
+    return (
+      <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 lg:p-8 font-body flex items-center justify-center">
+        <Card className="max-w-2xl bg-destructive/10 border-destructive">
+          <CardHeader>
+            <CardTitle className="text-destructive-foreground">Database Configuration Error</CardTitle>
+            <CardDescription className="text-destructive-foreground/80">
+              The application is being blocked by your database security rules.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="bg-background/80 p-4 rounded-md text-foreground">
+              <h3 className="font-bold">How to Fix This:</h3>
+              <ol className="list-decimal list-inside space-y-2 mt-2">
+                <li>Go to the <strong>Firestore Database</strong> section in your Firebase Console.</li>
+                <li>Click the <strong>Rules</strong> tab at the top.</li>
+                <li>Find the line that says: <code className="bg-muted px-2 py-1 rounded font-mono text-sm">allow read, write: if false;</code></li>
+                <li>Change it to: <code className="bg-muted px-2 py-1 rounded font-mono text-sm">allow read, write: if request.auth != null;</code></li>
+                <li>Click the <strong>Publish</strong> button.</li>
+              </ol>
+            </div>
+            <p className="text-sm text-destructive-foreground/80">
+              This new rule allows any logged-in user to access their own data, which is a standard and secure setup for this type of application. After publishing the rule, please refresh this page.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   if (loadingUser || !userData) {
@@ -598,3 +632,5 @@ function DashboardContents() {
 export default function Dashboard() {
   return <DashboardContents />
 }
+
+    
