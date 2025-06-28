@@ -40,10 +40,11 @@ export default function Dashboard() {
         setUserData(data);
       } catch (error) {
         console.error("Failed to load user data:", error);
+        const description = error instanceof Error ? error.message : "Could not load your data. Please try again later.";
         toast({
           variant: "destructive",
           title: "Loading Error",
-          description: "Could not load your data. Please try again later.",
+          description: description,
         });
       }
     };

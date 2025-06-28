@@ -75,24 +75,30 @@ const defaultUserData: Omit<UserData, 'updatedAt' | 'createdAt'> = {
  */
 export async function getUserData(): Promise<UserData> {
     const userDocRef = doc(db, 'users', FAKE_USER_ID);
-    const userDocSnap = await getDoc(userDocRef);
+    try {
+        const userDocSnap = await getDoc(userDocRef);
 
-    if (userDocSnap.exists()) {
-        const data = userDocSnap.data() as UserData;
-        // Handle non-serializable Timestamps
-        return JSON.parse(JSON.stringify(data));
-    } else {
-        // Create a new user document with default values
-        await setDoc(userDocRef, {
-            ...defaultUserData,
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp(),
-        });
-        
-        // Re-fetch to get server-generated timestamps and ensure consistency
-        const newUserSnap = await getDoc(userDocRef);
-        const data = newUserSnap.data();
-        return JSON.parse(JSON.stringify(data));
+        if (userDocSnap.exists()) {
+            const data = userDocSnap.data() as UserData;
+            // Handle non-serializable Timestamps
+            return JSON.parse(JSON.stringify(data));
+        } else {
+            // Create a new user document with default values
+            await setDoc(userDocRef, {
+                ...defaultUserData,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+            });
+            
+            // Re-fetch to get server-generated timestamps and ensure consistency
+            const newUserSnap = await getDoc(userDocRef);
+            const data = newUserSnap.data();
+            return JSON.parse(JSON.stringify(data));
+        }
+    } catch (error) {
+        console.error("Firebase Error: Failed to get document.", error);
+        // This custom error will be more informative for the user if it's a setup issue.
+        throw new Error("Could not connect to the database. Please ensure Firestore is enabled in your Firebase project and that your .env.local file is configured correctly.");
     }
 }
 
@@ -109,7 +115,7 @@ export async function updateUserData(data: Partial<UserData>): Promise<void> {
             updatedAt: serverTimestamp(),
         }, { merge: true });
     } catch (error) {
-        console.error("Failed to update user data:", error);
-        throw new Error("Could not save data to the database.");
+        console.error("Firebase Error: Failed to update user data:", error);
+        throw new Error("Could not save data to the database. Please check your Firestore connection and permissions.");
     }
 }
