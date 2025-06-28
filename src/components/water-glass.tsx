@@ -1,9 +1,17 @@
 "use client"
 import React, { useState, useEffect, useRef } from "react"
 
+type BubbleStyle = {
+  left: string;
+  animationDelay: string;
+  animationDuration: string;
+  transform: string;
+};
+
 export const WaterGlass = ({ percentage }: { percentage: number }) => {
   const waterHeight = Math.min(100, Math.max(0, percentage))
   const [tilt, setTilt] = useState({ x: 0, y: 0 })
+  const [bubbleStyles, setBubbleStyles] = useState<BubbleStyle[]>([])
   const glassRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -28,6 +36,17 @@ export const WaterGlass = ({ percentage }: { percentage: number }) => {
     }
   }, [])
 
+  useEffect(() => {
+    // Generate bubble styles only on the client to avoid hydration mismatch
+    const styles = Array.from({ length: 15 }).map(() => ({
+      left: `${Math.random() * 100}%`,
+      animationDelay: `${Math.random() * 5}s`,
+      animationDuration: `${2 + Math.random() * 3}s`,
+      transform: `scale(${0.5 + Math.random()})`
+    }));
+    setBubbleStyles(styles);
+  }, []);
+
   return (
     <div 
       ref={glassRef}
@@ -47,16 +66,11 @@ export const WaterGlass = ({ percentage }: { percentage: number }) => {
 
         {/* Bubbles */}
         <div className="absolute inset-0 overflow-hidden">
-          {Array.from({ length: 15 }).map((_, i) => (
+          {bubbleStyles.map((style, i) => (
             <div 
               key={i}
               className="absolute bottom-0 w-1 h-1 bg-white/50 rounded-full animate-rise"
-              style={{
-                left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 5}s`,
-                animationDuration: `${2 + Math.random() * 3}s`,
-                transform: `scale(${0.5 + Math.random()})`
-              }}
+              style={style}
             ></div>
           ))}
         </div>
