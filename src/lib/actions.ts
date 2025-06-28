@@ -1,3 +1,4 @@
+
 'use server';
 
 import { db } from '@/lib/firebase';
@@ -76,7 +77,15 @@ const defaultUserData: Omit<UserData, 'updatedAt' | 'createdAt'> = {
  * which are safe to pass from Server Components to Client Components.
  */
 function makeDataSerializable(data: object): any {
-    return JSON.parse(JSON.stringify(data));
+    // A robust way to handle Timestamps without relying on JSON.stringify which can fail.
+    const sanitizedData = { ...data };
+    for (const key in sanitizedData) {
+        const value = (sanitizedData as any)[key];
+        if (value && typeof value === 'object' && 'toDate' in value) {
+            (sanitizedData as any)[key] = value.toDate().toISOString();
+        }
+    }
+    return sanitizedData;
 }
 
 
@@ -116,7 +125,9 @@ export async function getUserData(userId: string): Promise<UserData> {
         if (error instanceof Error && 'code' in error) {
             const firebaseError = error as { code: string; message: string };
             if (firebaseError.code === 'permission-denied' || firebaseError.code === 'unauthenticated') {
-                errorMessage = "Could not read data due to a permissions issue. Please check your Firestore Security Rules and that your .env.local file is configured correctly.";
+                errorMessage = "Database access denied. This is a security rules issue. Please go to your Firebase Console -> Firestore Database -> Rules, and ensure they allow reads/writes for authenticated users. For development, you can use 'allow read, write: if request.auth != null;'.";
+            } else if (firebaseError.code === 'failed-precondition') {
+                 errorMessage = "Firestore database has not been created or is misconfigured. Please go to the Firestore Database section of your Firebase Console and ensure a database exists.";
             } else {
                 // Include the specific Firebase error code for better debugging
                 errorMessage = `A Firebase error occurred: ${firebaseError.message} (Code: ${firebaseError.code}). Please check your Firebase setup.`;
@@ -131,8 +142,7 @@ export async function getUserData(userId: string): Promise<UserData> {
  */
 export async function updateUserData(userId: string, data: Partial<UserData>): Promise<void> {
     if (!userId) {
-        console.error("Update failed: No user ID provided.");
-        return;
+        throw new Error("Update failed: No user ID provided.");
     };
     const userDocRef = doc(db, 'users', userId);
     try {
@@ -146,7 +156,7 @@ export async function updateUserData(userId: string, data: Partial<UserData>): P
          if (error instanceof Error && 'code' in error) {
             const firebaseError = error as { code: string; message: string };
             if (firebaseError.code === 'permission-denied') {
-                 errorMessage = "Could not save data. This is a permissions issue. Please check your Firestore Security Rules in the Firebase console.";
+                 errorMessage = "Could not save data due to a permissions issue. Please check your Firestore Security Rules in the Firebase console.";
             } else {
                 errorMessage = `A Firebase error occurred while saving data: ${firebaseError.message} (Code: ${firebaseError.code}).`;
             }
@@ -168,7 +178,10 @@ export async function deleteUserData(userId: string): Promise<void> {
         await deleteDoc(userDocRef);
     } catch (error) {
         console.error("Firebase Error: Failed to delete user data:", error);
-        throw new Error("Could not delete user data from the database. Please check your permissions.");
+        if (error instanceof Error && 'code' in error && (error as any).code === 'permission-denied') {
+            throw new Error("Could not delete user data due to a permissions issue. Check your Firestore security rules.");
+        }
+        throw new Error("Could not delete user data from the database. Please check your connection and permissions.");
     }
 }
 
