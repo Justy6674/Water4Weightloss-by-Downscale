@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -10,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { WeightChart } from "@/components/weight-chart"
+import type { UserData } from "@/lib/actions"
 
 // A simple BMI calculation for demo purposes
 const calculateBmi = (weightKg?: number, heightCm?: number) => {
@@ -19,26 +21,38 @@ const calculateBmi = (weightKg?: number, heightCm?: number) => {
 }
 
 interface BodyMetricsProps {
-  medication?: string;
-  setMedication: (value: string) => void;
+  initialMetrics: UserData['bodyMetrics'];
+  onSave: (newMetrics: UserData['bodyMetrics']) => void;
 }
 
-export function BodyMetrics({ medication, setMedication }: BodyMetricsProps) {
-  const [weight, setWeight] = React.useState("81.2")
-  const [waist, setWaist] = React.useState("85")
-  const [height, setHeight] = React.useState("175")
-  const [gender, setGender] = React.useState<string>()
+export function BodyMetrics({ initialMetrics, onSave }: BodyMetricsProps) {
+  const [metrics, setMetrics] = React.useState(initialMetrics);
 
-  const [medicationFrequency, setMedicationFrequency] = React.useState<string>()
-  const [medicationDose, setMedicationDose] = React.useState("")
-  const [medicationReminder, setMedicationReminder] = React.useState(false)
+  React.useEffect(() => {
+    setMetrics(initialMetrics);
+  }, [initialMetrics]);
 
-  const [showBmi, setShowBmi] = React.useState(false)
+  const handleChange = (field: keyof UserData['bodyMetrics'], value: any) => {
+    setMetrics(prev => ({ ...prev, [field]: value }));
+  };
 
+  const handleSaveMetrics = () => {
+    onSave({
+      ...metrics,
+      weight: metrics.weight,
+      waist: metrics.waist,
+    });
+  };
+
+  const handleSaveMedication = () => {
+    onSave(metrics);
+  };
+
+  const [showBmi, setShowBmi] = React.useState(false);
   const bmi = React.useMemo(() => {
       if (!showBmi) return null;
-      return calculateBmi(parseFloat(weight), parseFloat(height))
-  }, [weight, height, showBmi])
+      return calculateBmi(parseFloat(metrics.weight), parseFloat(metrics.height));
+  }, [metrics.weight, metrics.height, showBmi]);
 
   return (
     <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
@@ -54,14 +68,14 @@ export function BodyMetrics({ medication, setMedication }: BodyMetricsProps) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="weight-input">Weight (kg)</Label>
-                  <Input id="weight-input" type="number" placeholder="e.g., 80.5" value={weight} onChange={(e) => setWeight(e.target.value)} />
+                  <Input id="weight-input" type="number" placeholder="e.g., 80.5" value={metrics.weight} onChange={(e) => handleChange('weight', e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="waist-input">Waist (cm)</Label>
-                  <Input id="waist-input" type="number" placeholder="e.g., 90" value={waist} onChange={(e) => setWaist(e.target.value)} />
+                  <Input id="waist-input" type="number" placeholder="e.g., 90" value={metrics.waist} onChange={(e) => handleChange('waist', e.target.value)} />
                 </div>
               </div>
-              <Button className="mt-4">Save Metrics</Button>
+              <Button className="mt-4" onClick={handleSaveMetrics}>Save Metrics</Button>
             </AccordionContent>
           </AccordionItem>
 
@@ -71,7 +85,7 @@ export function BodyMetrics({ medication, setMedication }: BodyMetricsProps) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Medication</Label>
-                   <Select value={medication} onValueChange={setMedication}>
+                   <Select value={metrics.medication} onValueChange={(v) => handleChange('medication', v)}>
                       <SelectTrigger><SelectValue placeholder="Select Medication" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="semaglutide">Semaglutide</SelectItem>
@@ -84,7 +98,7 @@ export function BodyMetrics({ medication, setMedication }: BodyMetricsProps) {
                 </div>
                  <div className="space-y-2">
                   <Label>Frequency</Label>
-                   <Select value={medicationFrequency} onValueChange={setMedicationFrequency}>
+                   <Select value={metrics.medicationFrequency} onValueChange={(v) => handleChange('medicationFrequency', v)}>
                       <SelectTrigger><SelectValue placeholder="Select Frequency" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="daily">Daily</SelectItem>
@@ -97,13 +111,13 @@ export function BodyMetrics({ medication, setMedication }: BodyMetricsProps) {
               </div>
                <div className="space-y-2">
                   <Label htmlFor="dose-input">Dose</Label>
-                  <Input id="dose-input" placeholder="e.g., 2.5 mg" value={medicationDose} onChange={(e) => setMedicationDose(e.target.value)}/>
+                  <Input id="dose-input" placeholder="e.g., 2.5 mg" value={metrics.medicationDose} onChange={(e) => handleChange('medicationDose', e.target.value)}/>
                 </div>
               <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                 <Label htmlFor="medication-reminder" className="font-medium">Enable Reminder</Label>
-                <Switch id="medication-reminder" checked={medicationReminder} onCheckedChange={setMedicationReminder} />
+                <Switch id="medication-reminder" checked={metrics.medicationReminder} onCheckedChange={(v) => handleChange('medicationReminder', v)} />
               </div>
-              <Button className="mt-4">Save Medication</Button>
+              <Button className="mt-4" onClick={handleSaveMedication}>Save Medication</Button>
             </AccordionContent>
           </AccordionItem>
 
@@ -127,11 +141,11 @@ export function BodyMetrics({ medication, setMedication }: BodyMetricsProps) {
                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="height-input">Height (cm)</Label>
-                      <Input id="height-input" type="number" placeholder="e.g., 175" value={height} onChange={(e) => setHeight(e.target.value)}/>
+                      <Input id="height-input" type="number" placeholder="e.g., 175" value={metrics.height} onChange={(e) => handleChange('height', e.target.value)}/>
                     </div>
                      <div className="space-y-2">
                         <Label>Gender</Label>
-                        <Select value={gender} onValueChange={setGender}>
+                        <Select value={metrics.gender} onValueChange={(v) => handleChange('gender', v)}>
                             <SelectTrigger><SelectValue placeholder="Select Gender" /></SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="male">Male</SelectItem>

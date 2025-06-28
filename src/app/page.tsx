@@ -21,41 +21,39 @@ import { WaterGlass } from "@/components/water-glass"
 import { BodyMetrics } from "@/components/body-metrics"
 import { generateMotivation, MotivationInput } from "@/ai/flows/personalized-motivation"
 import { Confetti } from "@/components/confetti"
+import { getUserData, updateUserData, UserData, Tone } from "@/lib/actions"
 
-type Tone = "funny" | "supportive" | "sarcastic" | "crass" | "kind"
 type MilestoneStatus = MotivationInput['milestoneStatus'];
-
 
 export default function Dashboard() {
   const { toast } = useToast()
-  const [hydration, setHydration] = useState(1250)
-  const [dailyGoal, setDailyGoal] = useState(3000)
-  const [streak, setStreak] = useState(14)
+  const [userData, setUserData] = useState<UserData | null>(null);
   const [manualAmount, setManualAmount] = useState("")
-  const [lastDrinkSize, setLastDrinkSize] = useState(0)
   const [showConfetti, setShowConfetti] = useState(false)
-
-  const [motivationTone, setMotivationTone] = useState<Tone>("supportive")
-  const [motivation, setMotivation] = useState("Keep up the great work! Every sip counts.")
+  const [motivation, setMotivation] = useState("Let's get hydrated!")
   const [isLoadingMotivation, setIsLoadingMotivation] = useState(false)
-  const [medication, setMedication] = useState<string>()
 
-  const [appSettings, setAppSettings] = useState({
-    dailyStreaks: true,
-    achievementBadges: true,
-    progressMilestones: true,
-    confettiEffects: true,
-    pushNotifications: true,
-    smsReminders: false,
-    notificationFrequency: "moderate",
-    vibrationFeedback: "medium",
-  });
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const data = await getUserData();
+        setUserData(data);
+      } catch (error) {
+        console.error("Failed to load user data:", error);
+        toast({
+          variant: "destructive",
+          title: "Loading Error",
+          description: "Could not load your data. Please try again later.",
+        });
+      }
+    };
+    loadData();
+  }, [toast]);
 
-  const handleSettingChange = (key: keyof typeof appSettings, value: string | boolean) => {
-    setAppSettings(prev => ({ ...prev, [key]: value }));
-  };
-
-  const hydrationPercentage = useMemo(() => (hydration / dailyGoal) * 100, [hydration, dailyGoal])
+  const hydrationPercentage = useMemo(() => {
+    if (!userData) return 0;
+    return (userData.hydration / userData.dailyGoal) * 100;
+  }, [userData]);
 
   const getTimeOfDay = () => {
     const hour = new Date().getHours()
@@ -65,47 +63,43 @@ export default function Dashboard() {
   }
   
   const getMilestoneContext = (): { milestoneStatus: MilestoneStatus, nextMilestoneInfo: string } => {
+    if (!userData) return { milestoneStatus: 'none', nextMilestoneInfo: '' };
     const now = new Date();
     const hour = now.getHours();
 
-    if (hydration >= dailyGoal) {
+    if (userData.hydration >= userData.dailyGoal) {
       return { milestoneStatus: 'goalMet', nextMilestoneInfo: 'Daily goal achieved!' };
     }
-
-    // Milestones: 1L by 10am, 2L by 3pm (15:00), goal by 8pm (20:00)
     const milestones = [
       { time: 10, goal: 1000 },
       { time: 15, goal: 2000 },
-      { time: 20, goal: dailyGoal }
+      { time: 20, goal: userData.dailyGoal }
     ];
-
     for (const milestone of milestones) {
       if (hour < milestone.time) {
-        // For motivational text, we'll keep it simple. 'ahead' if they passed the milestone, 'onTrack' otherwise.
-        // The more nuanced 'behind' state would be used for triggering push notifications.
-        const status = hydration >= milestone.goal ? 'ahead' : 'onTrack';
+        const status = userData.hydration >= milestone.goal ? 'ahead' : 'onTrack';
         const nextMilestoneInfo = `${milestone.goal}ml by ${milestone.time}:00`;
         return { milestoneStatus: status, nextMilestoneInfo };
       }
     }
-
     return { milestoneStatus: 'none', nextMilestoneInfo: 'All daily milestones passed.' };
   }
 
   const fetchMotivation = async (drinkSize: number) => {
+    if (!userData) return;
     setIsLoadingMotivation(true)
     try {
       const { milestoneStatus, nextMilestoneInfo } = getMilestoneContext();
       
       const input: MotivationInput = {
         hydrationPercentage: Math.round(hydrationPercentage),
-        streak,
+        streak: userData.streak,
         lastDrinkSizeMl: drinkSize,
         timeOfDay: getTimeOfDay(),
-        preferredTone: motivationTone,
+        preferredTone: userData.motivationTone,
         milestoneStatus,
         nextMilestoneInfo,
-        isOnMedication: !!medication,
+        isOnMedication: !!userData.bodyMetrics.medication,
       }
       const result = await generateMotivation(input)
       setMotivation(result.message)
@@ -122,14 +116,17 @@ export default function Dashboard() {
   }
 
   const handleAddWater = (amount: number) => {
-    if (amount <= 0) return
-    const oldHydration = hydration;
-    const newHydration = Math.min(dailyGoal, hydration + amount)
-    setHydration(newHydration)
-    setLastDrinkSize(amount)
-    fetchMotivation(amount)
+    if (!userData || amount <= 0) return
+    const oldHydration = userData.hydration;
+    const newHydration = Math.min(userData.dailyGoal, userData.hydration + amount)
+    
+    const updatedData = { ...userData, hydration: newHydration, lastDrinkSize: amount };
+    setUserData(updatedData);
+    updateUserData({ hydration: newHydration, lastDrinkSize: amount });
 
-    if (appSettings.confettiEffects && newHydration >= dailyGoal && oldHydration < dailyGoal) {
+    fetchMotivation(amount);
+
+    if (userData.appSettings.confettiEffects && newHydration >= userData.dailyGoal && oldHydration < userData.dailyGoal) {
       setShowConfetti(true)
     }
   }
@@ -140,6 +137,47 @@ export default function Dashboard() {
       handleAddWater(amount)
       setManualAmount("")
     }
+  }
+
+  const handleSettingChange = (key: keyof UserData['appSettings'], value: string | boolean) => {
+    if (!userData) return;
+    const newAppSettings = { ...userData.appSettings, [key]: value };
+    setUserData({ ...userData, appSettings: newAppSettings });
+    updateUserData({ appSettings: newAppSettings });
+  };
+  
+  const handleToneChange = (value: Tone) => {
+    if (!userData) return;
+    setUserData({ ...userData, motivationTone: value });
+    updateUserData({ motivationTone: value });
+  };
+  
+  const handleGoalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!userData) return;
+    const newGoal = Number(e.target.value);
+    setUserData({ ...userData, dailyGoal: newGoal });
+    // This could be debounced in a real app
+    updateUserData({ dailyGoal: newGoal });
+  };
+
+  const handleMetricsSave = (metrics: UserData['bodyMetrics']) => {
+    if (!userData) return;
+    setUserData({ ...userData, bodyMetrics: metrics });
+    updateUserData({ bodyMetrics: metrics });
+    toast({ title: "Metrics Saved", description: "Your body metrics have been updated." });
+  };
+
+
+  if (!userData) {
+    return (
+       <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 lg:p-8 font-body flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Droplets className="mx-auto h-12 w-12 animate-pulse text-primary" />
+          <h2 className="text-2xl font-headline">Loading Your Dashboard...</h2>
+          <Skeleton className="h-4 w-64 mx-auto" />
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -159,7 +197,7 @@ export default function Dashboard() {
                 <span>Today's Hydration</span>
                 <Droplets className="text-primary" />
               </CardTitle>
-              <CardDescription>{hydration}ml / {dailyGoal}ml</CardDescription>
+              <CardDescription>{userData.hydration}ml / {userData.dailyGoal}ml</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col items-center gap-4">
               <WaterGlass percentage={hydrationPercentage} />
@@ -285,28 +323,28 @@ export default function Dashboard() {
                                     <Flame className="w-5 h-5 text-primary" />
                                     Daily Streaks
                                 </Label>
-                                <Switch id="daily-streaks" checked={appSettings.dailyStreaks} onCheckedChange={(v) => handleSettingChange('dailyStreaks', v)} />
+                                <Switch id="daily-streaks" checked={userData.appSettings.dailyStreaks} onCheckedChange={(v) => handleSettingChange('dailyStreaks', v)} />
                             </div>
                              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                                 <Label htmlFor="achievement-badges" className="flex items-center gap-3 font-medium">
                                     <Trophy className="w-5 h-5 text-primary" />
                                     Achievement Badges
                                 </Label>
-                                <Switch id="achievement-badges" checked={appSettings.achievementBadges} onCheckedChange={(v) => handleSettingChange('achievementBadges', v)} />
+                                <Switch id="achievement-badges" checked={userData.appSettings.achievementBadges} onCheckedChange={(v) => handleSettingChange('achievementBadges', v)} />
                             </div>
                              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                                 <Label htmlFor="progress-milestones" className="flex items-center gap-3 font-medium">
                                     <Star className="w-5 h-5 text-primary" />
                                     Progress Milestones
                                 </Label>
-                                <Switch id="progress-milestones" checked={appSettings.progressMilestones} onCheckedChange={(v) => handleSettingChange('progressMilestones', v)} />
+                                <Switch id="progress-milestones" checked={userData.appSettings.progressMilestones} onCheckedChange={(v) => handleSettingChange('progressMilestones', v)} />
                             </div>
                              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                                 <Label htmlFor="confetti-effects" className="flex items-center gap-3 font-medium">
                                     <Sparkles className="w-5 h-5 text-primary" />
                                     Confetti Effects
                                 </Label>
-                                <Switch id="confetti-effects" checked={appSettings.confettiEffects} onCheckedChange={(v) => handleSettingChange('confettiEffects', v)} />
+                                <Switch id="confetti-effects" checked={userData.appSettings.confettiEffects} onCheckedChange={(v) => handleSettingChange('confettiEffects', v)} />
                             </div>
                         </div>
                     </div>
@@ -318,18 +356,18 @@ export default function Dashboard() {
                                    <BellDot className="w-5 h-5 text-primary" />
                                    Push Notifications
                                 </Label>
-                                <Switch id="push-notifications" checked={appSettings.pushNotifications} onCheckedChange={(v) => handleSettingChange('pushNotifications', v)} />
+                                <Switch id="push-notifications" checked={userData.appSettings.pushNotifications} onCheckedChange={(v) => handleSettingChange('pushNotifications', v)} />
                             </div>
                             <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                                 <Label htmlFor="sms-reminders" className="flex items-center gap-3 font-medium">
                                    <MessageSquareText className="w-5 h-5 text-primary" />
                                    SMS Reminders
                                 </Label>
-                                <Switch id="sms-reminders" checked={appSettings.smsReminders} onCheckedChange={(v) => handleSettingChange('smsReminders', v)} />
+                                <Switch id="sms-reminders" checked={userData.appSettings.smsReminders} onCheckedChange={(v) => handleSettingChange('smsReminders', v)} />
                             </div>
                             <div className="p-3 rounded-lg bg-muted/30 space-y-3">
                                 <Label className="flex items-center gap-3 font-medium"><Vibrate className="w-5 h-5 text-primary"/> Vibration Feedback</Label>
-                                <RadioGroup value={appSettings.vibrationFeedback} onValueChange={(v) => handleSettingChange('vibrationFeedback', v)} className="flex space-x-4 pt-1">
+                                <RadioGroup value={userData.appSettings.vibrationFeedback} onValueChange={(v) => handleSettingChange('vibrationFeedback', v)} className="flex space-x-4 pt-1">
                                     <div className="flex items-center space-x-2">
                                         <RadioGroupItem value="light" id="v1" />
                                         <Label htmlFor="v1">Light</Label>
@@ -346,7 +384,7 @@ export default function Dashboard() {
                             </div>
                             <div className="p-3 rounded-lg bg-muted/30 space-y-3">
                                 <Label className="font-medium">Notification Frequency</Label>
-                                <RadioGroup value={appSettings.notificationFrequency} onValueChange={(v) => handleSettingChange('notificationFrequency', v)} className="flex space-x-4 pt-1">
+                                <RadioGroup value={userData.appSettings.notificationFrequency} onValueChange={(v) => handleSettingChange('notificationFrequency', v)} className="flex space-x-4 pt-1">
                                     <div className="flex items-center space-x-2">
                                         <RadioGroupItem value="minimal" id="r1" />
                                         <Label htmlFor="r1">Minimal</Label>
@@ -367,7 +405,7 @@ export default function Dashboard() {
             </Card>
             </TabsContent>
             <TabsContent value="weight">
-                <BodyMetrics medication={medication} setMedication={setMedication} />
+                <BodyMetrics initialMetrics={userData.bodyMetrics} onSave={handleMetricsSave} />
             </TabsContent>
             <TabsContent value="settings">
               <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
@@ -378,7 +416,7 @@ export default function Dashboard() {
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label>AI Motivation Tone</Label>
-                    <Select value={motivationTone} onValueChange={(value: Tone) => setMotivationTone(value)}>
+                    <Select value={userData.motivationTone} onValueChange={handleToneChange}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a tone" />
                       </SelectTrigger>
@@ -395,8 +433,8 @@ export default function Dashboard() {
                     <Label>Daily Hydration Goal (ml)</Label>
                     <Input 
                       type="number" 
-                      value={dailyGoal} 
-                      onChange={(e) => setDailyGoal(Number(e.target.value))}
+                      value={userData.dailyGoal} 
+                      onChange={handleGoalChange}
                       className="font-code"
                     />
                   </div>
