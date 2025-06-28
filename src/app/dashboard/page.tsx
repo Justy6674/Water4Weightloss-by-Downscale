@@ -4,7 +4,7 @@
 import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useRef, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { onAuthStateChanged, type User } from "firebase/auth"
 import { auth, db } from "@/lib/firebase"
@@ -49,6 +49,7 @@ function DashboardContents() {
   const [isSavingPhone, setIsSavingPhone] = useState(false);
   const [activeTab, setActiveTab] = useState("gamification");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const initialMotivationFetched = useRef(false);
 
 
   useEffect(() => {
@@ -139,14 +140,14 @@ function DashboardContents() {
     return (userData.hydration / userData.dailyGoal) * 100;
   }, [userData]);
 
-  const getTimeOfDay = () => {
+  const getTimeOfDay = useCallback(() => {
     const hour = new Date().getHours()
     if (hour < 12) return "morning"
     if (hour < 18) return "afternoon"
     return "evening"
-  }
+  }, []);
   
-  const getMilestoneContext = (): { milestoneStatus: MilestoneStatus, nextMilestoneInfo: string } => {
+  const getMilestoneContext = useCallback((): { milestoneStatus: MilestoneStatus, nextMilestoneInfo: string } => {
     if (!userData) return { milestoneStatus: 'none', nextMilestoneInfo: '' };
     const now = new Date();
     const hour = now.getHours();
@@ -167,9 +168,9 @@ function DashboardContents() {
       }
     }
     return { milestoneStatus: 'none', nextMilestoneInfo: 'All daily milestones passed.' };
-  }
+  }, [userData]);
 
-  const fetchMotivation = async (drinkSize: number) => {
+  const fetchMotivation = useCallback(async (drinkSize: number) => {
     if (!userData) return;
     setIsLoadingMotivation(true)
     try {
@@ -197,7 +198,16 @@ function DashboardContents() {
     } finally {
       setIsLoadingMotivation(false)
     }
-  }
+  }, [userData, hydrationPercentage, getMilestoneContext, getTimeOfDay, toast]);
+
+  useEffect(() => {
+    // Fetches motivation once when user data is loaded for the first time.
+    if (userData && !initialMotivationFetched.current) {
+      fetchMotivation(userData.lastDrinkSize || 0);
+      initialMotivationFetched.current = true;
+    }
+  }, [userData, fetchMotivation]);
+
 
   const handleAddWater = (amount: number) => {
     if (!userData || !user || amount <= 0) return
