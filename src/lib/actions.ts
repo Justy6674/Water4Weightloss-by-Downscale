@@ -2,25 +2,38 @@
 'use server';
 
 import { db } from '@/lib/firebase';
-import { doc, getDoc, setDoc, serverTimestamp, type Timestamp, deleteDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp, type Timestamp, deleteDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { sendSms } from '@/services/send-sms';
-import { type UserData, defaultUserData } from '@/lib/user-data';
+import { type UserData, defaultUserData, type WeightReading, type BloodPressureReading } from '@/lib/user-data';
 
 /**
  * Ensures that any Firestore Timestamp objects are converted to ISO strings,
  * which are safe to pass from Server Components to Client Components.
  */
 function makeDataSerializable(data: object): any {
-    // A robust way to handle Timestamps without relying on JSON.stringify which can fail.
-    const sanitizedData = { ...data };
-    for (const key in sanitizedData) {
-        const value = (sanitizedData as any)[key];
+    const sanitizedData: { [key: string]: any } = {};
+
+    for (const key in data) {
+        const value = (data as any)[key];
         if (value && typeof value === 'object' && 'toDate' in value) {
-            (sanitizedData as any)[key] = value.toDate().toISOString();
+            sanitizedData[key] = value.toDate().toISOString();
+        } else if (Array.isArray(value)) {
+            sanitizedData[key] = value.map(item => {
+                if (item && typeof item === 'object' && 'toDate' in item) {
+                    return item.toDate().toISOString();
+                }
+                if (item && typeof item === 'object' && item.timestamp && 'toDate' in item.timestamp) {
+                    return { ...item, timestamp: item.timestamp.toDate().toISOString() };
+                }
+                return item;
+            });
+        } else {
+            sanitizedData[key] = value;
         }
     }
     return sanitizedData;
 }
+
 
 /**
  * Creates a user document in Firestore if one doesn't already exist.
@@ -167,4 +180,52 @@ export async function savePhoneNumberAndSendConfirmation(userId: string, phone: 
     }
     return { success: false, message: 'An unknown error occurred.' };
   }
+}
+
+/**
+ * Adds a new blood pressure reading to the user's log.
+ */
+export async function addBloodPressureReading(userId: string, newReading: Omit<BloodPressureReading, 'timestamp'>): Promise<void> {
+    if (!userId) {
+        throw new Error("Update failed: No user ID provided.");
+    }
+    const userDocRef = doc(db, 'users', userId);
+    try {
+        const readingWithTimestamp = {
+            ...newReading,
+            timestamp: serverTimestamp()
+        };
+        await updateDoc(userDocRef, {
+            bloodPressureLog: arrayUnion(readingWithTimestamp),
+            updatedAt: serverTimestamp(),
+        });
+    } catch (error) {
+        console.error("Firebase Error: Failed to add blood pressure reading:", error);
+        throw new Error("Could not save blood pressure reading to the database.");
+    }
+}
+
+/**
+ * Adds a new weight reading to the user's log.
+ */
+export async function addWeightReading(userId: string, newReading: Omit<WeightReading, 'timestamp'>): Promise<void> {
+    if (!userId) {
+        throw new Error("Update failed: No user ID provided.");
+    }
+    const userDocRef = doc(db, 'users', userId);
+    try {
+        const readingWithTimestamp = {
+            ...newReading,
+            timestamp: serverTimestamp()
+        };
+        // Also update the main weight metric for quick access
+        await updateDoc(userDocRef, {
+            weightLog: arrayUnion(readingWithTimestamp),
+            'bodyMetrics.weight': newReading.weight.toString(),
+            updatedAt: serverTimestamp(),
+        });
+    } catch (error) {
+        console.error("Firebase Error: Failed to add weight reading:", error);
+        throw new Error("Could not save weight reading to the database.");
+    }
 }

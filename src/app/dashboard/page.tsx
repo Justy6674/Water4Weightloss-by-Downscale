@@ -24,11 +24,12 @@ import { useToast } from "@/hooks/use-toast"
 import { WaterGlass } from "@/components/water-glass"
 import { BodyMetrics } from "@/components/body-metrics"
 import { MedicationTracking } from "@/components/medication-tracking"
+import { BloodPressureTracking } from "@/components/blood-pressure-tracking"
 import { InfoContent } from "@/components/info-content"
 import { generateMotivation, MotivationInput } from "@/ai/flows/personalized-motivation"
 import { Confetti } from "@/components/confetti"
-import { updateUserData, deleteUserData } from "@/lib/actions"
-import { type UserData, type Tone, defaultUserData } from "@/lib/user-data"
+import { updateUserData, deleteUserData, addWeightReading, addBloodPressureReading } from "@/lib/actions"
+import { type UserData, type Tone, defaultUserData, type WeightReading, type BloodPressureReading } from "@/lib/user-data"
 import { AppSettings } from "@/components/app-settings"
 
 type MilestoneStatus = MotivationInput['milestoneStatus'];
@@ -75,7 +76,7 @@ function DashboardContents() {
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
           };
-          await setDoc(userDocRef, newUserData);
+          await setDoc(userDocRef, newUserData, { merge: true });
           userDocSnap = await getDoc(userDocRef);
 
           if (!userDocSnap.exists()) {
@@ -84,15 +85,23 @@ function DashboardContents() {
         }
 
         const data = userDocSnap.data() as UserData;
-        const serializableData = { ...data };
-        if (data.createdAt instanceof Timestamp) {
-            serializableData.createdAt = data.createdAt.toDate().toISOString();
-        }
-        if (data.updatedAt instanceof Timestamp) {
-            serializableData.updatedAt = data.updatedAt.toDate().toISOString();
-        }
+        const serializableData: any = { ...data };
         
-        setUserData(serializableData);
+        Object.keys(serializableData).forEach(key => {
+            const value = serializableData[key];
+            if (value instanceof Timestamp) {
+                serializableData[key] = value.toDate().toISOString();
+            } else if (Array.isArray(value)) {
+                serializableData[key] = value.map(item => {
+                    if (item && item.timestamp instanceof Timestamp) {
+                        return { ...item, timestamp: item.timestamp.toDate().toISOString() };
+                    }
+                    return item;
+                });
+            }
+        });
+        
+        setUserData(serializableData as UserData);
       } catch (error) {
         console.error("Failed to load user data:", error);
         
@@ -232,12 +241,38 @@ function DashboardContents() {
     updateUserData(user.uid, updatedSettings);
   };
 
-  const handleMetricsSave = (metrics: UserData['bodyMetrics']) => {
+  const handleMetricsSave = async (metrics: Partial<UserData['bodyMetrics']>, newWeightReading?: Omit<WeightReading, 'timestamp'>) => {
     if (!userData || !user) return;
+    
+    // Optimistic UI update for body metrics
     const updatedBodyMetrics = { ...userData.bodyMetrics, ...metrics };
-    setUserData({ ...userData, bodyMetrics: updatedBodyMetrics });
-    updateUserData(user.uid, { bodyMetrics: updatedBodyMetrics });
-    toast({ title: "Metrics Saved", description: "Your body metrics have been updated." });
+    const newUserData = { ...userData, bodyMetrics: updatedBodyMetrics };
+    
+    if (newWeightReading) {
+      const readingForUI: WeightReading = {
+        ...newWeightReading,
+        timestamp: new Date().toISOString()
+      };
+      newUserData.weightLog = [...userData.weightLog, readingForUI];
+    }
+    setUserData(newUserData);
+
+    try {
+      // Persist to DB
+      if (newWeightReading) {
+        await addWeightReading(user.uid, newWeightReading);
+      }
+      // Update other metrics that are not part of a log
+      const otherMetrics = { waist: metrics.waist, height: metrics.height, gender: metrics.gender };
+      await updateUserData(user.uid, { bodyMetrics: otherMetrics });
+
+      toast({ title: "Metrics Saved", description: "Your body metrics have been updated." });
+    } catch(error) {
+      // Revert optimistic update on failure
+      setUserData({ ...userData });
+      console.error("Failed to save metrics:", error);
+      toast({ variant: "destructive", title: "Save Failed", description: "Could not save your metrics." });
+    }
   };
 
   const handleMedicationSave = (medication: Partial<UserData['bodyMetrics']>) => {
@@ -248,6 +283,26 @@ function DashboardContents() {
     toast({ title: "Medication Saved", description: "Your medication details have been updated." });
   };
   
+  const handleSaveBloodPressure = async (newReading: Omit<BloodPressureReading, 'timestamp'>) => {
+    if (!userData || !user) return;
+    
+    const readingForUI: BloodPressureReading = {
+      ...newReading,
+      timestamp: new Date().toISOString()
+    };
+    const updatedLog = [...userData.bloodPressureLog, readingForUI];
+    setUserData({ ...userData, bloodPressureLog: updatedLog });
+
+    try {
+        await addBloodPressureReading(user.uid, newReading);
+        toast({ title: "Blood Pressure Saved", description: "Your new reading has been logged." });
+    } catch (error) {
+        setUserData({ ...userData }); 
+        console.error("Failed to save BP reading:", error);
+        toast({ variant: "destructive", title: "Save Failed", description: "Could not save your reading." });
+    }
+  };
+
   const handleLogout = async () => {
     await auth.signOut();
   };
@@ -372,10 +427,11 @@ service cloud.firestore {
       </header>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4 mb-4">
+            <TabsList className="w-full grid grid-cols-2 sm:grid-cols-5 mb-4">
               <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
               <TabsTrigger value="body-metrics">Body Metrics</TabsTrigger>
               <TabsTrigger value="medication">Medication</TabsTrigger>
+              <TabsTrigger value="blood-pressure">Blood Pressure</TabsTrigger>
               <TabsTrigger value="information">Information</TabsTrigger>
             </TabsList>
 
@@ -487,13 +543,20 @@ service cloud.firestore {
             </TabsContent>
             
             <TabsContent value="body-metrics">
-                <BodyMetrics initialMetrics={userData.bodyMetrics} onSave={handleMetricsSave} />
+                <BodyMetrics 
+                  initialMetrics={userData.bodyMetrics} 
+                  weightLog={userData.weightLog}
+                  onSave={handleMetricsSave} />
             </TabsContent>
             
             <TabsContent value="medication">
                 <MedicationTracking initialMedication={userData.bodyMetrics} onSave={handleMedicationSave} />
             </TabsContent>
             
+            <TabsContent value="blood-pressure">
+                <BloodPressureTracking log={userData.bloodPressureLog} onSave={handleSaveBloodPressure} />
+            </TabsContent>
+
             <TabsContent value="information">
                 <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
                     <CardHeader>
