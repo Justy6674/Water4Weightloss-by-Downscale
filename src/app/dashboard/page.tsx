@@ -27,7 +27,8 @@ import { WaterGlass } from "@/components/water-glass"
 import { BodyMetrics } from "@/components/body-metrics"
 import { generateMotivation, MotivationInput } from "@/ai/flows/personalized-motivation"
 import { Confetti } from "@/components/confetti"
-import { updateUserData, UserData, Tone, deleteUserData, savePhoneNumberAndSendConfirmation, defaultUserData } from "@/lib/actions"
+import { updateUserData, deleteUserData, savePhoneNumberAndSendConfirmation } from "@/lib/actions"
+import { type UserData, type Tone, defaultUserData } from "@/lib/user-data"
 
 type MilestoneStatus = MotivationInput['milestoneStatus'];
 
@@ -492,28 +493,28 @@ service cloud.firestore {
                                 <Label htmlFor="daily-streaks" className="flex items-center gap-3 font-medium">
                                     <Flame className="w-5 h-5 text-primary" />
                                     Daily Streaks
-                                </Label>
+                                 </Label>
                                 <Switch id="daily-streaks" checked={userData.appSettings.dailyStreaks} onCheckedChange={(v) => handleSettingChange('dailyStreaks', v)} />
                             </div>
                              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                                 <Label htmlFor="achievement-badges" className="flex items-center gap-3 font-medium">
                                     <Trophy className="w-5 h-5 text-primary" />
                                     Achievement Badges
-                                </Label>
+                                 </Label>
                                 <Switch id="achievement-badges" checked={userData.appSettings.achievementBadges} onCheckedChange={(v) => handleSettingChange('achievementBadges', v)} />
                             </div>
                              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                                 <Label htmlFor="progress-milestones" className="flex items-center gap-3 font-medium">
                                     <Star className="w-5 h-5 text-primary" />
                                     Progress Milestones
-                                </Label>
+                                 </Label>
                                 <Switch id="progress-milestones" checked={userData.appSettings.progressMilestones} onCheckedChange={(v) => handleSettingChange('progressMilestones', v)} />
                             </div>
                              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                                 <Label htmlFor="confetti-effects" className="flex items-center gap-3 font-medium">
                                     <Sparkles className="w-5 h-5 text-primary" />
                                     Confetti Effects
-                                </Label>
+                                 </Label>
                                 <Switch id="confetti-effects" checked={userData.appSettings.confettiEffects} onCheckedChange={(v) => handleSettingChange('confettiEffects', v)} />
                             </div>
                         </div>
@@ -525,14 +526,14 @@ service cloud.firestore {
                                 <Label htmlFor="push-notifications" className="flex items-center gap-3 font-medium">
                                    <BellDot className="w-5 h-5 text-primary" />
                                    Push Notifications
-                                </Label>
+                                 </Label>
                                 <Switch id="push-notifications" checked={userData.appSettings.pushNotifications} onCheckedChange={(v) => handleSettingChange('pushNotifications', v)} />
                             </div>
                             <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                                 <Label htmlFor="sms-reminders" className="flex items-center gap-3 font-medium">
                                    <MessageSquareText className="w-5 h-5 text-primary" />
                                    SMS Reminders
-                                </Label>
+                                 </Label>
                                 <Switch id="sms-reminders" checked={userData.appSettings.smsReminders} onCheckedChange={(v) => handleSettingChange('smsReminders', v)} />
                             </div>
                              {userData.appSettings.smsReminders && (
