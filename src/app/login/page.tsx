@@ -58,7 +58,6 @@ function LoginPageContents() {
             // Explicitly create the user document if it doesn't exist.
             await ensureUserDocument(userCredential.user.uid);
 
-            router.push('/dashboard')
         } catch (error) {
             const firebaseError = error as { code?: string; message: string };
             console.error("Login failed:", firebaseError);

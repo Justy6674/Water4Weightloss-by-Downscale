@@ -11,10 +11,10 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
-import { createUserWithEmailAndPassword } from "firebase/auth"
+import { createUserWithEmailAndPassword, onAuthStateChanged, type User } from "firebase/auth"
 import { auth } from "@/lib/firebase"
 import { Mail, Lock } from "lucide-react"
 import { ensureUserDocument } from "@/lib/actions"
@@ -23,8 +23,24 @@ function SignupPageContents() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [isLoading, setIsLoading] = useState(false)
+    const [user, setUser] = useState<User | null>(null);
+    const [checkingAuth, setCheckingAuth] = useState(true);
     const router = useRouter()
     const { toast } = useToast()
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+          setUser(currentUser);
+          setCheckingAuth(false);
+        });
+        return () => unsubscribe();
+    }, []);
+
+    useEffect(() => {
+        if (user) {
+            router.push('/dashboard');
+        }
+    }, [user, router]);
 
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -35,7 +51,6 @@ function SignupPageContents() {
             // Explicitly create the user document in Firestore.
             await ensureUserDocument(userCredential.user.uid);
 
-            router.push('/dashboard');
         } catch (error) {
             const firebaseError = error as { code?: string; message: string };
             console.error("Signup failed:", firebaseError);
@@ -53,6 +68,10 @@ function SignupPageContents() {
         } finally {
             setIsLoading(false)
         }
+    }
+
+    if (checkingAuth || user) {
+        return null; // or a loading spinner
     }
 
   return (
