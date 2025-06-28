@@ -26,7 +26,8 @@ const MotivationInputSchema = z.object({
       'The user preferred tone of the motivation message (e.g., funny, supportive, sarcastic, crass, kind)'
     ),
   milestoneStatus: z.enum(['onTrack', 'ahead', 'goalMet', 'none']).describe("The user's status towards their next hydration milestone. 'onTrack' means they are working towards it, 'ahead' means they've surpassed the current milestone's goal, 'goalMet' means the total daily goal is done, 'none' means all milestones for the day are passed."),
-  nextMilestoneInfo: z.string().optional().describe("Information about the next milestone if applicable, e.g., '1000ml by 10 AM'.")
+  nextMilestoneInfo: z.string().optional().describe("Information about the next milestone if applicable, e.g., '1000ml by 10 AM'."),
+  isOnMedication: z.boolean().describe('Whether the user is on weight loss medication.'),
 });
 export type MotivationInput = z.infer<typeof MotivationInputSchema>;
 
@@ -95,6 +96,7 @@ const prompt = ai.definePrompt({
   Last Drink Size: {{{lastDrinkSizeMl}}} ml
   Time of Day: {{{timeOfDay}}}
   Preferred Tone: {{{preferredTone}}}
+  On Medication: {{{isOnMedication}}}
 
   Milestone Status: {{{milestoneStatus}}}
   {{#if nextMilestoneInfo}}
@@ -104,6 +106,10 @@ const prompt = ai.definePrompt({
   **INSTRUCTIONS**
   Generate a motivational message with the specified tone. Keep the message concise (around 1-3 sentences).
   
+  {{#if isOnMedication}}
+  The user is taking weight loss medication. It is critical that you tailor your message to this fact, using the provided context about hydration's role in managing side effects and maximizing medication efficacy. Your tone should be extra supportive and informative in this case.
+  {{/if}}
+
   - If milestoneStatus is 'ahead', congratulate them for being ahead of schedule.
   - If milestoneStatus is 'onTrack', encourage them to keep going to hit their next milestone.
   - If milestoneStatus is 'goalMet', give them a big congratulation for hitting their daily goal.

@@ -1,8 +1,9 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import { useState, useEffect, useMemo } from "react"
-import { Flame, Droplets, Settings, Trophy, TrendingUp, Bot, Star, Sparkles, BellDot, Vibrate, MessageSquareText, Link, Watch, Mic } from "lucide-react"
+import { Flame, Droplets, Settings, Trophy, TrendingUp, Bot, Star, Sparkles, BellDot, Vibrate, MessageSquareText, Link as LinkIcon, Watch, Mic, BookUser, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -35,6 +36,7 @@ export default function Dashboard() {
   const [motivationTone, setMotivationTone] = useState<Tone>("supportive")
   const [motivation, setMotivation] = useState("Keep up the great work! Every sip counts.")
   const [isLoadingMotivation, setIsLoadingMotivation] = useState(false)
+  const [medication, setMedication] = useState<string>()
 
   const [appSettings, setAppSettings] = useState({
     dailyStreaks: true,
@@ -101,6 +103,7 @@ export default function Dashboard() {
         preferredTone: motivationTone,
         milestoneStatus,
         nextMilestoneInfo,
+        isOnMedication: !!medication,
       }
       const result = await generateMotivation(input)
       setMotivation(result.message)
@@ -361,7 +364,7 @@ export default function Dashboard() {
             </Card>
             </TabsContent>
             <TabsContent value="weight">
-                <BodyMetrics />
+                <BodyMetrics medication={medication} setMedication={setMedication} />
             </TabsContent>
             <TabsContent value="settings">
               <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
@@ -394,9 +397,23 @@ export default function Dashboard() {
                       className="font-code"
                     />
                   </div>
+                  <div className="space-y-2">
+                     <Button asChild variant="outline" className="w-full">
+                       <Link href="/info">
+                         <Info className="mr-2 h-4 w-4" />
+                         Learn More About Hydration
+                       </Link>
+                     </Button>
+                     <Button asChild className="w-full">
+                       <Link href="https://www.downscale.com.au" target="_blank" rel="noopener noreferrer">
+                         <BookUser className="mr-2 h-4 w-4" />
+                         Book a Consultation
+                       </Link>
+                     </Button>
+                  </div>
                   <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                     <Label htmlFor="link-devices" className="flex items-center gap-3 font-medium">
-                       <Link className="w-5 h-5 text-primary" />
+                       <LinkIcon className="w-5 h-5 text-primary" />
                        Link with other devices
                     </Label>
                     <Switch id="link-devices" disabled />

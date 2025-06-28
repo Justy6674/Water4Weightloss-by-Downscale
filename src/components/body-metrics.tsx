@@ -18,13 +18,17 @@ const calculateBmi = (weightKg?: number, heightCm?: number) => {
   return (weightKg / (heightM * heightM)).toFixed(1)
 }
 
-export function BodyMetrics() {
+interface BodyMetricsProps {
+  medication?: string;
+  setMedication: (value: string) => void;
+}
+
+export function BodyMetrics({ medication, setMedication }: BodyMetricsProps) {
   const [weight, setWeight] = React.useState("81.2")
   const [waist, setWaist] = React.useState("85")
   const [height, setHeight] = React.useState("175")
   const [gender, setGender] = React.useState<string>()
 
-  const [medication, setMedication] = React.useState<string>()
   const [medicationFrequency, setMedicationFrequency] = React.useState<string>()
   const [medicationDose, setMedicationDose] = React.useState("")
   const [medicationReminder, setMedicationReminder] = React.useState(false)
