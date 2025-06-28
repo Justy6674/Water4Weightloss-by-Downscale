@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { useState, useEffect, useMemo } from "react"
-import { Flame, Droplets, Settings, Trophy, TrendingUp, Bot, Star, Sparkles, BellDot, Vibrate, MessageSquareText, Link, Watch } from "lucide-react"
+import { Flame, Droplets, Settings, Trophy, TrendingUp, Bot, Star, Sparkles, BellDot, Vibrate, MessageSquareText, Link, Watch, Mic, GlassWater, Beaker } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -121,29 +121,65 @@ export default function Dashboard() {
               </CardTitle>
               <CardDescription>{hydration}ml / {dailyGoal}ml</CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-col items-center gap-6">
+            <CardContent className="flex flex-col items-center gap-4">
               <WaterGlass percentage={hydrationPercentage} />
               <Progress value={hydrationPercentage} className="w-full h-3" />
-              <div className="w-full space-y-2">
-                <Label htmlFor="manual-add">Log Water (ml)</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="manual-add"
-                    type="number"
-                    placeholder="e.g. 300"
-                    value={manualAmount}
-                    onChange={(e) => setManualAmount(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleManualAdd()}
-                    className="font-code"
-                  />
-                  <Button onClick={handleManualAdd}>Add</Button>
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-2 w-full">
-                <Button variant="secondary" onClick={() => handleAddWater(250)}>250ml</Button>
-                <Button variant="secondary" onClick={() => handleAddWater(500)}>500ml</Button>
-                <Button variant="secondary" onClick={() => handleAddWater(1000)}>1L</Button>
-              </div>
+              
+              <Tabs defaultValue="quick" className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="quick">Quick Add</TabsTrigger>
+                  <TabsTrigger value="bottles">Bottles</TabsTrigger>
+                  <TabsTrigger value="custom">Custom</TabsTrigger>
+                </TabsList>
+                <TabsContent value="quick" className="pt-4">
+                   <div className="grid grid-cols-3 gap-2 w-full">
+                    <Button variant="secondary" onClick={() => handleAddWater(50)}><Droplets className="mr-1" />Sip</Button>
+                    <Button variant="secondary" onClick={() => handleAddWater(150)}><GlassWater className="mr-1" />Small</Button>
+                    <Button variant="secondary" onClick={() => handleAddWater(300)}><GlassWater className="mr-1" />Large</Button>
+                  </div>
+                </TabsContent>
+                <TabsContent value="bottles" className="pt-4">
+                   <div className="grid grid-cols-3 gap-2 w-full">
+                    <Button variant="secondary" onClick={() => handleAddWater(600)}><Beaker className="mr-1" />600ml</Button>
+                    <Button variant="secondary" onClick={() => handleAddWater(750)}><Beaker className="mr-1" />750ml</Button>
+                    <Button variant="secondary" onClick={() => handleAddWater(1000)}><Beaker className="mr-1" />1L</Button>
+                  </div>
+                </TabsContent>
+                <TabsContent value="custom" className="pt-4 space-y-4">
+                  <div className="w-full space-y-2">
+                    <Label htmlFor="manual-add">Log Custom Amount (ml)</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="manual-add"
+                        type="number"
+                        placeholder="e.g. 187"
+                        value={manualAmount}
+                        onChange={(e) => setManualAmount(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && handleManualAdd()}
+                        className="font-code"
+                      />
+                      <Button onClick={handleManualAdd}>Add</Button>
+                    </div>
+                  </div>
+                   <div className="space-y-2">
+                    <Label>Log Other Drinks</Label>
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a drink type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="herbal-tea">Herbal Tea</SelectItem>
+                        <SelectItem value="fruit-infused">Fruit-Infused Water</SelectItem>
+                        <SelectItem value="electrolyte">Electrolyte Water</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button variant="outline" className="w-full" disabled>
+                    <Mic className="mr-2 h-4 w-4" />
+                    Voice Logging (Coming Soon)
+                  </Button>
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
 
