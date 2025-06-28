@@ -57,17 +57,17 @@ function SignupPageContents() {
                 alt="Brick wall background"
                 fill
                 priority
-                className="object-cover opacity-40"
+                className="object-cover opacity-50"
             />
             <div 
-                className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-[80%]"
+                className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-[60%]"
                 style={{
-                    background: 'radial-gradient(circle at 50% 0, rgba(247, 242, 211, 0.15) 0%, transparent 70%)'
+                    background: 'radial-gradient(circle at 50% 0, rgba(247, 242, 211, 0.2) 0%, transparent 70%)'
                 }}
             />
         </div>
         
-        <Card className="w-full max-w-sm bg-[#4f3b31]/75 backdrop-blur-sm border border-[#6a5349] rounded-2xl shadow-2xl z-10">
+        <Card className="w-full max-w-sm bg-[#4f3b31]/60 backdrop-blur-md border border-[#6a5349] rounded-2xl shadow-2xl z-10">
             <CardHeader className="p-8 pb-4">
                 <CardTitle className="text-3xl font-bold text-center text-white">Sign Up</CardTitle>
             </CardHeader>
