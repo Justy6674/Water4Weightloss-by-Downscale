@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/lib/firebase';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp, type Timestamp } from 'firebase/firestore';
 
 // In a real app, you'd get this from Firebase Auth after implementing a login flow.
 const FAKE_USER_ID = "test-user-123";
@@ -34,8 +34,9 @@ export interface UserData {
         medicationDose: string;
         medicationReminder: boolean;
     };
-    updatedAt?: any;
-    createdAt?: any;
+    // Timestamps are stored as Firestore Timestamps but will be converted to strings for the client
+    updatedAt?: string | Timestamp;
+    createdAt?: string | Timestamp;
 }
 
 const defaultAppSettings: UserData['appSettings'] = {
@@ -59,6 +60,7 @@ const defaultBodyMetrics: UserData['bodyMetrics'] = {
     medicationReminder: false,
 };
 
+// This is the data for a new user, without server-generated timestamps
 const defaultUserData: Omit<UserData, 'updatedAt' | 'createdAt'> = {
     hydration: 1250,
     dailyGoal: 3000,
@@ -69,9 +71,18 @@ const defaultUserData: Omit<UserData, 'updatedAt' | 'createdAt'> = {
     bodyMetrics: defaultBodyMetrics,
 };
 
+/**
+ * Ensures that any Firestore Timestamp objects are converted to ISO strings,
+ * which are safe to pass from Server Components to Client Components.
+ */
+function makeDataSerializable(data: object): any {
+    return JSON.parse(JSON.stringify(data));
+}
+
 
 /**
  * Fetches user data from Firestore or creates it if it doesn't exist.
+ * This function also ensures the returned data is serializable for Next.js.
  */
 export async function getUserData(): Promise<UserData> {
     const userDocRef = doc(db, 'users', FAKE_USER_ID);
@@ -79,35 +90,48 @@ export async function getUserData(): Promise<UserData> {
         const userDocSnap = await getDoc(userDocRef);
 
         if (userDocSnap.exists()) {
-            const data = userDocSnap.data() as UserData;
-            // Handle non-serializable Timestamps
-            return JSON.parse(JSON.stringify(data));
+            // Document exists, return its data after ensuring it's serializable
+            const existingData = userDocSnap.data() as UserData;
+            return makeDataSerializable(existingData);
         } else {
-            // Create a new user document with default values
-            await setDoc(userDocRef, {
+            // Document doesn't exist, create it with default values
+            const newUserData = {
                 ...defaultUserData,
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp(),
-            });
+            };
+            await setDoc(userDocRef, newUserData);
             
-            // Re-fetch to get server-generated timestamps and ensure consistency
-            const newUserSnap = await getDoc(userDocRef);
-            const data = newUserSnap.data();
-            return JSON.parse(JSON.stringify(data));
+            // Return the default data immediately for a fast UI response.
+            // The server-generated timestamps will be fetched on the next load.
+            return makeDataSerializable({
+                ...defaultUserData,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            });
         }
     } catch (error) {
-        console.error("Firebase Error: Failed to get document.", error);
-        // This custom error will be more informative for the user if it's a setup issue.
-        throw new Error("Could not connect to the database. Please ensure Firestore is enabled in your Firebase project and that your .env.local file is configured correctly.");
+        console.error("Firebase Error: Failed to get or create document.", error);
+        // Provide a more detailed error for debugging common setup issues.
+        if (error instanceof Error && 'code' in error) {
+            const firebaseError = error as { code: string; message: string };
+            if (firebaseError.code === 'permission-denied' || firebaseError.code === 'unauthenticated') {
+                throw new Error("Could not read data due to a permissions issue. Please check your Firestore Security Rules and that your .env.local file is configured correctly.");
+            }
+        }
+        throw new Error("Could not connect to the database. Please ensure Firestore is enabled in your Firebase project.");
     }
 }
 
 /**
- * Updates user data in Firestore.
- * @param data - The partial user data to update.
+ * Updates user data in Firestore with the provided partial data.
+ * @param data - An object containing the fields to update.
  */
 export async function updateUserData(data: Partial<UserData>): Promise<void> {
-    if (!FAKE_USER_ID) return;
+    if (!FAKE_USER_ID) {
+        console.error("Update failed: No user ID provided.");
+        return;
+    };
     const userDocRef = doc(db, 'users', FAKE_USER_ID);
     try {
         await setDoc(userDocRef, {
@@ -116,6 +140,12 @@ export async function updateUserData(data: Partial<UserData>): Promise<void> {
         }, { merge: true });
     } catch (error) {
         console.error("Firebase Error: Failed to update user data:", error);
+        if (error instanceof Error && 'code' in error) {
+            const firebaseError = error as { code: string; message: string };
+            if (firebaseError.code === 'permission-denied') {
+                 throw new Error("Could not save data. This is a permissions issue. Please check your Firestore Security Rules in the Firebase console.");
+            }
+        }
         throw new Error("Could not save data to the database. Please check your Firestore connection and permissions.");
     }
 }
