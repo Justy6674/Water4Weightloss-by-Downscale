@@ -40,6 +40,12 @@ function LoginPageContents() {
         return () => unsubscribe();
     }, []);
 
+    useEffect(() => {
+      if (user) {
+        router.push('/dashboard');
+      }
+    }, [user, router]);
+
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsLoading(true)
@@ -72,13 +78,8 @@ function LoginPageContents() {
         }
     }
     
-    if (checkingAuth) {
-        return null; // or a loading spinner
-    }
-
-    if (user) {
-        router.push('/dashboard');
-        return null; // or a loading spinner
+    if (checkingAuth || user) {
+        return null; // or a loading spinner while auth state is being checked or redirecting
     }
 
   return (
