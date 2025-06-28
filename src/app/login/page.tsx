@@ -17,7 +17,8 @@ import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { signInWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence, onAuthStateChanged, type User } from "firebase/auth"
 import { auth } from "@/lib/firebase"
-import { User as UserIcon, Lock } from "lucide-react"
+import { User as UserIcon, Lock, Terminal } from "lucide-react"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 function LoginPageContents() {
     const [email, setEmail] = useState("")
@@ -26,6 +27,7 @@ function LoginPageContents() {
     const [isLoading, setIsLoading] = useState(false)
     const [user, setUser] = useState<User | null>(null)
     const [checkingAuth, setCheckingAuth] = useState(true);
+    const [authError, setAuthError] = useState<string | null>(null);
     const router = useRouter()
     const { toast } = useToast()
 
@@ -40,6 +42,7 @@ function LoginPageContents() {
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsLoading(true)
+        setAuthError(null);
         try {
             const persistence = rememberMe ? browserLocalPersistence : browserSessionPersistence;
             await setPersistence(auth, persistence)
@@ -58,10 +61,12 @@ function LoginPageContents() {
             } else if (firebaseError.message) {
                 description = firebaseError.message;
             }
+            
+            setAuthError(description);
             toast({
               variant: "destructive",
               title: "Login Failed",
-              description: description,
+              description: "Please see the error message on the screen for details.",
             });
         } finally {
             setIsLoading(false)
@@ -99,9 +104,18 @@ function LoginPageContents() {
         
         <Card className="w-full max-w-sm bg-slate-900/30 border-slate-700/0 rounded-2xl shadow-2xl z-10">
             <CardHeader className="p-8 pb-4">
-                <CardTitle className="text-3xl font-bold text-center text-[#f7f2d3]">Login</CardTitle>
+                <CardTitle className="text-3xl font-bold text-center text-[#f7f2d3] [text-shadow:0_2px_4px_rgba(0,0,0,0.5)]">Login</CardTitle>
             </CardHeader>
             <CardContent className="p-8 pt-0">
+                {authError && (
+                    <Alert variant="destructive" className="mb-6 bg-destructive/20 border-destructive/50 text-destructive-foreground">
+                        <Terminal className="h-4 w-4" />
+                        <AlertTitle>Configuration Error</AlertTitle>
+                        <AlertDescription className="text-destructive-foreground/90">
+                            {authError}
+                        </AlertDescription>
+                    </Alert>
+                )}
                 <form onSubmit={handleLogin} className="space-y-6">
                     <div className="space-y-4">
                         <div className="relative">
@@ -142,12 +156,12 @@ function LoginPageContents() {
                             />
                             <label
                                 htmlFor="remember-me"
-                                className="font-medium text-[#f7f2d3] leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                className="font-medium text-[#f7f2d3] leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 [text-shadow:0_1px_2px_rgba(0,0,0,0.5)]"
                             >
                                 Stay logged in
                             </label>
                         </div>
-                        <Link href="#" className="font-medium text-[#f7f2d3] hover:underline">
+                        <Link href="#" className="font-medium text-[#f7f2d3] hover:underline [text-shadow:0_1px_2px_rgba(0,0,0,0.5)]">
                             Forgot password?
                         </Link>
                     </div>
@@ -155,9 +169,9 @@ function LoginPageContents() {
                         {isLoading ? 'Logging in...' : 'Login'}
                     </Button>
                 </form>
-                <div className="mt-6 text-center text-sm text-[#f7f2d3]">
+                <div className="mt-6 text-center text-sm text-[#f7f2d3] [text-shadow:0_1px_2px_rgba(0,0,0,0.5)]">
                     Don&apos;t have an account?{" "}
-                    <Link href="/signup" className="underline font-bold text-[#f7f2d3]">
+                    <Link href="/signup" className="underline font-bold text-[#f7f2d3] [text-shadow:0_1px_2px_rgba(0,0,0,0.5)]">
                         Register
                     </Link>
                 </div>
