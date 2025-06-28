@@ -291,11 +291,6 @@ function DashboardContents() {
     }
   }
 
-  const handleMobileNav = (tab: string) => {
-    setActiveTab(tab);
-    setIsMenuOpen(false);
-  };
-  
   if (loadingError) {
     return (
       <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 lg:p-8 font-body flex items-center justify-center">
@@ -377,15 +372,21 @@ service cloud.firestore {
                     </div>
 
                     <nav className="py-4 space-y-1">
-                        <Button variant={activeTab === 'gamification' ? 'secondary' : 'ghost'} onClick={() => handleMobileNav('gamification')} className="w-full justify-start text-base py-6 px-4">
+                      <SheetClose asChild>
+                        <Button variant={activeTab === 'gamification' ? 'secondary' : 'ghost'} onClick={() => setActiveTab('gamification')} className="w-full justify-start text-base py-6 px-4">
                             <Trophy className="mr-3 h-5 w-5" /> Gamification
                         </Button>
-                        <Button variant={activeTab === 'weight' ? 'secondary' : 'ghost'} onClick={() => handleMobileNav('weight')} className="w-full justify-start text-base py-6 px-4">
+                      </SheetClose>
+                      <SheetClose asChild>
+                        <Button variant={activeTab === 'weight' ? 'secondary' : 'ghost'} onClick={() => setActiveTab('weight')} className="w-full justify-start text-base py-6 px-4">
                             <TrendingUp className="mr-3 h-5 w-5" /> Body Metrics
                         </Button>
-                        <Button variant={activeTab === 'settings' ? 'secondary' : 'ghost'} onClick={() => handleMobileNav('settings')} className="w-full justify-start text-base py-6 px-4">
+                      </SheetClose>
+                      <SheetClose asChild>
+                        <Button variant={activeTab === 'settings' ? 'secondary' : 'ghost'} onClick={() => setActiveTab('settings')} className="w-full justify-start text-base py-6 px-4">
                             <Settings className="mr-3 h-5 w-5" /> Settings
                         </Button>
+                      </SheetClose>
                     </nav>
 
                     <div className="mt-auto border-t p-4 space-y-2">
@@ -396,10 +397,12 @@ service cloud.firestore {
                              </Link>
                            </Button>
                          </SheetClose>
-                        <Button variant="outline" onClick={handleLogout} className="w-full justify-start">
-                             <LogOut className="mr-2 h-4 w-4" />
-                             Logout
-                        </Button>
+                        <SheetClose asChild>
+                          <Button variant="outline" onClick={handleLogout} className="w-full justify-start">
+                               <LogOut className="mr-2 h-4 w-4" />
+                               Logout
+                          </Button>
+                        </SheetClose>
                     </div>
                 </SheetContent>
             </Sheet>
@@ -739,3 +742,5 @@ service cloud.firestore {
 export default function Dashboard() {
   return <DashboardContents />
 }
+
+    
