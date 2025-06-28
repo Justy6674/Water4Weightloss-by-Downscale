@@ -1,4 +1,3 @@
-
 "use client"
 
 import Link from "next/link"
@@ -93,7 +92,7 @@ function LoginPageContents() {
             />
         </div>
         
-        <Card className="w-full max-w-sm bg-[#4f3b31]/10 backdrop-blur-md border border-[#6a5349]/50 rounded-2xl shadow-2xl z-10">
+        <Card className="w-full max-w-sm bg-black/20 border border-white/20 rounded-2xl shadow-2xl z-10">
             <CardHeader className="p-8 pb-4">
                 <CardTitle className="text-3xl font-bold text-center text-white">Login</CardTitle>
             </CardHeader>
