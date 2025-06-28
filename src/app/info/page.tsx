@@ -1,3 +1,4 @@
+
 "use client"
 import Link from "next/link"
 import { ArrowLeft, BookUser } from "lucide-react"
@@ -11,7 +12,7 @@ export default function InfoPage() {
     <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 lg:p-8 font-body">
       <div className="max-w-4xl mx-auto">
         <Button asChild variant="outline" className="mb-8">
-          <Link href="/">
+          <Link href="/dashboard">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Dashboard
           </Link>
