@@ -13,8 +13,16 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Developer-friendly error if any key is missing
-const missingKeys = Object.entries(firebaseConfig)
+// Essential keys for core functionality (Auth, Firestore)
+const requiredConfig = {
+    apiKey: firebaseConfig.apiKey,
+    authDomain: firebaseConfig.authDomain,
+    projectId: firebaseConfig.projectId,
+    storageBucket: firebaseConfig.storageBucket,
+};
+
+// Developer-friendly error if any essential key is missing
+const missingKeys = Object.entries(requiredConfig)
   .filter(([, value]) => !value || value.includes("YOUR_"))
   .map(([key]) => key);
 
@@ -24,12 +32,9 @@ if (missingKeys.length > 0) {
         authDomain: "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN",
         projectId: "NEXT_PUBLIC_FIREBASE_PROJECT_ID",
         storageBucket: "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET",
-        messagingSenderId: "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID",
-        appId: "NEXT_PUBLIC_FIREBASE_APP_ID",
-        measurementId: "NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID",
     };
     const missingVarNames = missingKeys.map(key => keyMap[key as keyof typeof keyMap]).join(', ');
-    throw new Error(`Firebase configuration is missing or invalid. Please check your .env.local file for the following environment variables: ${missingVarNames}. You can find these values in your Firebase project settings under "Web app" configuration.`);
+    throw new Error(`Firebase configuration is missing or invalid. Please check your .env.local file for the following required environment variables: ${missingVarNames}. You can find these values in your Firebase project settings under "Web app" configuration.`);
 }
 
 
