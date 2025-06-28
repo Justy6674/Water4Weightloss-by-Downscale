@@ -48,6 +48,7 @@ function DashboardContents() {
   const [phone, setPhone] = useState("");
   const [isSavingPhone, setIsSavingPhone] = useState(false);
   const [activeTab, setActiveTab] = useState("gamification");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
 
   useEffect(() => {
@@ -289,6 +290,11 @@ function DashboardContents() {
       setIsDeleteDialogOpen(false)
     }
   }
+
+  const handleMobileNav = (tab: string) => {
+    setActiveTab(tab);
+    setIsMenuOpen(false);
+  };
   
   if (loadingError) {
     return (
@@ -358,7 +364,7 @@ service cloud.firestore {
         </div>
         
         <div className="lg:hidden">
-            <Sheet>
+            <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
                 <SheetTrigger asChild>
                     <Button variant="outline" size="icon">
                         <Menu className="h-6 w-6" />
@@ -371,29 +377,25 @@ service cloud.firestore {
                     </div>
 
                     <nav className="py-4 space-y-1">
-                        <SheetClose asChild>
-                            <Button variant={activeTab === 'gamification' ? 'secondary' : 'ghost'} onClick={() => setActiveTab('gamification')} className="w-full justify-start text-base py-6 px-4">
-                                <Trophy className="mr-3 h-5 w-5" /> Gamification
-                            </Button>
-                        </SheetClose>
-                         <SheetClose asChild>
-                            <Button variant={activeTab === 'weight' ? 'secondary' : 'ghost'} onClick={() => setActiveTab('weight')} className="w-full justify-start text-base py-6 px-4">
-                                <TrendingUp className="mr-3 h-5 w-5" /> Body Metrics
-                            </Button>
-                        </SheetClose>
-                         <SheetClose asChild>
-                            <Button variant={activeTab === 'settings' ? 'secondary' : 'ghost'} onClick={() => setActiveTab('settings')} className="w-full justify-start text-base py-6 px-4">
-                                <Settings className="mr-3 h-5 w-5" /> Settings
-                            </Button>
-                        </SheetClose>
+                        <Button variant={activeTab === 'gamification' ? 'secondary' : 'ghost'} onClick={() => handleMobileNav('gamification')} className="w-full justify-start text-base py-6 px-4">
+                            <Trophy className="mr-3 h-5 w-5" /> Gamification
+                        </Button>
+                        <Button variant={activeTab === 'weight' ? 'secondary' : 'ghost'} onClick={() => handleMobileNav('weight')} className="w-full justify-start text-base py-6 px-4">
+                            <TrendingUp className="mr-3 h-5 w-5" /> Body Metrics
+                        </Button>
+                        <Button variant={activeTab === 'settings' ? 'secondary' : 'ghost'} onClick={() => handleMobileNav('settings')} className="w-full justify-start text-base py-6 px-4">
+                            <Settings className="mr-3 h-5 w-5" /> Settings
+                        </Button>
                     </nav>
 
                     <div className="mt-auto border-t p-4 space-y-2">
-                         <Button asChild variant="outline" className="w-full justify-start">
-                           <Link href="https://buy.stripe.com/fZu5kvexV0Mf3Qr3Dsf3a03" target="_blank" rel="noopener noreferrer">
-                             <ExternalLink className="mr-2 h-4 w-4" /> Manage Subscription
-                           </Link>
-                       </Button>
+                         <SheetClose asChild>
+                           <Button asChild variant="outline" className="w-full justify-start">
+                             <Link href="https://buy.stripe.com/fZu5kvexV0Mf3Qr3Dsf3a03" target="_blank" rel="noopener noreferrer">
+                               <ExternalLink className="mr-2 h-4 w-4" /> Manage Subscription
+                             </Link>
+                           </Button>
+                         </SheetClose>
                         <Button variant="outline" onClick={handleLogout} className="w-full justify-start">
                              <LogOut className="mr-2 h-4 w-4" />
                              Logout
