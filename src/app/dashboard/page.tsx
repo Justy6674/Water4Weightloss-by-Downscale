@@ -9,27 +9,27 @@ import { useRouter } from "next/navigation"
 import { onAuthStateChanged, type User } from "firebase/auth"
 import { auth, db } from "@/lib/firebase"
 import { doc, getDoc, setDoc, serverTimestamp, type Timestamp } from "firebase/firestore"
-import { Flame, Droplets, Settings, Trophy, TrendingUp, Bot, Star, Sparkles, BellDot, Vibrate, MessageSquareText, Link as LinkIcon, Watch, Mic, BookUser, Info, LogOut, Trash2, ExternalLink, Save, Menu } from "lucide-react"
-import { Button, buttonVariants } from "@/components/ui/button"
+import { Droplets, Settings, Trash2, LogOut, ExternalLink, Cog } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
-import { Sheet, SheetContent, SheetClose, SheetTrigger } from "@/components/ui/sheet"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from "@/components/ui/sheet"
 import { useToast } from "@/hooks/use-toast"
 import { WaterGlass } from "@/components/water-glass"
 import { BodyMetrics } from "@/components/body-metrics"
+import { MedicationTracking } from "@/components/medication-tracking"
+import { InfoContent } from "@/components/info-content"
 import { generateMotivation, MotivationInput } from "@/ai/flows/personalized-motivation"
 import { Confetti } from "@/components/confetti"
-import { updateUserData, deleteUserData, savePhoneNumberAndSendConfirmation } from "@/lib/actions"
+import { updateUserData, deleteUserData } from "@/lib/actions"
 import { type UserData, type Tone, defaultUserData } from "@/lib/user-data"
+import { AppSettings } from "@/components/app-settings"
 
 type MilestoneStatus = MotivationInput['milestoneStatus'];
 
@@ -45,12 +45,8 @@ function DashboardContents() {
   const [motivation, setMotivation] = useState("Let's get hydrated!")
   const [isLoadingMotivation, setIsLoadingMotivation] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [phone, setPhone] = useState("");
-  const [isSavingPhone, setIsSavingPhone] = useState(false);
-  const [activeTab, setActiveTab] = useState("gamification");
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("dashboard");
   const initialMotivationFetched = useRef(false);
-
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -65,17 +61,6 @@ function DashboardContents() {
   }, [router]);
 
   useEffect(() => {
-    const makeDataSerializable = (data: any): UserData => {
-        const sanitizedData = { ...data };
-        for (const key in sanitizedData) {
-            const value = (sanitizedData as any)[key];
-            if (value && typeof value === 'object' && 'toDate' in value) {
-                (sanitizedData as any)[key] = (value as Timestamp).toDate().toISOString();
-            }
-        }
-        return sanitizedData as UserData;
-    }
-    
     const loadData = async (userId: string) => {
       setLoadingError(null);
       const userDocRef = doc(db, 'users', userId);
@@ -85,26 +70,29 @@ function DashboardContents() {
 
         if (!userDocSnap.exists()) {
           console.log("User document not found, creating one now for user:", userId);
-          // Create the document with default data and server timestamps
-          await setDoc(userDocRef, {
+          const newUserData = {
             ...defaultUserData,
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
-          });
-          // Re-fetch the document to get the created data
+          };
+          await setDoc(userDocRef, newUserData);
           userDocSnap = await getDoc(userDocRef);
 
           if (!userDocSnap.exists()) {
-            // This should now only happen if the rules are wrong
             throw new Error("DATABASE ACCESS DENIED. Could not create user profile. This is a security rules issue.");
           }
         }
 
-        const data = makeDataSerializable(userDocSnap.data() as UserData);
-        setUserData(data);
-        if (data.bodyMetrics?.phone) {
-          setPhone(data.bodyMetrics.phone);
+        const data = userDocSnap.data() as UserData;
+        const serializableData = { ...data };
+        if (data.createdAt instanceof Timestamp) {
+            serializableData.createdAt = data.createdAt.toDate().toISOString();
         }
+        if (data.updatedAt instanceof Timestamp) {
+            serializableData.updatedAt = data.updatedAt.toDate().toISOString();
+        }
+        
+        setUserData(serializableData);
       } catch (error) {
         console.error("Failed to load user data:", error);
         
@@ -125,7 +113,6 @@ function DashboardContents() {
                  errorMessage = error.message;
             }
         }
-        
         setLoadingError(errorMessage);
       }
     };
@@ -134,7 +121,7 @@ function DashboardContents() {
       loadData(user.uid);
     }
   }, [user]);
-
+  
   const hydrationPercentage = useMemo(() => {
     if (!userData) return 0;
     return (userData.hydration / userData.dailyGoal) * 100;
@@ -201,7 +188,6 @@ function DashboardContents() {
   }, [userData, hydrationPercentage, getMilestoneContext, getTimeOfDay, toast]);
 
   useEffect(() => {
-    // Fetches motivation once when user data is loaded for the first time.
     if (userData && !initialMotivationFetched.current) {
       fetchMotivation(userData.lastDrinkSize || 0);
       initialMotivationFetched.current = true;
@@ -232,54 +218,34 @@ function DashboardContents() {
       setManualAmount("")
     }
   }
-
-  const handleSettingChange = (key: keyof UserData['appSettings'], value: string | boolean) => {
-    if (!userData || !user) return;
-    const newAppSettings = { ...userData.appSettings, [key]: value };
-    setUserData({ ...userData, appSettings: newAppSettings });
-    updateUserData(user.uid, { appSettings: newAppSettings });
-  };
   
-  const handleToneChange = (value: Tone) => {
+  const handleSettingsUpdate = (updatedSettings: Partial<UserData>) => {
     if (!userData || !user) return;
-    setUserData({ ...userData, motivationTone: value });
-    updateUserData(user.uid, { motivationTone: value });
-  };
-  
-  const handleGoalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!userData || !user) return;
-    const newGoal = Number(e.target.value);
-    setUserData({ ...userData, dailyGoal: newGoal });
-    // This could be debounced in a real app
-    updateUserData(user.uid, { dailyGoal: newGoal });
+    const newUserData = { ...userData, ...updatedSettings };
+    if (updatedSettings.appSettings) {
+      newUserData.appSettings = { ...userData.appSettings, ...updatedSettings.appSettings };
+    }
+    if (updatedSettings.bodyMetrics) {
+      newUserData.bodyMetrics = { ...userData.bodyMetrics, ...updatedSettings.bodyMetrics };
+    }
+    setUserData(newUserData);
+    updateUserData(user.uid, updatedSettings);
   };
 
   const handleMetricsSave = (metrics: UserData['bodyMetrics']) => {
     if (!userData || !user) return;
-    setUserData({ ...userData, bodyMetrics: metrics });
-    updateUserData(user.uid, { bodyMetrics: metrics });
+    const updatedBodyMetrics = { ...userData.bodyMetrics, ...metrics };
+    setUserData({ ...userData, bodyMetrics: updatedBodyMetrics });
+    updateUserData(user.uid, { bodyMetrics: updatedBodyMetrics });
     toast({ title: "Metrics Saved", description: "Your body metrics have been updated." });
   };
 
-  const handleSavePhone = async () => {
-    if (!user || !phone) {
-      toast({ variant: "destructive", title: "Error", description: "Please enter a valid phone number." });
-      return;
-    }
-    setIsSavingPhone(true);
-    try {
-      const result = await savePhoneNumberAndSendConfirmation(user.uid, phone);
-      if (result.success) {
-        toast({ title: "Success", description: result.message });
-      } else {
-        toast({ variant: "destructive", title: "Error", description: result.message });
-      }
-    } catch (error) {
-      const description = error instanceof Error ? error.message : "An unexpected error occurred.";
-      toast({ variant: "destructive", title: "Failed to Save", description });
-    } finally {
-      setIsSavingPhone(false);
-    }
+  const handleMedicationSave = (medication: Partial<UserData['bodyMetrics']>) => {
+    if (!userData || !user) return;
+    const updatedBodyMetrics = { ...userData.bodyMetrics, ...medication };
+    setUserData({ ...userData, bodyMetrics: updatedBodyMetrics });
+    updateUserData(user.uid, { bodyMetrics: updatedBodyMetrics });
+    toast({ title: "Medication Saved", description: "Your medication details have been updated." });
   };
   
   const handleLogout = async () => {
@@ -359,7 +325,7 @@ service cloud.firestore {
   return (
     <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 lg:p-8 font-body">
       {showConfetti && <Confetti onConfettiComplete={() => setShowConfetti(false)} />}
-      <header className="mb-8 flex justify-between items-center">
+      <header className="mb-4 flex justify-between items-center">
         <div className="flex items-center gap-4">
             <Image src="/logo.png" alt="Water4Weightloss Logo" width={60} height={60} data-ai-hint="water droplet" />
             <div>
@@ -368,369 +334,179 @@ service cloud.firestore {
             </div>
         </div>
         
-        <div className="lg:hidden">
-            <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-                <SheetTrigger asChild>
-                    <Button variant="outline" size="icon">
-                        <Menu className="h-6 w-6" />
-                    </Button>
-                </SheetTrigger>
-                <SheetContent side="right" className="flex flex-col p-0">
-                   <div className="p-4 border-b">
-                      <p className="font-semibold text-sm text-muted-foreground">Signed in as</p>
-                      <p className="text-foreground truncate font-medium">{user.email}</p>
-                    </div>
-
-                    <nav className="py-4 space-y-1">
-                      <SheetClose asChild>
-                        <Button variant={activeTab === 'gamification' ? 'secondary' : 'ghost'} onClick={() => setActiveTab('gamification')} className="w-full justify-start text-base py-6 px-4">
-                            <Trophy className="mr-3 h-5 w-5" /> Gamification
-                        </Button>
-                      </SheetClose>
-                      <SheetClose asChild>
-                        <Button variant={activeTab === 'weight' ? 'secondary' : 'ghost'} onClick={() => setActiveTab('weight')} className="w-full justify-start text-base py-6 px-4">
-                            <TrendingUp className="mr-3 h-5 w-5" /> Body Metrics
-                        </Button>
-                      </SheetClose>
-                      <SheetClose asChild>
-                        <Button variant={activeTab === 'settings' ? 'secondary' : 'ghost'} onClick={() => setActiveTab('settings')} className="w-full justify-start text-base py-6 px-4">
-                            <Settings className="mr-3 h-5 w-5" /> Settings
-                        </Button>
-                      </SheetClose>
-                    </nav>
-
-                    <div className="mt-auto border-t p-4 space-y-2">
-                         <SheetClose asChild>
-                           <Button asChild variant="outline" className="w-full justify-start">
-                             <Link href="https://buy.stripe.com/fZu5kvexV0Mf3Qr3Dsf3a03" target="_blank" rel="noopener noreferrer">
-                               <ExternalLink className="mr-2 h-4 w-4" /> Manage Subscription
-                             </Link>
-                           </Button>
-                         </SheetClose>
-                        <SheetClose asChild>
-                          <Button variant="outline" onClick={handleLogout} className="w-full justify-start">
-                               <LogOut className="mr-2 h-4 w-4" />
-                               Logout
-                          </Button>
-                        </SheetClose>
-                    </div>
-                </SheetContent>
-            </Sheet>
-        </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8">
-        <div className="lg:col-span-2 flex flex-col gap-8">
-          <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>Today's Hydration</span>
-                <Droplets className="text-primary" />
-              </CardTitle>
-              <CardDescription>{userData.hydration}ml / {userData.dailyGoal}ml</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col items-center gap-4">
-              <WaterGlass percentage={hydrationPercentage} />
-              <Progress value={hydrationPercentage} className="w-full h-3" />
-              
-              <Tabs defaultValue="quick" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="quick">Quick Add</TabsTrigger>
-                  <TabsTrigger value="bottles">Bottles</TabsTrigger>
-                  <TabsTrigger value="custom">Custom</TabsTrigger>
-                </TabsList>
-                <TabsContent value="quick" className="pt-4">
-                   <div className="grid grid-cols-3 gap-2 w-full">
-                    <Button variant="secondary" onClick={() => handleAddWater(50)} className="h-auto flex-col py-2 gap-0">
-                      <span className="font-semibold">Sip</span>
-                      <span className="text-xs text-muted-foreground">50ml</span>
-                    </Button>
-                    <Button variant="secondary" onClick={() => handleAddWater(150)} className="h-auto flex-col py-2 gap-0">
-                      <span className="font-semibold">Small</span>
-                      <span className="text-xs text-muted-foreground">150ml</span>
-                    </Button>
-                    <Button variant="secondary" onClick={() => handleAddWater(300)} className="h-auto flex-col py-2 gap-0">
-                      <span className="font-semibold">Large</span>
-                      <span className="text-xs text-muted-foreground">300ml</span>
-                    </Button>
-                  </div>
-                </TabsContent>
-                <TabsContent value="bottles" className="pt-4">
-                   <div className="grid grid-cols-3 gap-2 w-full">
-                    <Button variant="secondary" onClick={() => handleAddWater(600)} className="h-auto flex-col py-2 gap-0">
-                      <span className="font-semibold">Bottle</span>
-                      <span className="text-xs text-muted-foreground">600ml</span>
-                    </Button>
-                    <Button variant="secondary" onClick={() => handleAddWater(750)} className="h-auto flex-col py-2 gap-0">
-                      <span className="font-semibold">Bottle</span>
-                      <span className="text-xs text-muted-foreground">750ml</span>
-                    </Button>
-                    <Button variant="secondary" onClick={() => handleAddWater(1000)} className="h-auto flex-col py-2 gap-0">
-                      <span className="font-semibold">Bottle</span>
-                      <span className="text-xs text-muted-foreground">1L</span>
-                    </Button>
-                  </div>
-                </TabsContent>
-                <TabsContent value="custom" className="pt-4 space-y-4">
-                  <div className="w-full space-y-2">
-                    <Label htmlFor="manual-add">Log Custom Amount (ml)</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        id="manual-add"
-                        type="number"
-                        placeholder="e.g. 187"
-                        value={manualAmount}
-                        onChange={(e) => setManualAmount(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && handleManualAdd()}
-                        className="font-code"
-                      />
-                      <Button onClick={handleManualAdd}>Add</Button>
-                    </div>
-                  </div>
-                   <div className="space-y-2">
-                    <Label>Log Other Drinks</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a drink type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="herbal-tea">Herbal Tea</SelectItem>
-                        <SelectItem value="fruit-infused">Fruit-Infused Water</SelectItem>
-                        <SelectItem value="electrolyte">Electrolyte Water</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <Button variant="outline" className="w-full" disabled>
-                    <Mic className="mr-2 h-4 w-4" />
-                    Voice Logging (Coming Soon)
-                  </Button>
-                </TabsContent>
-              </Tabs>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Bot className="text-primary" />
-                AI Motivation
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isLoadingMotivation ? (
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-3/4" />
-                </div>
-              ) : (
-                <blockquote className="border-l-2 border-primary pl-4 italic text-card-foreground">
-                  {motivation}
-                </blockquote>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="lg:col-span-3">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="hidden lg:grid w-full grid-cols-3 mb-4">
-              <TabsTrigger value="gamification">Gamification &amp; Alerts</TabsTrigger>
-              <TabsTrigger value="weight">Body Metrics</TabsTrigger>
-              <TabsTrigger value="settings">App Settings</TabsTrigger>
-            </TabsList>
-            <TabsContent value="gamification">
-               <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
-                <CardHeader>
-                    <CardTitle>Gamification &amp; Notifications</CardTitle>
-                    <CardDescription>Customize your motivational experience and reminders.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    <div>
-                        <h3 className="mb-4 font-medium text-foreground">Gamification Features</h3>
-                        <div className="space-y-2">
-                            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                                <Label htmlFor="daily-streaks" className="flex items-center gap-3 font-medium">
-                                    <Flame className="w-5 h-5 text-primary" />
-                                    Daily Streaks
-                                 </Label>
-                                <Switch id="daily-streaks" checked={userData.appSettings.dailyStreaks} onCheckedChange={(v) => handleSettingChange('dailyStreaks', v)} />
-                            </div>
-                             <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                                <Label htmlFor="achievement-badges" className="flex items-center gap-3 font-medium">
-                                    <Trophy className="w-5 h-5 text-primary" />
-                                    Achievement Badges
-                                 </Label>
-                                <Switch id="achievement-badges" checked={userData.appSettings.achievementBadges} onCheckedChange={(v) => handleSettingChange('achievementBadges', v)} />
-                            </div>
-                             <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                                <Label htmlFor="progress-milestones" className="flex items-center gap-3 font-medium">
-                                    <Star className="w-5 h-5 text-primary" />
-                                    Progress Milestones
-                                 </Label>
-                                <Switch id="progress-milestones" checked={userData.appSettings.progressMilestones} onCheckedChange={(v) => handleSettingChange('progressMilestones', v)} />
-                            </div>
-                             <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                                <Label htmlFor="confetti-effects" className="flex items-center gap-3 font-medium">
-                                    <Sparkles className="w-5 h-5 text-primary" />
-                                    Confetti Effects
-                                 </Label>
-                                <Switch id="confetti-effects" checked={userData.appSettings.confettiEffects} onCheckedChange={(v) => handleSettingChange('confettiEffects', v)} />
-                            </div>
-                        </div>
-                    </div>
-                     <div>
-                        <h3 className="mb-4 font-medium text-foreground">Notifications</h3>
-                        <div className="space-y-2">
-                            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                                <Label htmlFor="push-notifications" className="flex items-center gap-3 font-medium">
-                                   <BellDot className="w-5 h-5 text-primary" />
-                                   Push Notifications
-                                 </Label>
-                                <Switch id="push-notifications" checked={userData.appSettings.pushNotifications} onCheckedChange={(v) => handleSettingChange('pushNotifications', v)} />
-                            </div>
-                            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                                <Label htmlFor="sms-reminders" className="flex items-center gap-3 font-medium">
-                                   <MessageSquareText className="w-5 h-5 text-primary" />
-                                   SMS Reminders
-                                 </Label>
-                                <Switch id="sms-reminders" checked={userData.appSettings.smsReminders} onCheckedChange={(v) => handleSettingChange('smsReminders', v)} />
-                            </div>
-                             {userData.appSettings.smsReminders && (
-                              <div className="p-3 rounded-lg bg-muted/30 space-y-2">
-                                <Label htmlFor="phone-number">Phone Number for SMS</Label>
-                                <div className="flex gap-2">
-                                  <Input 
-                                    id="phone-number" 
-                                    type="tel" 
-                                    placeholder="e.g. +15551234567" 
-                                    value={phone} 
-                                    onChange={(e) => setPhone(e.target.value)}
-                                    disabled={isSavingPhone}
-                                  />
-                                  <Button onClick={handleSavePhone} disabled={isSavingPhone}>
-                                    <Save className="mr-2 h-4 w-4" />
-                                    {isSavingPhone ? "Saving..." : "Save"}
-                                  </Button>
-                                </div>
-                                <p className="text-xs text-muted-foreground">Please use E.164 format. A confirmation text will be sent.</p>
-                              </div>
-                            )}
-                            <div className="p-3 rounded-lg bg-muted/30 space-y-3">
-                                <Label className="flex items-center gap-3 font-medium"><Vibrate className="w-5 h-5 text-primary"/> Vibration Feedback</Label>
-                                <RadioGroup value={userData.appSettings.vibrationFeedback} onValueChange={(v) => handleSettingChange('vibrationFeedback', v)} className="flex space-x-4 pt-1">
-                                    <div className="flex items-center space-x-2">
-                                        <RadioGroupItem value="light" id="v1" />
-                                        <Label htmlFor="v1">Light</Label>
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                        <RadioGroupItem value="medium" id="v2" />
-                                        <Label htmlFor="v2">Medium</Label>
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                        <RadioGroupItem value="heavy" id="v3" />
-                                        <Label htmlFor="v3">Heavy</Label>
-                                    </div>
-                                </RadioGroup>
-                            </div>
-                            <div className="p-3 rounded-lg bg-muted/30 space-y-3">
-                                <Label className="font-medium">Notification Frequency</Label>
-                                <RadioGroup value={userData.appSettings.notificationFrequency} onValueChange={(v) => handleSettingChange('notificationFrequency', v)} className="flex space-x-4 pt-1">
-                                    <div className="flex items-center space-x-2">
-                                        <RadioGroupItem value="minimal" id="r1" />
-                                        <Label htmlFor="r1">Minimal</Label>
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                        <RadioGroupItem value="moderate" id="r2" />
-                                        <Label htmlFor="r2">Moderate</Label>
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                        <RadioGroupItem value="frequent" id="r3" />
-                                        <Label htmlFor="r3">Frequent</Label>
-                                    </div>
-                                </RadioGroup>
-                            </div>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-            </TabsContent>
-            <TabsContent value="weight">
-                <BodyMetrics initialMetrics={userData.bodyMetrics} onSave={handleMetricsSave} />
-            </TabsContent>
-            <TabsContent value="settings">
-              <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
-                <CardHeader>
-                  <CardTitle>Settings</CardTitle>
-                  <CardDescription>Customize your experience and manage your account.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>AI Motivation Tone</Label>
-                    <Select value={userData.motivationTone} onValueChange={handleToneChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a tone" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="supportive">Supportive</SelectItem>
-                        <SelectItem value="funny">Funny</SelectItem>
-                        <SelectItem value="sarcastic">Sarcastic</SelectItem>
-                        <SelectItem value="crass">Crass</SelectItem>
-                        <SelectItem value="kind">Kind</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Daily Hydration Goal (ml)</Label>
-                    <Input 
-                      type="number" 
-                      value={userData.dailyGoal} 
-                      onChange={handleGoalChange}
-                      className="font-code"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                     <Button asChild variant="outline" className="w-full">
-                       <Link href="/info">
-                         <Info className="mr-2 h-4 w-4" />
-                         Learn More About Hydration
-                       </Link>
-                     </Button>
-                  </div>
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                    <Label htmlFor="link-devices" className="flex items-center gap-3 font-medium">
-                       <LinkIcon className="w-5 h-5 text-primary" />
-                       Link with other devices
-                    </Label>
-                    <Switch id="link-devices" disabled />
-                  </div>
-                   <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                    <Label htmlFor="wearable-mode" className="flex items-center gap-3 font-medium">
-                       <Watch className="w-5 h-5 text-primary" />
-                       Optimise for wearable devices
-                    </Label>
-                    <Switch id="wearable-mode" disabled />
-                  </div>
-                  <Separator className="my-6" />
-                  <div className="space-y-4">
-                      <h3 className="text-lg font-medium">Account Management</h3>
+        <Sheet>
+            <SheetTrigger asChild>
+                <Button variant="outline" size="icon">
+                    <Settings className="h-6 w-6" />
+                </Button>
+            </SheetTrigger>
+            <SheetContent className="w-full sm:max-w-md p-0 flex flex-col">
+                <SheetHeader className="p-6 pb-4 border-b">
+                  <SheetTitle>Settings &amp; Account</SheetTitle>
+                </SheetHeader>
+                <div className="flex-grow overflow-y-auto p-6 space-y-8">
+                   <AppSettings userData={userData} onUpdate={handleSettingsUpdate} />
+                   
+                   <div className="space-y-4">
+                      <h3 className="text-lg font-medium text-foreground">Account Management</h3>
                        <Button asChild variant="outline" className="w-full justify-start gap-2">
                            <Link href="https://buy.stripe.com/fZu5kvexV0Mf3Qr3Dsf3a03" target="_blank" rel="noopener noreferrer">
                              <ExternalLink className="h-4 w-4" />
                              Manage Subscription
                            </Link>
                        </Button>
+                       <SheetClose asChild>
+                         <Button variant="outline" onClick={handleLogout} className="w-full justify-start gap-2">
+                             <LogOut className="h-4 w-4" />
+                             Logout
+                         </Button>
+                       </SheetClose>
                        <Button variant="destructive" className="w-full justify-start gap-2" onClick={() => setIsDeleteDialogOpen(true)}>
                           <Trash2 className="h-4 w-4" />
                           Delete Account
                        </Button>
-                       <p className="text-xs text-muted-foreground">Note: 'Manage Subscription' should link to your Stripe Customer Portal. Account deletion removes your data but does not cancel your subscription via Stripe.</p>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+            </SheetContent>
+        </Sheet>
+      </header>
+      
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4 mb-4">
+              <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+              <TabsTrigger value="body-metrics">Body Metrics</TabsTrigger>
+              <TabsTrigger value="medication">Medication</TabsTrigger>
+              <TabsTrigger value="information">Information</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="dashboard">
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                <div className="lg:col-span-2 flex flex-col gap-8">
+                    <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
+                        <CardHeader>
+                        <CardTitle className="flex items-center justify-between">
+                            <span>Today's Hydration</span>
+                            <Droplets className="text-primary" />
+                        </CardTitle>
+                        <CardDescription>{userData.hydration}ml / {userData.dailyGoal}ml</CardDescription>
+                        </CardHeader>
+                        <CardContent className="flex flex-col items-center gap-4">
+                        <WaterGlass percentage={hydrationPercentage} />
+                        <Progress value={hydrationPercentage} className="w-full h-3" />
+                        </CardContent>
+                    </Card>
+
+                    <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
+                        <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Cog className="text-primary" />
+                            AI Motivation
+                        </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                        {isLoadingMotivation ? (
+                            <div className="space-y-2">
+                            <Skeleton className="h-4 w-full" />
+                            <Skeleton className="h-4 w-3/4" />
+                            </div>
+                        ) : (
+                            <blockquote className="border-l-2 border-primary pl-4 italic text-card-foreground">
+                            {motivation}
+                            </blockquote>
+                        )}
+                        </CardContent>
+                    </Card>
+                </div>
+
+                 <div className="lg:col-span-3">
+                     <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
+                        <CardHeader>
+                            <CardTitle>Log Your Intake</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                             <Tabs defaultValue="quick" className="w-full">
+                                <TabsList className="grid w-full grid-cols-3">
+                                <TabsTrigger value="quick">Quick Add</TabsTrigger>
+                                <TabsTrigger value="bottles">Bottles</TabsTrigger>
+                                <TabsTrigger value="custom">Custom</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value="quick" className="pt-4">
+                                <div className="grid grid-cols-3 gap-2 w-full">
+                                    <Button variant="secondary" onClick={() => handleAddWater(50)} className="h-auto flex-col py-2 gap-0">
+                                    <span className="font-semibold">Sip</span>
+                                    <span className="text-xs text-muted-foreground">50ml</span>
+                                    </Button>
+                                    <Button variant="secondary" onClick={() => handleAddWater(150)} className="h-auto flex-col py-2 gap-0">
+                                    <span className="font-semibold">Small</span>
+                                    <span className="text-xs text-muted-foreground">150ml</span>
+                                    </Button>
+                                    <Button variant="secondary" onClick={() => handleAddWater(300)} className="h-auto flex-col py-2 gap-0">
+                                    <span className="font-semibold">Large</span>
+                                    <span className="text-xs text-muted-foreground">300ml</span>
+                                    </Button>
+                                </div>
+                                </TabsContent>
+                                <TabsContent value="bottles" className="pt-4">
+                                <div className="grid grid-cols-3 gap-2 w-full">
+                                    <Button variant="secondary" onClick={() => handleAddWater(600)} className="h-auto flex-col py-2 gap-0">
+                                    <span className="font-semibold">Bottle</span>
+                                    <span className="text-xs text-muted-foreground">600ml</span>
+                                    </Button>
+                                    <Button variant="secondary" onClick={() => handleAddWater(750)} className="h-auto flex-col py-2 gap-0">
+                                    <span className="font-semibold">Bottle</span>
+                                    <span className="text-xs text-muted-foreground">750ml</span>
+                                    </Button>
+                                    <Button variant="secondary" onClick={() => handleAddWater(1000)} className="h-auto flex-col py-2 gap-0">
+                                    <span className="font-semibold">Bottle</span>
+                                    <span className="text-xs text-muted-foreground">1L</span>
+                                    </Button>
+                                </div>
+                                </TabsContent>
+                                <TabsContent value="custom" className="pt-4 space-y-4">
+                                <div className="w-full space-y-2">
+                                    <Label htmlFor="manual-add">Log Custom Amount (ml)</Label>
+                                    <div className="flex gap-2">
+                                    <Input
+                                        id="manual-add"
+                                        type="number"
+                                        placeholder="e.g. 187"
+                                        value={manualAmount}
+                                        onChange={(e) => setManualAmount(e.target.value)}
+                                        onKeyPress={(e) => e.key === 'Enter' && handleManualAdd()}
+                                        className="font-code"
+                                    />
+                                    <Button onClick={handleManualAdd}>Add</Button>
+                                    </div>
+                                </div>
+                                </TabsContent>
+                            </Tabs>
+                        </CardContent>
+                     </Card>
+                 </div>
+              </div>
             </TabsContent>
-          </Tabs>
-        </div>
-      </main>
+            
+            <TabsContent value="body-metrics">
+                <BodyMetrics initialMetrics={userData.bodyMetrics} onSave={handleMetricsSave} />
+            </TabsContent>
+            
+            <TabsContent value="medication">
+                <MedicationTracking initialMedication={userData.bodyMetrics} onSave={handleMedicationSave} />
+            </TabsContent>
+            
+            <TabsContent value="information">
+                <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
+                    <CardHeader>
+                        <CardTitle className="text-3xl font-headline">The Science of Hydration</CardTitle>
+                        <CardDescription>Information provided by Downscale Weight Loss Clinic.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <InfoContent />
+                    </CardContent>
+                </Card>
+            </TabsContent>
+      </Tabs>
+
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
             <AlertDialogHeader>
@@ -741,7 +517,7 @@ service cloud.firestore {
             </AlertDialogHeader>
             <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDeleteAccount} className={buttonVariants({ variant: "destructive" })}>Delete Data</AlertDialogAction>
+                <AlertDialogAction onClick={handleDeleteAccount} className={Button.toString({ variant: "destructive" })}>Delete Data</AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -752,5 +528,3 @@ service cloud.firestore {
 export default function Dashboard() {
   return <DashboardContents />
 }
-
-    

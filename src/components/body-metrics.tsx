@@ -11,9 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { WeightChart } from "@/components/weight-chart"
-import type { UserData } from "@/lib/actions"
+import type { UserData } from "@/lib/user-data"
 
-// A simple BMI calculation for demo purposes
 const calculateBmi = (weightKg?: number, heightCm?: number) => {
   if (!weightKg || !heightCm || heightCm === 0) return null
   const heightM = heightCm / 100
@@ -22,11 +21,12 @@ const calculateBmi = (weightKg?: number, heightCm?: number) => {
 
 interface BodyMetricsProps {
   initialMetrics: UserData['bodyMetrics'];
-  onSave: (newMetrics: UserData['bodyMetrics']) => void;
+  onSave: (newMetrics: Partial<UserData['bodyMetrics']>) => void;
 }
 
 export function BodyMetrics({ initialMetrics, onSave }: BodyMetricsProps) {
   const [metrics, setMetrics] = React.useState(initialMetrics);
+  const [showBmi, setShowBmi] = React.useState(false);
 
   React.useEffect(() => {
     setMetrics(initialMetrics);
@@ -38,17 +38,13 @@ export function BodyMetrics({ initialMetrics, onSave }: BodyMetricsProps) {
 
   const handleSaveMetrics = () => {
     onSave({
-      ...metrics,
       weight: metrics.weight,
       waist: metrics.waist,
+      height: metrics.height,
+      gender: metrics.gender
     });
   };
-
-  const handleSaveMedication = () => {
-    onSave(metrics);
-  };
-
-  const [showBmi, setShowBmi] = React.useState(false);
+  
   const bmi = React.useMemo(() => {
       if (!showBmi) return null;
       return calculateBmi(parseFloat(metrics.weight), parseFloat(metrics.height));
@@ -57,11 +53,11 @@ export function BodyMetrics({ initialMetrics, onSave }: BodyMetricsProps) {
   return (
     <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
       <CardHeader>
-        <CardTitle>Body Metrics &amp; Medication</CardTitle>
-        <CardDescription>Log and track your progress. All tracking is optional.</CardDescription>
+        <CardTitle>Body Metrics</CardTitle>
+        <CardDescription>Log and track your physical progress. All tracking is optional.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-2">
-        <Accordion type="multiple" defaultValue={['item-1', 'item-3']} className="w-full">
+        <Accordion type="multiple" defaultValue={['item-1', 'item-2']} className="w-full">
           <AccordionItem value="item-1">
             <AccordionTrigger className="text-lg font-medium">Log Your Metrics</AccordionTrigger>
             <AccordionContent className="space-y-4 pt-4">
@@ -80,55 +76,13 @@ export function BodyMetrics({ initialMetrics, onSave }: BodyMetricsProps) {
           </AccordionItem>
 
           <AccordionItem value="item-2">
-            <AccordionTrigger className="text-lg font-medium">Medication Tracking</AccordionTrigger>
-            <AccordionContent className="space-y-4 pt-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Medication</Label>
-                   <Select value={metrics.medication} onValueChange={(v) => handleChange('medication', v)}>
-                      <SelectTrigger><SelectValue placeholder="Select Medication" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="semaglutide">Semaglutide</SelectItem>
-                        <SelectItem value="tirzepatide">Tirzepatide</SelectItem>
-                        <SelectItem value="phentermine">Phentermine</SelectItem>
-                        <SelectItem value="metformin">Metformin</SelectItem>
-                        <SelectItem value="custom">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                </div>
-                 <div className="space-y-2">
-                  <Label>Frequency</Label>
-                   <Select value={metrics.medicationFrequency} onValueChange={(v) => handleChange('medicationFrequency', v)}>
-                      <SelectTrigger><SelectValue placeholder="Select Frequency" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="daily">Daily</SelectItem>
-                        <SelectItem value="twice-daily">Twice Daily</SelectItem>
-                        <SelectItem value="weekly">Weekly</SelectItem>
-                        <SelectItem value="custom">Custom</SelectItem>
-                      </SelectContent>
-                    </Select>
-                </div>
-              </div>
-               <div className="space-y-2">
-                  <Label htmlFor="dose-input">Dose</Label>
-                  <Input id="dose-input" placeholder="e.g., 2.5 mg" value={metrics.medicationDose} onChange={(e) => handleChange('medicationDose', e.target.value)}/>
-                </div>
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                <Label htmlFor="medication-reminder" className="font-medium">Enable Reminder</Label>
-                <Switch id="medication-reminder" checked={metrics.medicationReminder} onCheckedChange={(v) => handleChange('medicationReminder', v)} />
-              </div>
-              <Button className="mt-4" onClick={handleSaveMedication}>Save Medication</Button>
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem value="item-3">
             <AccordionTrigger className="text-lg font-medium">Progress Visualisation</AccordionTrigger>
             <AccordionContent className="pt-4">
               <WeightChart />
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="item-4">
+          <AccordionItem value="item-3">
             <AccordionTrigger className="text-lg font-medium">Optional: BMI Analysis</AccordionTrigger>
             <AccordionContent className="space-y-4 pt-4">
               <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
@@ -137,15 +91,15 @@ export function BodyMetrics({ initialMetrics, onSave }: BodyMetricsProps) {
               </div>
               {showBmi && (
                 <div className="space-y-4 pt-4">
-                  <p className="text-sm text-muted-foreground">Please provide your height and gender for BMI calculation. This information is used solely for this purpose and is optional.</p>
+                  <p className="text-sm text-muted-foreground">Please provide your height and gender for BMI calculation.</p>
                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="height-input">Height (cm)</Label>
                       <Input id="height-input" type="number" placeholder="e.g., 175" value={metrics.height} onChange={(e) => handleChange('height', e.target.value)}/>
                     </div>
                      <div className="space-y-2">
-                        <Label>Gender</Label>
-                        <Select value={metrics.gender} onValueChange={(v) => handleChange('gender', v)}>
+                        <Label>Gender for BMI</Label>
+                        <Select value={metrics.gender || ''} onValueChange={(v) => handleChange('gender', v)}>
                             <SelectTrigger><SelectValue placeholder="Select Gender" /></SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="male">Male</SelectItem>
@@ -162,7 +116,7 @@ export function BodyMetrics({ initialMetrics, onSave }: BodyMetricsProps) {
                       </CardHeader>
                       <CardContent>
                         <p className="text-sm">
-                          Understanding BMI is one tool among many to help understand your health. It's a general guide and doesn't tell the whole story of your body composition or wellbeing. Focus on healthy habits like balanced nutrition, regular movement, and consistent hydration.
+                          Understanding BMI is one tool among many to help understand your health. Focus on healthy habits like balanced nutrition, regular movement, and consistent hydration.
                         </p>
                       </CardContent>
                     </Card>
@@ -172,7 +126,7 @@ export function BodyMetrics({ initialMetrics, onSave }: BodyMetricsProps) {
             </AccordionContent>
           </AccordionItem>
           
-          <AccordionItem value="item-5">
+          <AccordionItem value="item-4">
              <AccordionTrigger className="text-lg font-medium">Device &amp; App Integration</AccordionTrigger>
              <AccordionContent className="space-y-4 pt-4">
                  <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
