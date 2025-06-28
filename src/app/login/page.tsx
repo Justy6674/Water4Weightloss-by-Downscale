@@ -94,7 +94,7 @@ function LoginPageContents() {
             />
         </div>
         
-        <Card className="w-full max-w-sm bg-slate-900/70 border border-slate-700 rounded-2xl shadow-2xl z-10">
+        <Card className="w-full max-w-sm bg-slate-900/30 border border-slate-700 rounded-2xl shadow-2xl z-10">
             <CardHeader className="p-8 pb-4">
                 <CardTitle className="text-3xl font-bold text-center text-white">Login</CardTitle>
             </CardHeader>
