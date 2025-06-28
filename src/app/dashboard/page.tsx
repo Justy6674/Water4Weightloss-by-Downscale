@@ -357,43 +357,37 @@ service cloud.firestore {
             </div>
         </div>
         <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={handleLogout} className="hidden md:inline-flex">
-              <LogOut className="mr-2 h-4 w-4" />
-              Logout
-            </Button>
-            <div className="md:hidden">
-                <Sheet>
-                    <SheetTrigger asChild>
-                        <Button variant="outline" size="icon">
-                            <Menu className="h-6 w-6" />
-                        </Button>
-                    </SheetTrigger>
-                    <SheetContent side="left">
-                        <div className="flex flex-col gap-4 py-8">
-                            <SheetClose asChild>
-                                <Button variant={activeTab === 'gamification' ? 'default' : 'secondary'} onClick={() => setActiveTab('gamification')} className="justify-start">
-                                    <Trophy className="mr-2 h-4 w-4" /> Gamification
-                                </Button>
-                            </SheetClose>
-                             <SheetClose asChild>
-                                <Button variant={activeTab === 'weight' ? 'default' : 'secondary'} onClick={() => setActiveTab('weight')} className="justify-start">
-                                    <TrendingUp className="mr-2 h-4 w-4" /> Body Metrics
-                                </Button>
-                            </SheetClose>
-                             <SheetClose asChild>
-                                <Button variant={activeTab === 'settings' ? 'default' : 'secondary'} onClick={() => setActiveTab('settings')} className="justify-start">
-                                    <Settings className="mr-2 h-4 w-4" /> Settings
-                                </Button>
-                            </SheetClose>
-                            <Separator className="my-4" />
-                            <Button variant="outline" onClick={handleLogout} className="justify-start">
-                                 <LogOut className="mr-2 h-4 w-4" />
-                                 Logout
+            <Sheet>
+                <SheetTrigger asChild>
+                    <Button variant="outline" size="icon">
+                        <Menu className="h-6 w-6" />
+                    </Button>
+                </SheetTrigger>
+                <SheetContent side="right">
+                    <div className="flex flex-col gap-4 py-8">
+                        <SheetClose asChild>
+                            <Button variant={activeTab === 'gamification' ? 'default' : 'secondary'} onClick={() => setActiveTab('gamification')} className="justify-start">
+                                <Trophy className="mr-2 h-4 w-4" /> Gamification
                             </Button>
-                        </div>
-                    </SheetContent>
-                </Sheet>
-            </div>
+                        </SheetClose>
+                         <SheetClose asChild>
+                            <Button variant={activeTab === 'weight' ? 'default' : 'secondary'} onClick={() => setActiveTab('weight')} className="justify-start">
+                                <TrendingUp className="mr-2 h-4 w-4" /> Body Metrics
+                            </Button>
+                        </SheetClose>
+                         <SheetClose asChild>
+                            <Button variant={activeTab === 'settings' ? 'default' : 'secondary'} onClick={() => setActiveTab('settings')} className="justify-start">
+                                <Settings className="mr-2 h-4 w-4" /> Settings
+                            </Button>
+                        </SheetClose>
+                        <Separator className="my-4" />
+                        <Button variant="outline" onClick={handleLogout} className="justify-start">
+                             <LogOut className="mr-2 h-4 w-4" />
+                             Logout
+                        </Button>
+                    </div>
+                </SheetContent>
+            </Sheet>
         </div>
       </header>
 
@@ -511,7 +505,7 @@ service cloud.firestore {
 
         <div className="lg:col-span-3">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="hidden md:grid w-full grid-cols-3 bg-card/80 backdrop-blur-xl">
+            <TabsList className="hidden">
               <TabsTrigger value="gamification"><Trophy className="mr-2 h-4 w-4" />Gamification</TabsTrigger>
               <TabsTrigger value="weight"><TrendingUp className="mr-2 h-4 w-4" />Body Metrics</TabsTrigger>
               <TabsTrigger value="settings"><Settings className="mr-2 h-4 w-4" />Settings</TabsTrigger>
