@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation"
 import { onAuthStateChanged, type User } from "firebase/auth"
 import { auth, db } from "@/lib/firebase"
 import { doc, getDoc, setDoc, serverTimestamp, type Timestamp } from "firebase/firestore"
-import { Flame, Droplets, Settings, Trophy, TrendingUp, Bot, Star, Sparkles, BellDot, Vibrate, MessageSquareText, Link as LinkIcon, Watch, Mic, BookUser, Info, LogOut, Trash2, ExternalLink, Save } from "lucide-react"
+import { Flame, Droplets, Settings, Trophy, TrendingUp, Bot, Star, Sparkles, BellDot, Vibrate, MessageSquareText, Link as LinkIcon, Watch, Mic, BookUser, Info, LogOut, Trash2, ExternalLink, Save, Menu } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -22,7 +22,9 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import { Sheet, SheetContent, SheetClose, SheetTrigger } from "@/components/ui/sheet"
 import { useToast } from "@/hooks/use-toast"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { WaterGlass } from "@/components/water-glass"
 import { BodyMetrics } from "@/components/body-metrics"
 import { generateMotivation, MotivationInput } from "@/ai/flows/personalized-motivation"
@@ -46,6 +48,7 @@ function DashboardContents() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [phone, setPhone] = useState("");
   const [isSavingPhone, setIsSavingPhone] = useState(false);
+  const [activeTab, setActiveTab] = useState("gamification");
 
 
   useEffect(() => {
@@ -354,10 +357,45 @@ service cloud.firestore {
               <p className="text-muted-foreground text-md">Welcome, {user.email}</p>
             </div>
         </div>
-        <Button variant="outline" size="sm" onClick={handleLogout}>
-          <LogOut className="mr-2 h-4 w-4" />
-          Logout
-        </Button>
+        <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleLogout} className="hidden md:inline-flex">
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </Button>
+            <div className="md:hidden">
+                <Sheet>
+                    <SheetTrigger asChild>
+                        <Button variant="outline" size="icon">
+                            <Menu className="h-6 w-6" />
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent>
+                        <div className="flex flex-col gap-4 py-8">
+                            <SheetClose asChild>
+                                <Button variant={activeTab === 'gamification' ? 'default' : 'secondary'} onClick={() => setActiveTab('gamification')} className="justify-start">
+                                    <Trophy className="mr-2 h-4 w-4" /> Gamification
+                                </Button>
+                            </SheetClose>
+                             <SheetClose asChild>
+                                <Button variant={activeTab === 'weight' ? 'default' : 'secondary'} onClick={() => setActiveTab('weight')} className="justify-start">
+                                    <TrendingUp className="mr-2 h-4 w-4" /> Body Metrics
+                                </Button>
+                            </SheetClose>
+                             <SheetClose asChild>
+                                <Button variant={activeTab === 'settings' ? 'default' : 'secondary'} onClick={() => setActiveTab('settings')} className="justify-start">
+                                    <Settings className="mr-2 h-4 w-4" /> Settings
+                                </Button>
+                            </SheetClose>
+                            <Separator className="my-4" />
+                            <Button variant="outline" onClick={handleLogout} className="justify-start">
+                                 <LogOut className="mr-2 h-4 w-4" />
+                                 Logout
+                            </Button>
+                        </div>
+                    </SheetContent>
+                </Sheet>
+            </div>
+        </div>
       </header>
 
       <main className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8">
@@ -473,8 +511,8 @@ service cloud.firestore {
         </div>
 
         <div className="lg:col-span-3">
-          <Tabs defaultValue="gamification" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 bg-card/80 backdrop-blur-xl">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="hidden md:grid w-full grid-cols-3 bg-card/80 backdrop-blur-xl">
               <TabsTrigger value="gamification"><Trophy className="mr-2 h-4 w-4" />Gamification</TabsTrigger>
               <TabsTrigger value="weight"><TrendingUp className="mr-2 h-4 w-4" />Body Metrics</TabsTrigger>
               <TabsTrigger value="settings"><Settings className="mr-2 h-4 w-4" />Settings</TabsTrigger>
@@ -693,3 +731,5 @@ service cloud.firestore {
 export default function Dashboard() {
   return <DashboardContents />
 }
+
+    
