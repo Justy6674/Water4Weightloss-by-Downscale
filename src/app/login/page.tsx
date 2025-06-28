@@ -1,3 +1,4 @@
+
 "use client"
 
 import Link from "next/link"
@@ -139,12 +140,12 @@ function LoginPageContents() {
                             />
                             <label
                                 htmlFor="remember-me"
-                                className="font-medium text-[#5271ff] leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 [text-shadow:1px_1px_2px_rgba(0,0,0,0.8)]"
+                                className="font-medium text-[#5271ff] leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                             >
                                 Stay logged in
                             </label>
                         </div>
-                        <Link href="#" className="font-medium text-[#5271ff] hover:underline [text-shadow:1px_1px_2px_rgba(0,0,0,0.8)]">
+                        <Link href="#" className="font-medium text-[#5271ff] hover:underline">
                             Forgot password?
                         </Link>
                     </div>
@@ -152,7 +153,7 @@ function LoginPageContents() {
                         {isLoading ? 'Logging in...' : 'Login'}
                     </Button>
                 </form>
-                <div className="mt-6 text-center text-sm text-[#5271ff] [text-shadow:1px_1px_2px_rgba(0,0,0,0.8)]">
+                <div className="mt-6 text-center text-sm text-[#5271ff]">
                     Don&apos;t have an account?{" "}
                     <Link href="/signup" className="underline font-bold text-[#f7f2d3]">
                         Register

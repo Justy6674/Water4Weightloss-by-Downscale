@@ -1,3 +1,4 @@
+
 "use client"
 
 import Link from "next/link"
@@ -107,7 +108,7 @@ function SignupPageContents() {
                         {isLoading ? 'Creating account...' : 'Create an account'}
                     </Button>
                 </form>
-                <div className="mt-6 text-center text-sm text-[#5271ff] [text-shadow:1px_1px_2px_rgba(0,0,0,0.8)]">
+                <div className="mt-6 text-center text-sm text-[#5271ff]">
                     Already have an account?{" "}
                     <Link href="/login" className="underline font-bold text-[#f7f2d3]">
                         Login
