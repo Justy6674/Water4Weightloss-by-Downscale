@@ -1,3 +1,4 @@
+
 "use client"
 
 import Link from "next/link"
@@ -42,7 +43,7 @@ function LoginPageContents() {
             if (firebaseError.code === 'auth/user-not-found' || firebaseError.code === 'auth/wrong-password' || firebaseError.code === 'auth/invalid-credential') {
                 description = "Invalid email or password.";
             } else if (firebaseError.code === 'auth/api-key-not-valid') {
-                description = "The application is not configured correctly. Please contact support.";
+                description = "The application is not configured correctly. Please copy your web app keys into your .env.local file.";
             } else if (firebaseError.message) {
                 description = firebaseError.message;
             }
@@ -62,16 +63,16 @@ function LoginPageContents() {
         <div className="absolute inset-0 z-0">
             <Image
                 src="https://placehold.co/1920x1080"
-                data-ai-hint="dark blue brick wall"
+                data-ai-hint="dark brick"
                 alt="Brick wall background"
                 fill
-                className="object-cover"
+                priority
+                className="object-cover opacity-20"
             />
-            <div className="absolute inset-0 bg-black/60" />
             <div 
                 className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-[80%]"
                 style={{
-                    background: 'radial-gradient(circle at 50% 0, rgba(255, 215, 139, 0.35) 0%, transparent 40%)'
+                    background: 'radial-gradient(circle at 50% 0, rgba(255, 215, 139, 0.25) 0%, transparent 40%)'
                 }}
             />
         </div>
