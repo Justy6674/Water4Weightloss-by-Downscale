@@ -15,7 +15,7 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
 import { WaterGlass } from "@/components/water-glass"
-import { WeightChart } from "@/components/weight-chart"
+import { BodyMetrics } from "@/components/body-metrics"
 import { generateMotivation, MotivationInput } from "@/ai/flows/personalized-motivation"
 import { Confetti } from "@/components/confetti"
 
@@ -173,7 +173,7 @@ export default function Dashboard() {
           <Tabs defaultValue="gamification" className="w-full">
             <TabsList className="grid w-full grid-cols-3 bg-card/80 backdrop-blur-xl">
               <TabsTrigger value="gamification"><Trophy className="mr-2 h-4 w-4" />Gamification</TabsTrigger>
-              <TabsTrigger value="weight"><TrendingUp className="mr-2 h-4 w-4" />Weight</TabsTrigger>
+              <TabsTrigger value="weight"><TrendingUp className="mr-2 h-4 w-4" />Body Metrics</TabsTrigger>
               <TabsTrigger value="settings"><Settings className="mr-2 h-4 w-4" />Settings</TabsTrigger>
             </TabsList>
             <TabsContent value="gamification">
@@ -273,7 +273,7 @@ export default function Dashboard() {
             </Card>
             </TabsContent>
             <TabsContent value="weight">
-                <WeightChart />
+                <BodyMetrics />
             </TabsContent>
             <TabsContent value="settings">
               <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
