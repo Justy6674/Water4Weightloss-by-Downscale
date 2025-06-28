@@ -17,7 +17,6 @@ import { useToast } from "@/hooks/use-toast"
 import { createUserWithEmailAndPassword, onAuthStateChanged, type User } from "firebase/auth"
 import { auth } from "@/lib/firebase"
 import { Mail, Lock } from "lucide-react"
-import { ensureUserDocument } from "@/lib/actions"
 
 function SignupPageContents() {
     const [email, setEmail] = useState("")
@@ -46,11 +45,7 @@ function SignupPageContents() {
         e.preventDefault()
         setIsLoading(true)
         try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            
-            // Explicitly create the user document in Firestore.
-            await ensureUserDocument(userCredential.user.uid);
-
+            await createUserWithEmailAndPassword(auth, email, password);
         } catch (error) {
             const firebaseError = error as { code?: string; message: string };
             console.error("Signup failed:", firebaseError);

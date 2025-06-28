@@ -96,17 +96,17 @@ function DashboardContents() {
         
         let errorMessage = "An unexpected error occurred while loading your data.";
         if (error instanceof Error) {
-            if ('code' in error) {
+            if (error.message.includes('DATABASE ACCESS DENIED')) {
+                 errorMessage = error.message;
+            } else if ('code' in error) {
                 const firebaseError = error as { code: string; message: string };
                 if (firebaseError.code === 'permission-denied' || firebaseError.code === 'unauthenticated') {
-                    errorMessage = `DATABASE ACCESS DENIED. Your app's code is correct, but it is being blocked by a security setting in your Firebase project.`;
+                    errorMessage = `DATABASE ACCESS DENIED. Could not read user profile. Please check your Firestore security rules.`;
                 } else if (firebaseError.code === 'failed-precondition') {
                     errorMessage = "Firestore database has not been created or is misconfigured. Please go to the Firestore Database section of your Firebase Console and ensure a database exists by clicking 'Create database'.";
                 } else {
                     errorMessage = `A Firebase error occurred: ${firebaseError.message} (Code: ${firebaseError.code}). Please check your Firebase setup.`;
                 }
-            } else if (error.message.includes("Firestore security rule issue")) {
-                 errorMessage = `DATABASE ACCESS DENIED. Your app's code is correct, but it is being blocked by a security setting in your Firebase project.`;
             } else {
                  errorMessage = error.message;
             }
@@ -285,7 +285,10 @@ function DashboardContents() {
           <CardHeader>
             <CardTitle className="text-destructive-foreground">Action Required in Firebase Console</CardTitle>
             <CardDescription className="text-destructive-foreground/80">
-              {loadingError}
+             {loadingError.includes("DATABASE ACCESS DENIED") 
+                ? "DATABASE ACCESS DENIED. Could not create user profile. Please check your Firestore security rules."
+                : loadingError
+             }
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -293,6 +296,7 @@ function DashboardContents() {
               <h3 className="font-bold">Follow these steps exactly:</h3>
               <ol className="list-decimal list-inside space-y-2 mt-2">
                 <li>Go to the <strong>Firestore Database</strong> section in your Firebase Console.</li>
+                <li>Make sure you are in the correct project. The project ID this app is using is: <strong className="font-mono bg-muted p-1 rounded">{process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "Not Set"}</strong></li>
                 <li>Click the <strong>Rules</strong> tab at the top.</li>
                 <li>Delete all the existing text in the editor.</li>
                 <li>Paste in the complete, secure ruleset provided in the AI's chat response.</li>

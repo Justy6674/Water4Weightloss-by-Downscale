@@ -19,7 +19,6 @@ import { signInWithEmailAndPassword, setPersistence, browserLocalPersistence, br
 import { auth } from "@/lib/firebase"
 import { User as UserIcon, Lock, Terminal } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { ensureUserDocument } from "@/lib/actions"
 
 function LoginPageContents() {
     const [email, setEmail] = useState("")
@@ -53,11 +52,7 @@ function LoginPageContents() {
         try {
             const persistence = rememberMe ? browserLocalPersistence : browserSessionPersistence;
             await setPersistence(auth, persistence)
-            const userCredential = await signInWithEmailAndPassword(auth, email, password)
-            
-            // Explicitly create the user document if it doesn't exist.
-            await ensureUserDocument(userCredential.user.uid);
-
+            await signInWithEmailAndPassword(auth, email, password)
         } catch (error) {
             const firebaseError = error as { code?: string; message: string };
             console.error("Login failed:", firebaseError);

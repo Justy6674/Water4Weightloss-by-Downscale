@@ -126,6 +126,7 @@ export async function ensureUserDocument(userId: string): Promise<void> {
 export async function getUserData(userId: string): Promise<UserData> {
     const userDocRef = doc(db, 'users', userId);
     try {
+        await ensureUserDocument(userId);
         const userDocSnap = await getDoc(userDocRef);
 
         if (userDocSnap.exists()) {
@@ -134,21 +135,26 @@ export async function getUserData(userId: string): Promise<UserData> {
             return makeDataSerializable(existingData);
         } else {
             // This is now an unexpected error, as the document should have been created on login.
-            console.error(`CRITICAL: User document not found for user ${userId}. An attempt to recreate it will happen on next login.`);
-            throw new Error("Your user profile could not be found. Please try logging out and signing back in.");
+            console.error(`CRITICAL: User document not found for user ${userId} and could not be created.`);
+            throw new Error("Your user profile could not be found or created. Please check database permissions.");
         }
     } catch (error) {
         console.error("Firebase Error: Failed to get document.", error);
         let errorMessage = "Could not connect to the database. Please ensure Firestore is enabled in your Firebase project and that your security rules allow access.";
-        if (error instanceof Error && 'code' in error) {
-            const firebaseError = error as { code: string; message: string };
-            if (firebaseError.code === 'permission-denied' || firebaseError.code === 'unauthenticated') {
-                errorMessage = "DATABASE ACCESS DENIED. This is a security rules issue. Go to your Firebase Console -> Firestore Database -> Rules, and change `allow read, write: if false;` to `allow read, write: if request.auth != null;`. This allows any logged-in user to access their data.";
-            } else if (firebaseError.code === 'failed-precondition') {
-                 errorMessage = "Firestore database has not been created or is misconfigured. Please go to the Firestore Database section of your Firebase Console and ensure a database exists by clicking 'Create database'.";
-            } else {
-                // Include the specific Firebase error code for better debugging
-                errorMessage = `A Firebase error occurred: ${firebaseError.message} (Code: ${firebaseError.code}). Please check your Firebase setup.`;
+        if (error instanceof Error) {
+            if (error.message.includes("DATABASE ACCESS DENIED")) {
+                return Promise.reject(error); // Re-throw the specific error to be caught by the UI
+            }
+            if ('code' in error) {
+                const firebaseError = error as { code: string; message: string };
+                if (firebaseError.code === 'permission-denied' || firebaseError.code === 'unauthenticated') {
+                    errorMessage = "DATABASE ACCESS DENIED. This is a security rules issue. Go to your Firebase Console -> Firestore Database -> Rules, and change `allow read, write: if false;` to `allow read, write: if request.auth != null;`. This allows any logged-in user to access their data.";
+                } else if (firebaseError.code === 'failed-precondition') {
+                     errorMessage = "Firestore database has not been created or is misconfigured. Please go to the Firestore Database section of your Firebase Console and ensure a database exists by clicking 'Create database'.";
+                } else {
+                    // Include the specific Firebase error code for better debugging
+                    errorMessage = `A Firebase error occurred: ${firebaseError.message} (Code: ${firebaseError.code}). Please check your Firebase setup.`;
+                }
             }
         }
         throw new Error(errorMessage);
