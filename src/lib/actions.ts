@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/lib/firebase';
-import { doc, getDoc, setDoc, serverTimestamp, type Timestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp, type Timestamp, deleteDoc } from 'firebase/firestore';
 
 export type Tone = "funny" | "supportive" | "sarcastic" | "crass" | "kind";
 
@@ -151,5 +151,22 @@ export async function updateUserData(userId: string, data: Partial<UserData>): P
             }
         }
         throw new Error(errorMessage);
+    }
+}
+
+/**
+ * Deletes a user's data document from Firestore.
+ * @param userId - The ID of the user whose data should be deleted.
+ */
+export async function deleteUserData(userId: string): Promise<void> {
+    if (!userId) {
+        throw new Error("Cannot delete data: No user ID provided.");
+    }
+    const userDocRef = doc(db, 'users', userId);
+    try {
+        await deleteDoc(userDocRef);
+    } catch (error) {
+        console.error("Firebase Error: Failed to delete user data:", error);
+        throw new Error("Could not delete user data from the database. Please check your permissions.");
     }
 }

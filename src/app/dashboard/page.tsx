@@ -8,23 +8,25 @@ import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { onAuthStateChanged, type User } from "firebase/auth"
 import { auth } from "@/lib/firebase"
-import { Flame, Droplets, Settings, Trophy, TrendingUp, Bot, Star, Sparkles, BellDot, Vibrate, MessageSquareText, Link as LinkIcon, Watch, Mic, BookUser, Info, LogOut } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Flame, Droplets, Settings, Trophy, TrendingUp, Bot, Star, Sparkles, BellDot, Vibrate, MessageSquareText, Link as LinkIcon, Watch, Mic, BookUser, Info, LogOut, Trash2, ExternalLink } from "lucide-react"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { useToast } from "@/hooks/use-toast"
 import { WaterGlass } from "@/components/water-glass"
 import { BodyMetrics } from "@/components/body-metrics"
 import { generateMotivation, MotivationInput } from "@/ai/flows/personalized-motivation"
 import { Confetti } from "@/components/confetti"
-import { getUserData, updateUserData, UserData, Tone } from "@/lib/actions"
+import { getUserData, updateUserData, UserData, Tone, deleteUserData } from "@/lib/actions"
 
 type MilestoneStatus = MotivationInput['milestoneStatus'];
 
@@ -38,6 +40,7 @@ export default function Dashboard() {
   const [showConfetti, setShowConfetti] = useState(false)
   const [motivation, setMotivation] = useState("Let's get hydrated!")
   const [isLoadingMotivation, setIsLoadingMotivation] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -189,9 +192,24 @@ export default function Dashboard() {
     toast({ title: "Metrics Saved", description: "Your body metrics have been updated." });
   };
 
-  const handleLogout = () => {
-    auth.signOut();
+  const handleLogout = async () => {
+    await auth.signOut();
   };
+
+  const handleDeleteAccount = async () => {
+    if (!user) return
+    try {
+      await deleteUserData(user.uid)
+      await auth.signOut()
+      toast({ title: "Account Data Deleted", description: "All your data has been successfully removed." })
+    } catch (error) {
+      console.error("Failed to delete account:", error)
+      const description = error instanceof Error ? error.message : "Could not delete your account data. Please try again."
+      toast({ variant: "destructive", title: "Deletion Error", description })
+    } finally {
+      setIsDeleteDialogOpen(false)
+    }
+  }
 
   if (loadingUser || !userData) {
     return (
@@ -478,12 +496,6 @@ export default function Dashboard() {
                          Learn More About Hydration
                        </Link>
                      </Button>
-                     <Button asChild className="w-full">
-                       <Link href="https://buy.stripe.com/fZu5kvexV0Mf3Qr3Dsf3a03" target="_blank" rel="noopener noreferrer">
-                         <BookUser className="mr-2 h-4 w-4" />
-                         Book a Consultation
-                       </Link>
-                     </Button>
                   </div>
                   <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                     <Label htmlFor="link-devices" className="flex items-center gap-3 font-medium">
@@ -499,12 +511,41 @@ export default function Dashboard() {
                     </Label>
                     <Switch id="wearable-mode" disabled />
                   </div>
+                  <Separator className="my-6" />
+                  <div className="space-y-4">
+                      <h3 className="text-lg font-medium">Account Management</h3>
+                       <Button asChild variant="outline" className="w-full justify-start gap-2">
+                           <Link href="https://buy.stripe.com/fZu5kvexV0Mf3Qr3Dsf3a03" target="_blank" rel="noopener noreferrer">
+                             <ExternalLink />
+                             Manage Subscription
+                           </Link>
+                       </Button>
+                       <Button variant="destructive" className="w-full justify-start gap-2" onClick={() => setIsDeleteDialogOpen(true)}>
+                          <Trash2 />
+                          Delete Account
+                       </Button>
+                       <p className="text-xs text-muted-foreground">Note: 'Manage Subscription' should link to your Stripe Customer Portal. Account deletion removes your data but does not cancel your subscription via Stripe.</p>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
           </Tabs>
         </div>
       </main>
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete all of your account data from our servers. Your authentication account will remain, but all hydration and body metric history will be lost.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDeleteAccount} className={buttonVariants({ variant: "destructive" })}>Delete Data</AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

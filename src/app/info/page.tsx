@@ -88,17 +88,6 @@ export default function InfoPage() {
                 <li><strong>Aim for 2–3+ liters a day:</strong> A general target is to drink about 2–3 liters of water per day for most adults, adjusting for your specific needs.</li>
               </ul>
             </section>
-
-            <Separator />
-            
-            <div className="text-center pt-4">
-               <Button asChild size="lg">
-                 <Link href="https://buy.stripe.com/fZu5kvexV0Mf3Qr3Dsf3a03" target="_blank" rel="noopener noreferrer">
-                   <BookUser className="mr-2 h-5 w-5" />
-                   Book a Consultation
-                 </Link>
-               </Button>
-            </div>
           </CardContent>
         </Card>
       </div>

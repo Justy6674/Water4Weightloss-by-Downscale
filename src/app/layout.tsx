@@ -34,12 +34,7 @@ export default function RootLayout({
         <footer className="bg-card/50 mt-auto p-4 text-center text-muted-foreground text-sm border-t">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
              <p>&copy; 2024 Water4Weightloss. All rights reserved.</p>
-              <Button asChild variant="outline">
-                <Link href="https://buy.stripe.com/fZu5kvexV0Mf3Qr3Dsf3a03" target="_blank" rel="noopener noreferrer">
-                  <BookUser className="mr-2 h-4 w-4" />
-                  Book a Consultation
-                </Link>
-              </Button>
+             <p>This is a demo application. Please consult a healthcare professional for medical advice.</p>
           </div>
         </footer>
       </body>
