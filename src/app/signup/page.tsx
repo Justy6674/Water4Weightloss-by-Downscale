@@ -53,13 +53,12 @@ function SignupPageContents() {
   return (
      <div className="relative min-h-screen bg-[#0c1a2e] text-white flex items-center justify-center p-4 font-body">
         <div className="absolute inset-0 z-0">
-             <Image
-                src="https://images.unsplash.com/photo-1561057160-b6c70de01399?q=80&w=1920&auto=format&fit=crop"
+            <Image
+                src="/brick wall background login.png"
                 alt="Brick wall background"
                 fill
                 priority
                 className="object-cover opacity-15"
-                data-ai-hint="dark brick wall"
             />
             <div 
                 className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-[80%]"
