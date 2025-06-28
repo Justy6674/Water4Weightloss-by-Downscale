@@ -97,7 +97,7 @@ export default function InfoPage() {
                <Button asChild size="lg">
                  <Link href="https://www.downscale.com.au" target="_blank" rel="noopener noreferrer">
                    <BookUser className="mr-2 h-5 w-5" />
-                   Book a Free Consultation
+                   Book a Consultation (Australia)
                  </Link>
                </Button>
             </div>

@@ -408,7 +408,7 @@ export default function Dashboard() {
                      <Button asChild className="w-full">
                        <Link href="https://www.downscale.com.au" target="_blank" rel="noopener noreferrer">
                          <BookUser className="mr-2 h-4 w-4" />
-                         Book a Consultation
+                         Book a Consultation (Australia)
                        </Link>
                      </Button>
                   </div>
