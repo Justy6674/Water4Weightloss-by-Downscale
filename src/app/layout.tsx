@@ -1,3 +1,4 @@
+
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
@@ -8,6 +9,9 @@ import { BookUser } from 'lucide-react';
 export const metadata: Metadata = {
   title: 'Water4Weightloss by Downscale',
   description: 'Track your hydration and achieve your weight loss goals.',
+  icons: {
+    icon: '/favicon.ico',
+  },
 };
 
 export default function RootLayout({
