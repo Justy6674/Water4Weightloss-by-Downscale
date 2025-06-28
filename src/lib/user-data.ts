@@ -23,10 +23,10 @@ export interface UserData {
         weight: string;
         waist: string;
         height: string;
-        gender?: string;
-        phone?: string;
-        medication?: string;
-        medicationFrequency?: string;
+        gender: string | null;
+        phone: string | null;
+        medication: string | null;
+        medicationFrequency: string | null;
         medicationDose: string;
         medicationReminder: boolean;
     };
@@ -50,9 +50,10 @@ const defaultBodyMetrics: UserData['bodyMetrics'] = {
     weight: "81.2",
     waist: "85",
     height: "175",
+    gender: null,
     phone: "",
-    medication: undefined,
-    medicationFrequency: undefined,
+    medication: null,
+    medicationFrequency: null,
     medicationDose: "",
     medicationReminder: false,
 };
