@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { useState, useEffect, useMemo } from "react"
-import { Flame, Droplets, Settings, Trophy, TrendingUp, Bot, Plus, Minus, Share2 } from "lucide-react"
+import { Flame, Droplets, Settings, Trophy, TrendingUp, Bot, Star, Sparkles, BellDot, Vibrate, MessageSquareText, Link, Watch } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -31,6 +31,21 @@ export default function Dashboard() {
   const [motivationTone, setMotivationTone] = useState<Tone>("supportive")
   const [motivation, setMotivation] = useState("Keep up the great work! Every sip counts.")
   const [isLoadingMotivation, setIsLoadingMotivation] = useState(false)
+
+  const [appSettings, setAppSettings] = useState({
+    dailyStreaks: true,
+    achievementBadges: true,
+    progressMilestones: true,
+    confettiEffects: true,
+    pushNotifications: true,
+    smsReminders: false,
+    notificationFrequency: "moderate",
+    vibrationFeedback: "medium",
+  });
+
+  const handleSettingChange = (key: keyof typeof appSettings, value: string | boolean) => {
+    setAppSettings(prev => ({ ...prev, [key]: value }));
+  };
 
   const hydrationPercentage = useMemo(() => (hydration / dailyGoal) * 100, [hydration, dailyGoal])
 
@@ -80,13 +95,6 @@ export default function Dashboard() {
       setManualAmount("")
     }
   }
-
-  const achievementBadges = [
-    { icon: <Flame />, name: "1-Week Streak", unlocked: streak >= 7 },
-    { icon: <Trophy />, name: "Goal Master", unlocked: hydration >= dailyGoal },
-    { icon: <Droplets />, name: "Hydration Pro", unlocked: dailyGoal >= 3000 },
-    { icon: <TrendingUp />, name: "Consistency King", unlocked: streak >= 30 },
-  ]
 
   return (
     <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 lg:p-8 font-body">
@@ -161,41 +169,100 @@ export default function Dashboard() {
               <TabsTrigger value="settings"><Settings className="mr-2 h-4 w-4" />Settings</TabsTrigger>
             </TabsList>
             <TabsContent value="gamification">
-              <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
+               <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
                 <CardHeader>
-                  <CardTitle>Your Progress</CardTitle>
-                  <CardDescription>Stay consistent to unlock more achievements!</CardDescription>
+                    <CardTitle>Gamification &amp; Notifications</CardTitle>
+                    <CardDescription>Customize your motivational experience and reminders.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="flex items-center justify-between p-4 rounded-lg bg-accent/50">
-                    <div className="flex items-center gap-4">
-                      <Flame className="text-primary w-8 h-8" />
-                      <div>
-                        <p className="font-bold text-lg">Daily Streak</p>
-                        <p className="text-sm text-muted-foreground">Keep the fire going!</p>
-                      </div>
-                    </div>
-                    <p className="font-headline text-3xl font-bold text-primary">{streak}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-bold mb-4">Achievements</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                      {achievementBadges.map((badge, index) => (
-                        <div key={index} className={`p-4 rounded-lg flex flex-col items-center justify-center gap-2 transition-all ${badge.unlocked ? 'bg-primary/20 text-primary-foreground' : 'bg-muted/50 text-muted-foreground'}`}>
-                          <div className={`transition-transform duration-500 ${badge.unlocked ? 'scale-110' : ''}`}>{badge.icon}</div>
-                          <span className="text-xs font-medium">{badge.name}</span>
+                    <div>
+                        <h3 className="mb-4 font-medium text-foreground">Gamification Features</h3>
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                                <Label htmlFor="daily-streaks" className="flex items-center gap-3 font-medium">
+                                    <Flame className="w-5 h-5 text-primary" />
+                                    Daily Streaks
+                                </Label>
+                                <Switch id="daily-streaks" checked={appSettings.dailyStreaks} onCheckedChange={(v) => handleSettingChange('dailyStreaks', v)} />
+                            </div>
+                             <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                                <Label htmlFor="achievement-badges" className="flex items-center gap-3 font-medium">
+                                    <Trophy className="w-5 h-5 text-primary" />
+                                    Achievement Badges
+                                </Label>
+                                <Switch id="achievement-badges" checked={appSettings.achievementBadges} onCheckedChange={(v) => handleSettingChange('achievementBadges', v)} />
+                            </div>
+                             <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                                <Label htmlFor="progress-milestones" className="flex items-center gap-3 font-medium">
+                                    <Star className="w-5 h-5 text-primary" />
+                                    Progress Milestones
+                                </Label>
+                                <Switch id="progress-milestones" checked={appSettings.progressMilestones} onCheckedChange={(v) => handleSettingChange('progressMilestones', v)} />
+                            </div>
+                             <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                                <Label htmlFor="confetti-effects" className="flex items-center gap-3 font-medium">
+                                    <Sparkles className="w-5 h-5 text-primary" />
+                                    Confetti Effects
+                                </Label>
+                                <Switch id="confetti-effects" checked={appSettings.confettiEffects} onCheckedChange={(v) => handleSettingChange('confettiEffects', v)} />
+                            </div>
                         </div>
-                      ))}
                     </div>
-                  </div>
+                     <div>
+                        <h3 className="mb-4 font-medium text-foreground">Notifications</h3>
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                                <Label htmlFor="push-notifications" className="flex items-center gap-3 font-medium">
+                                   <BellDot className="w-5 h-5 text-primary" />
+                                   Push Notifications
+                                </Label>
+                                <Switch id="push-notifications" checked={appSettings.pushNotifications} onCheckedChange={(v) => handleSettingChange('pushNotifications', v)} />
+                            </div>
+                            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                                <Label htmlFor="sms-reminders" className="flex items-center gap-3 font-medium">
+                                   <MessageSquareText className="w-5 h-5 text-primary" />
+                                   SMS Reminders
+                                </Label>
+                                <Switch id="sms-reminders" checked={appSettings.smsReminders} onCheckedChange={(v) => handleSettingChange('smsReminders', v)} />
+                            </div>
+                            <div className="p-3 rounded-lg bg-muted/30 space-y-3">
+                                <Label className="flex items-center gap-3 font-medium"><Vibrate className="w-5 h-5 text-primary"/> Vibration Feedback</Label>
+                                <RadioGroup value={appSettings.vibrationFeedback} onValueChange={(v) => handleSettingChange('vibrationFeedback', v)} className="flex space-x-4 pt-1">
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="light" id="v1" />
+                                        <Label htmlFor="v1">Light</Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="medium" id="v2" />
+                                        <Label htmlFor="v2">Medium</Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="heavy" id="v3" />
+                                        <Label htmlFor="v3">Heavy</Label>
+                                    </div>
+                                </RadioGroup>
+                            </div>
+                            <div className="p-3 rounded-lg bg-muted/30 space-y-3">
+                                <Label className="font-medium">Notification Frequency</Label>
+                                <RadioGroup value={appSettings.notificationFrequency} onValueChange={(v) => handleSettingChange('notificationFrequency', v)} className="flex space-x-4 pt-1">
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="minimal" id="r1" />
+                                        <Label htmlFor="r1">Minimal</Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="moderate" id="r2" />
+                                        <Label htmlFor="r2">Moderate</Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="frequent" id="r3" />
+                                        <Label htmlFor="r3">Frequent</Label>
+                                    </div>
+                                </RadioGroup>
+                            </div>
+                        </div>
+                    </div>
                 </CardContent>
-                <CardFooter>
-                  <Button variant="outline" className="w-full">
-                    <Share2 className="mr-2 h-4 w-4" />
-                    Share Your Progress
-                  </Button>
-                </CardFooter>
-              </Card>
+            </Card>
             </TabsContent>
             <TabsContent value="weight">
                 <WeightChart />
@@ -206,7 +273,7 @@ export default function Dashboard() {
                   <CardTitle>Settings</CardTitle>
                   <CardDescription>Customize your experience.</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label>AI Motivation Tone</Label>
                     <Select value={motivationTone} onValueChange={(value: Tone) => setMotivationTone(value)}>
@@ -231,33 +298,19 @@ export default function Dashboard() {
                       className="font-code"
                     />
                   </div>
-                  <div className="space-y-2">
-                     <Label>Smart Notifications</Label>
-                      <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                        <p className="text-sm font-medium">Push Notifications</p>
-                        <Switch defaultChecked/>
-                      </div>
-                      <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                        <p className="text-sm font-medium">SMS Reminders</p>
-                        <Switch />
-                      </div>
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                    <Label htmlFor="link-devices" className="flex items-center gap-3 font-medium">
+                       <Link className="w-5 h-5 text-primary" />
+                       Link with other devices
+                    </Label>
+                    <Switch id="link-devices" disabled />
                   </div>
-                  <div className="space-y-3">
-                     <Label>Notification Frequency</Label>
-                      <RadioGroup defaultValue="moderate" className="flex space-x-4">
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="minimal" id="r1" />
-                          <Label htmlFor="r1">Minimal</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="moderate" id="r2" />
-                          <Label htmlFor="r2">Moderate</Label>
-                        </div>
-                         <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="frequent" id="r3" />
-                          <Label htmlFor="r3">Frequent</Label>
-                        </div>
-                      </RadioGroup>
+                   <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                    <Label htmlFor="wearable-mode" className="flex items-center gap-3 font-medium">
+                       <Watch className="w-5 h-5 text-primary" />
+                       Optimise for wearable devices
+                    </Label>
+                    <Switch id="wearable-mode" disabled />
                   </div>
                 </CardContent>
               </Card>
@@ -267,4 +320,3 @@ export default function Dashboard() {
       </main>
     </div>
   )
-}
