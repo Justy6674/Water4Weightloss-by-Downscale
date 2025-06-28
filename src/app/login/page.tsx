@@ -20,8 +20,7 @@ import { useToast } from "@/hooks/use-toast"
 import { signInWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence } from "firebase/auth"
 import { auth } from "@/lib/firebase"
 
-
-export default function LoginPage() {
+function LoginPageContents() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [rememberMe, setRememberMe] = useState(true)
@@ -124,4 +123,8 @@ export default function LoginPage() {
       </Card>
     </div>
   )
+}
+
+export default function LoginPage() {
+  return <LoginPageContents />
 }

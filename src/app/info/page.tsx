@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 
-export default function InfoPage() {
+function InfoPageContents() {
   return (
     <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 lg:p-8 font-body">
       <div className="max-w-4xl mx-auto">
@@ -93,4 +93,9 @@ export default function InfoPage() {
       </div>
     </div>
   )
+}
+
+
+export default function InfoPage() {
+  return <InfoPageContents />
 }

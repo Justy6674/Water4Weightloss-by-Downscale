@@ -19,8 +19,7 @@ import { useToast } from "@/hooks/use-toast"
 import { createUserWithEmailAndPassword } from "firebase/auth"
 import { auth } from "@/lib/firebase"
 
-
-export default function SignupPage() {
+function SignupPageContents() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [isLoading, setIsLoading] = useState(false)
@@ -101,4 +100,8 @@ export default function SignupPage() {
       </Card>
     </div>
   )
+}
+
+export default function SignupPage() {
+    return <SignupPageContents />
 }

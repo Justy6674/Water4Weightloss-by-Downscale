@@ -30,7 +30,7 @@ import { getUserData, updateUserData, UserData, Tone, deleteUserData, savePhoneN
 
 type MilestoneStatus = MotivationInput['milestoneStatus'];
 
-export default function Dashboard() {
+function DashboardContents() {
   const { toast } = useToast()
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
@@ -593,4 +593,8 @@ export default function Dashboard() {
       </AlertDialog>
     </div>
   )
+}
+
+export default function Dashboard() {
+  return <DashboardContents />
 }
