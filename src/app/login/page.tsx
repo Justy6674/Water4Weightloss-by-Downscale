@@ -13,20 +13,30 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
-import { signInWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence } from "firebase/auth"
+import { signInWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence, onAuthStateChanged, type User } from "firebase/auth"
 import { auth } from "@/lib/firebase"
-import { User, Lock } from "lucide-react"
+import { User as UserIcon, Lock } from "lucide-react"
 
 function LoginPageContents() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [rememberMe, setRememberMe] = useState(true)
     const [isLoading, setIsLoading] = useState(false)
+    const [user, setUser] = useState<User | null>(null)
+    const [checkingAuth, setCheckingAuth] = useState(true);
     const router = useRouter()
     const { toast } = useToast()
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+          setUser(currentUser);
+          setCheckingAuth(false);
+        });
+        return () => unsubscribe();
+    }, []);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -56,13 +66,23 @@ function LoginPageContents() {
             setIsLoading(false)
         }
     }
+    
+    if (checkingAuth) {
+        return null; // or a loading spinner
+    }
+
+    if (user) {
+        router.push('/dashboard');
+        return null; // or a loading spinner
+    }
+
 
   return (
     <div className="relative min-h-screen bg-[#0c1a2e] text-white flex items-center justify-center p-4 font-body">
         {/* Background Image & Spotlight */}
         <div className="absolute inset-0 z-0">
             <Image
-                src="https://images.unsplash.com/photo-1603975510795-0556a1b56372?q=80&w=1920&auto=format&fit=crop"
+                src="https://images.unsplash.com/photo-1561057160-b6c70de01399?q=80&w=1920&auto=format&fit=crop"
                 alt="Brick wall background"
                 fill
                 priority
@@ -72,7 +92,7 @@ function LoginPageContents() {
             <div 
                 className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-[80%]"
                 style={{
-                    background: 'radial-gradient(circle at 50% 0, rgba(255, 215, 139, 0.25) 0%, transparent 40%)'
+                    background: 'radial-gradient(circle at 50% 0, rgba(255, 215, 139, 0.25) 0%, transparent L, transparent 40%)'
                 }}
             />
         </div>
@@ -85,7 +105,7 @@ function LoginPageContents() {
                 <form onSubmit={handleLogin} className="space-y-6">
                     <div className="space-y-4">
                         <div className="relative">
-                            <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/50" />
+                            <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/50" />
                             <Input
                                 id="email"
                                 type="email"

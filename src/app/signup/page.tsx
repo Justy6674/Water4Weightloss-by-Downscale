@@ -56,7 +56,7 @@ function SignupPageContents() {
         {/* Background Image & Spotlight */}
         <div className="absolute inset-0 z-0">
              <Image
-                src="https://images.unsplash.com/photo-1603975510795-0556a1b56372?q=80&w=1920&auto=format&fit=crop"
+                src="https://images.unsplash.com/photo-1561057160-b6c70de01399?q=80&w=1920&auto=format&fit=crop"
                 alt="Brick wall background"
                 fill
                 priority
