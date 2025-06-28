@@ -368,7 +368,7 @@ service cloud.firestore {
                             <Menu className="h-6 w-6" />
                         </Button>
                     </SheetTrigger>
-                    <SheetContent>
+                    <SheetContent side="left">
                         <div className="flex flex-col gap-4 py-8">
                             <SheetClose asChild>
                                 <Button variant={activeTab === 'gamification' ? 'default' : 'secondary'} onClick={() => setActiveTab('gamification')} className="justify-start">
