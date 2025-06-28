@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { BookUser } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Water4Weightloss by Downscale',
+  title: 'Water4Weightloss',
   description: 'Track your hydration and achieve your weight loss goals.',
   icons: {
     icon: '/favicon.ico',
@@ -33,11 +33,11 @@ export default function RootLayout({
         <Toaster />
         <footer className="bg-card/50 mt-auto p-4 text-center text-muted-foreground text-sm border-t">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-             <p>&copy; 2024 Downscale Weight Loss Clinic. All rights reserved.</p>
+             <p>&copy; 2024 Water4Weightloss. All rights reserved.</p>
               <Button asChild variant="outline">
-                <Link href="https://www.downscale.com.au" target="_blank" rel="noopener noreferrer">
+                <Link href="https://buy.stripe.com/fZu5kvexV0Mf3Qr3Dsf3a03" target="_blank" rel="noopener noreferrer">
                   <BookUser className="mr-2 h-4 w-4" />
-                  Book a Consultation (Australia)
+                  Book a Consultation
                 </Link>
               </Button>
           </div>

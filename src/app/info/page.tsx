@@ -22,10 +22,7 @@ export default function InfoPage() {
           <CardHeader>
             <CardTitle className="text-3xl font-headline">The Science of Hydration for Weight Loss</CardTitle>
             <CardDescription className="text-lg">
-              Information provided by{" "}
-              <a href="https://www.downscale.com.au" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                Downscale Weight Loss Clinic
-              </a>
+              Information provided by Downscale Weight Loss Clinic.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6 prose prose-invert prose-p:text-card-foreground/90 prose-headings:text-foreground prose-h2:text-2xl prose-h3:text-xl prose-strong:text-foreground">
@@ -96,9 +93,9 @@ export default function InfoPage() {
             
             <div className="text-center pt-4">
                <Button asChild size="lg">
-                 <Link href="https://www.downscale.com.au" target="_blank" rel="noopener noreferrer">
+                 <Link href="https://buy.stripe.com/fZu5kvexV0Mf3Qr3Dsf3a03" target="_blank" rel="noopener noreferrer">
                    <BookUser className="mr-2 h-5 w-5" />
-                   Book a Consultation (Australia)
+                   Book a Consultation
                  </Link>
                </Button>
             </div>

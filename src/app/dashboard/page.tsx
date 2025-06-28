@@ -479,9 +479,9 @@ export default function Dashboard() {
                        </Link>
                      </Button>
                      <Button asChild className="w-full">
-                       <Link href="https://www.downscale.com.au" target="_blank" rel="noopener noreferrer">
+                       <Link href="https://buy.stripe.com/fZu5kvexV0Mf3Qr3Dsf3a03" target="_blank" rel="noopener noreferrer">
                          <BookUser className="mr-2 h-4 w-4" />
-                         Book a Consultation (Australia)
+                         Book a Consultation
                        </Link>
                      </Button>
                   </div>
