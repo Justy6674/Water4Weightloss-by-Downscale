@@ -108,7 +108,7 @@ function SignupPageContents() {
                         {isLoading ? 'Creating account...' : 'Create an account'}
                     </Button>
                 </form>
-                <div className="mt-6 text-center text-sm text-[#5271ff]">
+                <div className="mt-6 text-center text-sm text-[#f7f2d3]">
                     Already have an account?{" "}
                     <Link href="/login" className="underline font-bold text-[#f7f2d3]">
                         Login

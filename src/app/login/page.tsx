@@ -140,12 +140,12 @@ function LoginPageContents() {
                             />
                             <label
                                 htmlFor="remember-me"
-                                className="font-medium text-[#5271ff] leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                className="font-medium text-[#f7f2d3] leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                             >
                                 Stay logged in
                             </label>
                         </div>
-                        <Link href="#" className="font-medium text-[#5271ff] hover:underline">
+                        <Link href="#" className="font-medium text-[#f7f2d3] hover:underline">
                             Forgot password?
                         </Link>
                     </div>
@@ -153,7 +153,7 @@ function LoginPageContents() {
                         {isLoading ? 'Logging in...' : 'Login'}
                     </Button>
                 </form>
-                <div className="mt-6 text-center text-sm text-[#5271ff]">
+                <div className="mt-6 text-center text-sm text-[#f7f2d3]">
                     Don&apos;t have an account?{" "}
                     <Link href="/signup" className="underline font-bold text-[#f7f2d3]">
                         Register
