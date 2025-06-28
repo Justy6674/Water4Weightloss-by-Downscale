@@ -24,7 +24,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { Sheet, SheetContent, SheetClose, SheetTrigger } from "@/components/ui/sheet"
 import { useToast } from "@/hooks/use-toast"
-import { useIsMobile } from "@/hooks/use-mobile"
 import { WaterGlass } from "@/components/water-glass"
 import { BodyMetrics } from "@/components/body-metrics"
 import { generateMotivation, MotivationInput } from "@/ai/flows/personalized-motivation"
@@ -731,5 +730,3 @@ service cloud.firestore {
 export default function Dashboard() {
   return <DashboardContents />
 }
-
-    
