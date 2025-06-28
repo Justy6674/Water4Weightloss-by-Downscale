@@ -245,24 +245,24 @@ function DashboardContents() {
       <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 lg:p-8 font-body flex items-center justify-center">
         <Card className="max-w-2xl bg-destructive/10 border-destructive">
           <CardHeader>
-            <CardTitle className="text-destructive-foreground">Database Configuration Error</CardTitle>
+            <CardTitle className="text-destructive-foreground">Action Required in Firebase Console</CardTitle>
             <CardDescription className="text-destructive-foreground/80">
-              The application is being blocked by your database security rules.
+              Your app's code is working correctly, but it cannot access the database. This is a mandatory security setting in your Firebase project that must be changed manually. The AI cannot perform this step for you.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="bg-background/80 p-4 rounded-md text-foreground">
-              <h3 className="font-bold">How to Fix This:</h3>
+              <h3 className="font-bold">Follow these steps exactly:</h3>
               <ol className="list-decimal list-inside space-y-2 mt-2">
                 <li>Go to the <strong>Firestore Database</strong> section in your Firebase Console.</li>
                 <li>Click the <strong>Rules</strong> tab at the top.</li>
-                <li>Find the line that says: <code className="bg-muted px-2 py-1 rounded font-mono text-sm">allow read, write: if false;</code></li>
-                <li>Change it to: <code className="bg-muted px-2 py-1 rounded font-mono text-sm">allow read, write: if request.auth != null;</code></li>
+                <li>Delete all the existing text in the editor.</li>
+                <li>Paste in the complete, secure ruleset provided in the AI's chat response.</li>
                 <li>Click the <strong>Publish</strong> button.</li>
               </ol>
             </div>
             <p className="text-sm text-destructive-foreground/80">
-              This new rule allows any logged-in user to access their own data, which is a standard and secure setup for this type of application. After publishing the rule, please refresh this page.
+              After you publish the new rules, please refresh this page. The application will then work as expected.
             </p>
           </CardContent>
         </Card>
@@ -287,7 +287,7 @@ function DashboardContents() {
       {showConfetti && <Confetti onConfettiComplete={() => setShowConfetti(false)} />}
       <header className="mb-8 flex justify-between items-center">
         <div className="flex items-center gap-4">
-            <Image src="/logo.png" alt="Water4Weightloss Logo" width={60} height={60} />
+            <Image src="/logo.png" alt="Water4Weightloss Logo" width={60} height={60} data-ai-hint="water droplet" />
             <div>
               <h1 className="text-3xl lg:text-4xl font-headline font-bold text-secondary tracking-tight">Water4Weightloss</h1>
               <p className="text-muted-foreground text-md">Welcome, {user.email}</p>
@@ -632,5 +632,3 @@ function DashboardContents() {
 export default function Dashboard() {
   return <DashboardContents />
 }
-
-    
