@@ -88,9 +88,39 @@ function makeDataSerializable(data: object): any {
     return sanitizedData;
 }
 
+/**
+ * Creates a user document in Firestore if one doesn't already exist.
+ * This is an idempotent operation, safe to call on every login.
+ * @param userId - The ID of the user to create a document for.
+ */
+export async function ensureUserDocument(userId: string): Promise<void> {
+    if (!userId) {
+        console.error("ensureUserDocument called without a userId.");
+        return;
+    }
+    const userDocRef = doc(db, 'users', userId);
+
+    try {
+        const userDocSnap = await getDoc(userDocRef);
+        if (!userDocSnap.exists()) {
+            await setDoc(userDocRef, {
+                ...defaultUserData,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+            });
+        }
+    } catch (error) {
+         console.error("Firebase Error: Failed to ensure user document:", error);
+         if (error instanceof Error && 'code' in error && (error as any).code === 'permission-denied') {
+            throw new Error("DATABASE ACCESS DENIED. Could not create user profile. Please check your Firestore security rules.");
+        }
+        throw new Error("A database error occurred while creating the user profile.");
+    }
+}
+
 
 /**
- * Fetches user data from Firestore or creates it if it doesn't exist.
+ * Fetches user data from Firestore. Assumes the document already exists.
  * This function also ensures the returned data is serializable for Next.js.
  */
 export async function getUserData(userId: string): Promise<UserData> {
@@ -103,24 +133,12 @@ export async function getUserData(userId: string): Promise<UserData> {
             const existingData = userDocSnap.data() as UserData;
             return makeDataSerializable(existingData);
         } else {
-            // Document doesn't exist, create it with default values
-            const newUserData = {
-                ...defaultUserData,
-                createdAt: serverTimestamp(),
-                updatedAt: serverTimestamp(),
-            };
-            await setDoc(userDocRef, newUserData);
-            
-            // Return the default data immediately for a fast UI response.
-            // The server-generated timestamps will be fetched on the next load.
-            return makeDataSerializable({
-                ...defaultUserData,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            });
+            // This is now an unexpected error, as the document should have been created on login.
+            console.error(`CRITICAL: User document not found for user ${userId}. An attempt to recreate it will happen on next login.`);
+            throw new Error("Your user profile could not be found. Please try logging out and signing back in.");
         }
     } catch (error) {
-        console.error("Firebase Error: Failed to get or create document.", error);
+        console.error("Firebase Error: Failed to get document.", error);
         let errorMessage = "Could not connect to the database. Please ensure Firestore is enabled in your Firebase project and that your security rules allow access.";
         if (error instanceof Error && 'code' in error) {
             const firebaseError = error as { code: string; message: string };
