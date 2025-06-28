@@ -21,6 +21,7 @@ import { WaterGlass } from "@/components/water-glass"
 import { BodyMetrics } from "@/components/body-metrics"
 import { generateMotivation, MotivationInput } from "@/ai/flows/personalized-motivation"
 import { Confetti } from "@/components/confetti"
+import logo from "@/public/logo.png"
 
 type Tone = "funny" | "supportive" | "sarcastic" | "crass" | "kind"
 type MilestoneStatus = MotivationInput['milestoneStatus'];
@@ -146,7 +147,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 lg:p-8 font-body">
       {showConfetti && <Confetti onConfettiComplete={() => setShowConfetti(false)} />}
       <header className="mb-8 text-center">
-        <Image src="/logo.png" alt="Water4Weightloss Logo" width={100} height={100} className="mx-auto mb-4" />
+        <Image src={logo} alt="Water4Weightloss Logo" width={100} height={100} className="mx-auto mb-4" />
         <h1 className="text-4xl lg:text-5xl font-headline font-bold text-secondary tracking-tight">Water4Weightloss</h1>
         <p className="text-muted-foreground mt-2 text-lg">Your personal hydration and weight loss companion.</p>
       </header>
@@ -437,3 +438,5 @@ export default function Dashboard() {
     </div>
   )
 }
+
+    
