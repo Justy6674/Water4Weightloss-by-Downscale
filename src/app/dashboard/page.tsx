@@ -27,7 +27,7 @@ import { WaterGlass } from "@/components/water-glass"
 import { BodyMetrics } from "@/components/body-metrics"
 import { generateMotivation, MotivationInput } from "@/ai/flows/personalized-motivation"
 import { Confetti } from "@/components/confetti"
-import { updateUserData, UserData, Tone, deleteUserData, savePhoneNumberAndSendConfirmation } from "@/lib/actions"
+import { updateUserData, UserData, Tone, deleteUserData, savePhoneNumberAndSendConfirmation, ensureUserDocument } from "@/lib/actions"
 
 type MilestoneStatus = MotivationInput['milestoneStatus'];
 
@@ -72,18 +72,24 @@ function DashboardContents() {
     }
     
     const loadData = async (userId: string) => {
+      setLoadingError(null);
       try {
-        const userDocRef = doc(db, 'users', userId);
-        const userDocSnap = await getDoc(userDocRef);
+        let userDocSnap = await getDoc(doc(db, 'users', userId));
 
-        if (userDocSnap.exists()) {
-            const data = makeDataSerializable(userDocSnap.data() as UserData);
-            setUserData(data);
-            if (data.bodyMetrics?.phone) {
-              setPhone(data.bodyMetrics.phone);
-            }
-        } else {
-             throw new Error("Your user profile was not found. Please try logging out and signing back in.");
+        if (!userDocSnap.exists()) {
+          console.log("User document not found, creating one now for user:", userId);
+          await ensureUserDocument(userId);
+          userDocSnap = await getDoc(doc(db, 'users', userId));
+
+          if (!userDocSnap.exists()) {
+            throw new Error("Failed to create and retrieve user profile. This is likely a Firestore security rule issue.");
+          }
+        }
+
+        const data = makeDataSerializable(userDocSnap.data() as UserData);
+        setUserData(data);
+        if (data.bodyMetrics?.phone) {
+          setPhone(data.bodyMetrics.phone);
         }
       } catch (error) {
         console.error("Failed to load user data:", error);
@@ -99,13 +105,14 @@ function DashboardContents() {
                 } else {
                     errorMessage = `A Firebase error occurred: ${firebaseError.message} (Code: ${firebaseError.code}). Please check your Firebase setup.`;
                 }
+            } else if (error.message.includes("Firestore security rule issue")) {
+                 errorMessage = `DATABASE ACCESS DENIED. Your app's code is correct, but it is being blocked by a security setting in your Firebase project.`;
             } else {
                  errorMessage = error.message;
             }
         }
         
         setLoadingError(errorMessage);
-        // Do not show a toast for the main loading error, the on-screen card is better
       }
     };
 
