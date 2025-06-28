@@ -5,16 +5,6 @@
 
 import { Twilio } from 'twilio';
 
-const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
-const from = process.env.TWILIO_PHONE_NUMBER;
-
-if (!accountSid || !authToken || !from) {
-  throw new Error('Twilio environment variables are not configured correctly.');
-}
-
-const client = new Twilio(accountSid, authToken);
-
 /**
  * Sends an SMS message to a given phone number.
  * @param to The recipient's phone number. Must be in E.164 format (e.g., +15551234567).
@@ -22,6 +12,18 @@ const client = new Twilio(accountSid, authToken);
  * @returns A promise that resolves when the message is sent.
  */
 export async function sendSms(to: string, body: string) {
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  const from = process.env.TWILIO_PHONE_NUMBER;
+
+  if (!accountSid || !authToken || !from || !accountSid.startsWith('AC')) {
+    const errorMessage = 'Twilio feature is not configured. Please set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER in your .env.local file to enable SMS notifications.';
+    console.error(errorMessage);
+    throw new Error(errorMessage);
+  }
+
+  const client = new Twilio(accountSid, authToken);
+
   try {
     const message = await client.messages.create({
       to,
