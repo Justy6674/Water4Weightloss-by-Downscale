@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast"
 import { WaterGlass } from "@/components/water-glass"
 import { WeightChart } from "@/components/weight-chart"
 import { generateMotivation, MotivationInput } from "@/ai/flows/personalized-motivation"
+import { Confetti } from "@/components/confetti"
 
 type Tone = "funny" | "supportive" | "sarcastic" | "crass" | "kind"
 
@@ -27,6 +28,7 @@ export default function Dashboard() {
   const [streak, setStreak] = useState(14)
   const [manualAmount, setManualAmount] = useState("")
   const [lastDrinkSize, setLastDrinkSize] = useState(0)
+  const [showConfetti, setShowConfetti] = useState(false)
 
   const [motivationTone, setMotivationTone] = useState<Tone>("supportive")
   const [motivation, setMotivation] = useState("Keep up the great work! Every sip counts.")
@@ -82,10 +84,15 @@ export default function Dashboard() {
 
   const handleAddWater = (amount: number) => {
     if (amount <= 0) return
+    const oldHydration = hydration;
     const newHydration = Math.min(dailyGoal, hydration + amount)
     setHydration(newHydration)
     setLastDrinkSize(amount)
     fetchMotivation(amount)
+
+    if (appSettings.confettiEffects && newHydration >= dailyGoal && oldHydration < dailyGoal) {
+      setShowConfetti(true)
+    }
   }
 
   const handleManualAdd = () => {
@@ -98,6 +105,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 lg:p-8 font-body">
+      {showConfetti && <Confetti onConfettiComplete={() => setShowConfetti(false)} />}
       <header className="mb-8 text-center">
         <h1 className="text-4xl lg:text-5xl font-headline font-bold text-secondary tracking-tight">Water4Weightloss</h1>
         <p className="text-muted-foreground mt-2 text-lg">Your personal hydration and weight loss companion.</p>
@@ -320,3 +328,4 @@ export default function Dashboard() {
       </main>
     </div>
   )
+}
