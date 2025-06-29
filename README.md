@@ -1,3 +1,4 @@
+
 # 💧 Water4WeightLoss - Gamified Hydration Coach
 
 A behavioral, emotionally intelligent hydration coach that adapts to your tone, preferences, and hydration history. Built by **Downscale Weight Loss Clinic**, every interaction is designed to be thoughtful, motivational, and visually satisfying.
@@ -78,9 +79,11 @@ Follow these steps to set up the development environment.
     cd ..
     ```
 
-### 3\. Environment Variables
+### 3\. Environment Variables & Service Account
 
-Create a file named `.env.local` in the root directory and populate it with the necessary keys from your Firebase project and third-party services.
+**Step 1: Create `.env.local`**
+
+Create a file named `.env.local` in the root directory and populate it with the necessary keys from your Firebase project and third-party services. These keys are for client-side functionality and server-side APIs like Google AI and Twilio.
 
 ```bash
 # .env.local
@@ -96,15 +99,6 @@ NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
 NEXT_PUBLIC_FIREBASE_APP_ID=
 NEXT_PUBLIC_RECAPTCHA_SITE_KEY= # From your Google Cloud Console -> reCAPTCHA
 
-# --- Firebase Admin SDK (Server-Side Secrets) ---
-# These are highly sensitive and should NEVER be exposed to the client.
-# Copy these values directly from your `service-account.json` file.
-# Note: The service-account.json file itself is no longer used.
-FIREBASE_ADMIN_PROJECT_ID=
-FIREBASE_ADMIN_CLIENT_EMAIL=
-# IMPORTANT: For the private key, enclose the entire multi-line key in double quotes.
-FIREBASE_ADMIN_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n ...your very long key... \n-----END PRIVATE KEY-----\n"
-
 # --- Other Services (Server-Side Secrets) ---
 GOOGLE_AI_API_KEY=
 TWILIO_ACCOUNT_SID=
@@ -112,6 +106,16 @@ TWILIO_AUTH_TOKEN=
 TWILIO_PHONE_NUMBER=
 
 ```
+
+**Step 2: Add `service-account.json`**
+
+For secure server-side operations (like sending push notifications), the application uses a Firebase service account.
+
+1. In your Firebase Project Settings, go to the **Service accounts** tab.
+2. Click **Generate new private key** and download the JSON file.
+3. Rename the downloaded file to `service-account.json`.
+4. Place this file in the **root directory** of the project.
+5. **Important:** This file contains highly sensitive secrets and should **never** be committed to public version control. Ensure it is listed in your `.gitignore` file.
 
 ### 4\. Run the Application
 
@@ -137,6 +141,7 @@ water4weightloss/
 │   ├── components/     # Reusable React components
 │   ├── lib/            # Helper functions, Firebase config
 │   └── types/          # TypeScript type definitions
+├── service-account.json # Server-side credentials (DO NOT COMMIT)
 └── firebase.json       # Firebase project configuration
 ```
 
