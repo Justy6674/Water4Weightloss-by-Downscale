@@ -71,18 +71,19 @@ Follow these steps to set up the development environment.
 
 ### 3. Credentials Setup
 
-The application requires credentials for Firebase, Google AI, and Twilio.
+The application requires credentials for Firebase, Google AI, and Twilio. This is a two-part process.
 
-#### Step 1: Get Firebase Service Account Key (for Local Development)
+#### Step 1: Backend Credentials (for Local Server)
 
-For local development, the server needs secret credentials to act on your behalf.
+For local development, the server needs secret credentials to perform actions like sending push notifications.
 
 1.  In your Firebase Project Settings, go to the **Service accounts** tab.
 2.  Click **Generate new private key** and a JSON file will be downloaded.
 3.  **Rename this file to `service-account.json`**.
 4.  Place the `service-account.json` file in the **root directory** of the project. This file is listed in `.gitignore` and will not be committed.
+5.  **Important**: Open the file and ensure it contains your actual project credentials, not placeholder text.
 
-#### Step 2: Create and Populate `.env.local`
+#### Step 2: Frontend & Services Credentials
 
 Create a file named `.env.local` in the root of your project. Copy the template below and fill it with your credentials. **This is for local development only.** Your deployed application uses a more secure method to access these secrets.
 
@@ -100,9 +101,11 @@ NEXT_PUBLIC_FIREBASE_APP_ID=
 NEXT_PUBLIC_RECAPTCHA_SITE_KEY=
 
 # --- Google AI (Server-Side Secret) ---
+# This is used by Genkit AI flows
 GOOGLE_AI_API_KEY=
 
 # --- Twilio for SMS Reminders (Server-Side Secrets) ---
+# Required if you want to test SMS notifications locally
 TWILIO_ACCOUNT_SID=
 TWILIO_AUTH_TOKEN=
 TWILIO_PHONE_NUMBER=
@@ -145,7 +148,7 @@ water4weightloss/
 ├── src/
 │   ├── app/            # Next.js app router pages
 │   ├── components/     # Reusable React components
-│   ├── lib/            # Helper functions, Firebase config
+│   ├── lib/            # Helper functions, Firebase config (client & admin)
 │   ├── ai/             # Genkit AI flows
 │   └── services/       # Third-party service clients (e.g., Twilio)
 ├── .env.local          # Environment variables (DO NOT COMMIT)
