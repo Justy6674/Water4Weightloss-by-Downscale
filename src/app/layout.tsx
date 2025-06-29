@@ -28,8 +28,8 @@ export const metadata: Metadata = {
   description: 'Track your hydration and achieve your weight loss goals.',
   manifest: '/manifest.json',
   icons: {
-    icon: '/favicon%20192x192.png',
-    apple: '/favicon%20192x192.png',
+    icon: '/favicon 192x192.png',
+    apple: '/favicon 192x192.png',
   },
 };
 

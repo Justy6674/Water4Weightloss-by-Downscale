@@ -40,8 +40,8 @@ export default function LandingPage() {
               </div>
               <Image
                 src="/hero-w4w.png"
-                width="600"
-                height="400"
+                width={600}
+                height={400}
                 alt="Hero"
                 className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last"
                 priority

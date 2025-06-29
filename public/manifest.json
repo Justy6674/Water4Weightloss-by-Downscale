@@ -1,20 +1,16 @@
+
 {
   "name": "Water4Weightloss",
   "short_name": "W4W",
-  "start_url": "/dashboard",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#334155",
   "theme_color": "#334155",
-  "description": "Gamified Hydration Coach for Weight Loss.",
+  "description": "Track your hydration and achieve your weight loss goals.",
   "icons": [
     {
-      "src": "/favicon%20192x192.png",
+      "src": "/favicon 192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/favicon%20192x192.png",
-      "sizes": "512x512",
       "type": "image/png"
     }
   ]
