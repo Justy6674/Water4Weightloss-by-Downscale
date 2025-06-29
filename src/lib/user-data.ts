@@ -2,6 +2,7 @@
 import type { Timestamp } from 'firebase/firestore';
 
 export type Tone = "funny" | "supportive" | "sarcastic" | "crass" | "kind";
+export type NotificationFrequency = "intelligent" | "hourly" | "four-hours" | "off";
 
 export interface BloodPressureReading {
     systolic: number;
@@ -28,7 +29,7 @@ export interface UserData {
         confettiEffects: boolean;
         pushNotifications: boolean;
         smsReminders: boolean;
-        notificationFrequency: "minimal" | "moderate" | "frequent";
+        notificationFrequency: NotificationFrequency;
         vibrationFeedback: "light" | "medium" | "heavy";
     };
     bodyMetrics: {
@@ -56,7 +57,7 @@ const defaultAppSettings: UserData['appSettings'] = {
     confettiEffects: true,
     pushNotifications: true,
     smsReminders: false,
-    notificationFrequency: "moderate",
+    notificationFrequency: "intelligent",
     vibrationFeedback: "medium",
 };
 

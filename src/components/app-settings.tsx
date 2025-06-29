@@ -10,7 +10,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
-import { type UserData, type Tone } from "@/lib/user-data"
+import { type UserData, type Tone, type NotificationFrequency } from "@/lib/user-data"
 import { savePhoneNumberAndSendConfirmation } from "@/lib/actions"
 import { useAuth } from "@/hooks/use-auth"
 
@@ -197,18 +197,47 @@ export function AppSettings({ userData, onUpdate }: AppSettingsProps) {
             </div>
             <div className="p-3 rounded-lg bg-muted/30 space-y-3">
                 <Label className="font-medium">Notification Frequency</Label>
-                <RadioGroup value={userData.appSettings.notificationFrequency} onValueChange={(v) => handleSettingChange('notificationFrequency', v)} className="flex space-x-4 pt-1">
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="minimal" id="r1" />
-                        <Label htmlFor="r1">Minimal</Label>
+                 <p className="text-sm text-muted-foreground">Choose how often you want to receive reminders.</p>
+                <RadioGroup 
+                    value={userData.appSettings.notificationFrequency} 
+                    onValueChange={(v) => handleSettingChange('notificationFrequency', v as NotificationFrequency)} 
+                    className="space-y-3 pt-2"
+                >
+                    <div className="flex items-start space-x-3">
+                        <RadioGroupItem value="intelligent" id="freq-intelligent" className="mt-1" />
+                        <div className="grid gap-1.5 leading-none">
+                            <Label htmlFor="freq-intelligent" className="font-semibold">Intelligent</Label>
+                            <p className="text-xs text-muted-foreground">
+                                Let our AI remind you only when you're falling behind schedule. (Recommended)
+                            </p>
+                        </div>
                     </div>
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="moderate" id="r2" />
-                        <Label htmlFor="r2">Moderate</Label>
+                     <div className="flex items-start space-x-3">
+                        <RadioGroupItem value="hourly" id="freq-hourly" className="mt-1" />
+                        <div className="grid gap-1.5 leading-none">
+                            <Label htmlFor="freq-hourly" className="font-semibold">Hourly</Label>
+                            <p className="text-xs text-muted-foreground">
+                                Receive a reminder every hour during your typical waking hours.
+                            </p>
+                        </div>
                     </div>
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="frequent" id="r3" />
-                        <Label htmlFor="r3">Frequent</Label>
+                    <div className="flex items-start space-x-3">
+                        <RadioGroupItem value="four-hours" id="freq-four" className="mt-1" />
+                        <div className="grid gap-1.5 leading-none">
+                            <Label htmlFor="freq-four" className="font-semibold">Infrequent</Label>
+                            <p className="text-xs text-muted-foreground">
+                                Only get a reminder if you haven't logged any water for 4 hours.
+                            </p>
+                        </div>
+                    </div>
+                     <div className="flex items-start space-x-3">
+                        <RadioGroupItem value="off" id="freq-off" className="mt-1" />
+                        <div className="grid gap-1.5 leading-none">
+                            <Label htmlFor="freq-off" className="font-semibold">Off</Label>
+                            <p className="text-xs text-muted-foreground">
+                                You will not receive any push or SMS notifications.
+                            </p>
+                        </div>
                     </div>
                 </RadioGroup>
             </div>

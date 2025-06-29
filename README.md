@@ -155,7 +155,7 @@ This section outlines the business and strategic goals for the project.
 
   * **Phase 1 (Month 1 - MVP)**: Core tracking, basic AI, and authentication.
   * **Phase 2 (Month 2 - Gamification)**: Streaks, badges, and body metric tracking.
-  * **Phase 3 (Month 3 - Monetization)**: Premium features and SMS integration.
+  * **Phase 3 (Month 3 - Monetization)**: Premium features and SMS integration (2 max a day to keep costs down).
   * **Phase 4 (Month 4+)**: Scaling, partnerships, and potential expansion.
 
 -----
