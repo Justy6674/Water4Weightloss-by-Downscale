@@ -2,44 +2,40 @@
 'use server';
 import 'dotenv/config';
 import * as admin from 'firebase-admin';
-import fs from 'fs';
-import path from 'path';
 
 // This guard ensures the app is only initialized ONCE.
 if (!admin.apps.length) {
   try {
-    const serviceAccountPath = path.resolve(process.cwd(), 'service-account.json');
+    const serviceAccount = {
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY,
+    };
 
-    if (fs.existsSync(serviceAccountPath)) {
-      // LOCAL DEVELOPMENT: Use the service account file from the project root.
-      const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
-      
-      // Validate the file content to prevent cryptic errors from the SDK.
-      if (!serviceAccount.project_id || !serviceAccount.private_key || serviceAccount.project_id.includes("YOUR_")) {
-          throw new Error("The service-account.json file is incomplete or contains placeholder values. Please populate it with your actual credentials for local development.");
-      }
-
-      console.log("Initializing Firebase Admin with local service-account.json...");
+    // For local development, we use environment variables. In a deployed Google
+    // Cloud environment, the SDK can use Application Default Credentials.
+    if (serviceAccount.projectId && serviceAccount.clientEmail && serviceAccount.privateKey) {
+      console.log("Initializing Firebase Admin with environment variables for local development...");
       admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-        projectId: serviceAccount.project_id,
+        credential: admin.credential.cert({
+          project_id: serviceAccount.projectId,
+          client_email: serviceAccount.clientEmail,
+          // The `replace` call is crucial for correcting the private key format from an env var.
+          private_key: serviceAccount.privateKey.replace(/\\n/g, '\n'),
+        }),
+        projectId: serviceAccount.projectId,
       });
-
     } else {
-      // DEPLOYED (PRODUCTION) ENVIRONMENT: Use Application Default Credentials.
-      // This is the standard for Google App Hosting, Cloud Run, etc., where the environment is authenticated.
-      console.log("Initializing Firebase Admin with Application Default Credentials...");
+      // This path is for DEPLOYED environments (e.g., App Hosting).
+      // It assumes the environment is already authenticated.
+      console.log("Initializing Firebase Admin with Application Default Credentials for production...");
       admin.initializeApp();
     }
   } catch (error: any) {
     let errorMessage = `Failed to initialize Firebase Admin SDK. Error: ${error.message}.`;
-    
-    if (error.message.includes('ENOENT')) {
-        errorMessage += " This might be because 'service-account.json' is missing for local development, and Application Default Credentials are not set up.";
-    } else if (error.code === 'app/invalid-credential') {
-        errorMessage += " The credential used to initialize the Admin SDK is invalid. Check your service account file or hosting environment's permissions.";
+    if (error.message.includes('INTERNAL')) {
+      errorMessage += " This is often due to malformed credentials being passed to the SDK."
     }
-    
     console.error('CRITICAL: Firebase Admin SDK initialization failed.', error);
     // Throw a detailed error message that guides the user.
     throw new Error(errorMessage + " Please check your credentials and environment setup as described in the README.");
