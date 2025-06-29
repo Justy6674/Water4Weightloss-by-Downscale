@@ -355,7 +355,7 @@ const getCreateDbInstructions = () => (
     }
   }
   
-  const handleSettingsUpdate = (updatedSettings: Partial<UserData>) => {
+  const handleSettingsUpdate = (updatedSettings: Partial<UserData>, writeToDb: boolean = true) => {
     if (!userData || !user) return;
     const newUserData = { ...userData, ...updatedSettings };
     if (updatedSettings.appSettings) {
@@ -365,7 +365,9 @@ const getCreateDbInstructions = () => (
       newUserData.bodyMetrics = { ...userData.bodyMetrics, ...updatedSettings.bodyMetrics };
     }
     setUserData(newUserData);
-    updateUserData(user.uid, updatedSettings);
+    if (writeToDb) {
+      updateUserData(user.uid, updatedSettings);
+    }
   };
 
   const handleMetricsSave = async (metrics: Partial<UserData['bodyMetrics']>, newWeightReading?: Omit<WeightReading, 'timestamp'>) => {
@@ -550,37 +552,35 @@ const getCreateDbInstructions = () => (
                         </CardContent>
                     </Card>
 
-                    {(userData.appSettings.dailyStreaks || userData.appSettings.progressMilestones) && (
-                        <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <Trophy className="text-primary" />
-                                    <span>Gamification</span>
-                                </CardTitle>
-                                <CardDescription>Your progress and milestones.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                {userData.appSettings.dailyStreaks && (
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <Flame className="w-5 h-5 text-amber-500" />
-                                            <p className="font-medium">Daily Hydration Streak</p>
-                                        </div>
-                                        <p className="font-bold text-2xl text-primary">{userData.streak} <span className="text-base font-medium text-muted-foreground">{userData.streak === 1 ? 'day' : 'days'}</span></p>
+                    <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Trophy className="text-primary" />
+                                <span>Gamification</span>
+                            </CardTitle>
+                            <CardDescription>Your progress and milestones.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            {userData.appSettings.dailyStreaks && (
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <Flame className="w-5 h-5 text-amber-500" />
+                                        <p className="font-medium">Daily Hydration Streak</p>
                                     </div>
-                                )}
-                                {userData.appSettings.progressMilestones && (
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <Star className="w-5 h-5 text-yellow-500" />
-                                            <p className="font-medium">Next Milestone</p>
-                                        </div>
-                                        <p className="text-sm text-right text-muted-foreground font-semibold">{milestone.nextMilestoneInfo}</p>
+                                    <p className="font-bold text-2xl text-primary">{userData.streak} <span className="text-base font-medium text-muted-foreground">{userData.streak === 1 ? 'day' : 'days'}</span></p>
+                                </div>
+                            )}
+                            {userData.appSettings.progressMilestones && (
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <Star className="w-5 h-5 text-yellow-500" />
+                                        <p className="font-medium">Next Milestone</p>
                                     </div>
-                                )}
-                            </CardContent>
-                        </Card>
-                    )}
+                                    <p className="text-sm text-right text-muted-foreground font-semibold">{milestone.nextMilestoneInfo}</p>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
 
                     <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
                         <CardHeader>

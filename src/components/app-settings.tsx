@@ -16,7 +16,7 @@ import { useAuth } from "@/hooks/use-auth"
 
 interface AppSettingsProps {
   userData: UserData;
-  onUpdate: (updatedSettings: Partial<UserData>) => void;
+  onUpdate: (updatedSettings: Partial<UserData>, writeToDb?: boolean) => void;
 }
 
 export function AppSettings({ userData, onUpdate }: AppSettingsProps) {
@@ -65,7 +65,7 @@ export function AppSettings({ userData, onUpdate }: AppSettingsProps) {
     try {
       const result = await savePhoneNumberAndSendConfirmation(user.uid, phone);
       if (result.success) {
-        onUpdate({ bodyMetrics: { ...userData.bodyMetrics, phone } });
+        onUpdate({ bodyMetrics: { ...userData.bodyMetrics, phone } }, false);
         toast({ title: "Success", description: result.message });
       } else {
         toast({ variant: "destructive", title: "Error", description: result.message });
