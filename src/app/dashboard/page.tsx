@@ -183,7 +183,9 @@ const getCreateDbInstructions = () => (
         
         setUserData(serializableData as UserData);
         if (streakWasReset) {
-            updateUserData(userId, { streak: 0 });
+          if(user) {
+            updateUserData(user.uid, { streak: 0 });
+          }
         }
 
       } catch (error) {
@@ -390,7 +392,9 @@ const getCreateDbInstructions = () => (
         await addWeightReading(user.uid, newWeightReading);
       }
       const otherMetrics = { waist: metrics.waist, height: metrics.height, gender: metrics.gender };
-      await updateUserData(user.uid, { bodyMetrics: otherMetrics });
+      if(user) {
+        await updateUserData(user.uid, { bodyMetrics: otherMetrics });
+      }
 
       toast({ title: "Metrics Saved", description: "Your body metrics have been updated." });
     } catch(error) {
@@ -481,11 +485,11 @@ const getCreateDbInstructions = () => (
     <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 lg:p-8 font-body">
       {showConfetti && <Confetti onConfettiComplete={() => setShowConfetti(false)} />}
       <header className="mb-4 flex justify-between items-center">
-        <div className="flex items-center gap-4">
-            <Image src="/logo.png" alt="Water4Weightloss Logo" width={60} height={60} data-ai-hint="water droplet" />
+        <div className="flex items-center gap-2 sm:gap-4">
+            <Image src="/logo.png" alt="Water4Weightloss Logo" width={50} height={50} data-ai-hint="water droplet" />
             <div>
-              <h1 className="text-3xl lg:text-4xl font-headline font-bold text-secondary tracking-tight">Water4Weightloss</h1>
-              <p className="text-muted-foreground text-md">Welcome, {user.email}</p>
+              <h1 className="text-2xl sm:text-3xl font-headline font-bold text-secondary tracking-tight">Water4Weightloss</h1>
+              <p className="text-muted-foreground text-sm sm:text-base">Welcome, {user.email}</p>
             </div>
         </div>
         
@@ -567,7 +571,7 @@ const getCreateDbInstructions = () => (
                                         <Flame className="w-5 h-5 text-amber-500" />
                                         <p className="font-medium">Daily Hydration Streak</p>
                                     </div>
-                                    <p className="font-bold text-2xl text-primary">{userData.streak} <span className="text-base font-medium text-muted-foreground">{userData.streak === 1 ? 'day' : 'days'}</span></p>
+                                    <p className="font-bold text-xl sm:text-2xl text-primary">{userData.streak} <span className="text-sm sm:text-base font-medium text-muted-foreground">{userData.streak === 1 ? 'day' : 'days'}</span></p>
                                 </div>
                             )}
                             {userData.appSettings.progressMilestones && (
@@ -576,7 +580,7 @@ const getCreateDbInstructions = () => (
                                         <Star className="w-5 h-5 text-yellow-500" />
                                         <p className="font-medium">Next Milestone</p>
                                     </div>
-                                    <p className="text-sm text-right text-muted-foreground font-semibold">{milestone.nextMilestoneInfo}</p>
+                                    <p className="text-xs sm:text-sm text-right text-muted-foreground font-semibold">{milestone.nextMilestoneInfo}</p>
                                 </div>
                             )}
                         </CardContent>
@@ -721,3 +725,5 @@ const getCreateDbInstructions = () => (
 export default function Dashboard() {
   return <DashboardContents />
 }
+
+    

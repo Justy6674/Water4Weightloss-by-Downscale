@@ -32,13 +32,15 @@ export default function RootLayout({
           {children}
         </div>
         <Toaster />
-        <footer className="bg-card/50 mt-auto p-4 text-center text-muted-foreground text-sm border-t">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-             <p>&copy; 2024 Water4Weightloss. All rights reserved.</p>
-             <p>This is a demo application. Please consult a healthcare professional for medical advice.</p>
+        <footer className="bg-card/50 mt-auto p-4 text-muted-foreground text-sm border-t">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+             <p className="text-center sm:text-left">&copy; 2024 Water4Weightloss. All rights reserved.</p>
+             <p className="text-center sm:text-right">This is a demo application. Please consult a healthcare professional for medical advice.</p>
           </div>
         </footer>
       </body>
     </html>
   );
 }
+
+    
