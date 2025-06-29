@@ -63,9 +63,48 @@ export function InfoContent() {
             <AccordionItem value="item-2">
                 <AccordionTrigger className="text-xl text-left font-headline hover:no-underline">Endocrine Disrupting Chemicals (EDCs)</AccordionTrigger>
                 <AccordionContent>
-                    <div className="space-y-4 pt-2 prose prose-invert prose-p:text-card-foreground/90">
-                        <p>This section will provide information on the importance of avoiding plastics and other sources of Endocrine Disrupting Chemicals (EDCs) for hormonal health and weight management.</p>
-                        <p className="text-muted-foreground">Content to be added. Please provide the information you would like to include here.</p>
+                    <div className="space-y-6 pt-2 prose prose-invert prose-p:text-card-foreground/90 prose-headings:text-foreground prose-h3:text-xl prose-strong:text-foreground">
+                        <section>
+                            <h3>What Are EDCs and Why Do They Matter?</h3>
+                            <p>
+                                Plastics are everywhere in our lives, but some contain chemicals called <strong>Endocrine Disrupting Chemicals (EDCs)</strong>. These are substances, like BPA and phthalates, that can leak from plastic containers into your food and water.
+                            </p>
+                            <p>
+                                The concern is that these chemicals can mimic or interfere with your body's natural hormones. This can disrupt your metabolism, making it harder for your body to manage weight, blood sugar, and fat storage. Think of it as unwanted noise that can confuse your body’s internal communication system.
+                            </p>
+                        </section>
+
+                        <Separator />
+
+                        <section>
+                            <h3>Simple & Powerful Steps to Reduce Exposure</h3>
+                            <p>
+                                The good news is that reducing your exposure is straightforward and doesn't require drastic changes. It's about making small, smart swaps that have a big impact over time.
+                            </p>
+                            <ul className="list-disc space-y-2 pl-6">
+                                <li>
+                                    <strong>Switch Your Water Bottle:</strong> This is the easiest and most impactful change. Swapping your plastic water bottle for one made of <strong>glass or stainless steel</strong> significantly reduces daily EDC exposure.
+                                </li>
+                                <li>
+                                    <strong>Store Food in Glass:</strong> Use glass containers for leftovers instead of plastic ones. This is especially important for fatty or acidic foods.
+                                </li>
+                                <li>
+                                    <strong>Avoid Heating Plastics:</strong> Never microwave food in plastic containers. Heat can cause chemicals to leach into your food at a much higher rate.
+                                </li>
+                            </ul>
+                             <blockquote className="border-l-4 border-primary pl-4 italic my-4 text-muted-foreground">
+                                <strong>A note on "BPA-Free":</strong> While it sounds reassuring, products labeled "BPA-free" often use similar replacement chemicals that can have the same hormonal effects. Because of this, choosing glass or stainless steel is always the safest and most reliable option.
+                             </blockquote>
+                        </section>
+
+                         <Separator />
+
+                        <section>
+                            <h3>Your Health is a Holistic Journey</h3>
+                            <p>
+                                Reducing exposure to EDCs is another tool in your wellness toolkit, just like proper hydration, balanced nutrition, and regular movement. By making these simple swaps, you are creating a better internal environment for your body to thrive and achieve its goals.
+                            </p>
+                        </section>
                     </div>
                 </AccordionContent>
             </AccordionItem>
