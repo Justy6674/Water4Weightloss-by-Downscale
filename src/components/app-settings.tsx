@@ -11,8 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
 import { type UserData, type Tone, type NotificationFrequency } from "@/lib/user-data"
-import { savePhoneNumberAndSendConfirmation } from "@/lib/actions"
+import { savePhoneNumberAndSendConfirmation, saveFcmToken, sendTestNotification } from "@/lib/actions"
 import { useAuth } from "@/hooks/use-auth"
+import { messaging } from "@/lib/firebase"
+import { getToken } from "firebase/messaging"
+
 
 interface AppSettingsProps {
   userData: UserData;
@@ -25,6 +28,7 @@ export function AppSettings({ userData, onUpdate }: AppSettingsProps) {
   const [dailyGoal, setDailyGoal] = React.useState(userData.dailyGoal.toString());
   const [phone, setPhone] = React.useState(userData.bodyMetrics.phone || "");
   const [isSavingPhone, setIsSavingPhone] = React.useState(false);
+  const [isTestingPush, setIsTestingPush] = React.useState(false);
   
   React.useEffect(() => {
     const handler = setTimeout(() => {
@@ -78,6 +82,65 @@ export function AppSettings({ userData, onUpdate }: AppSettingsProps) {
     }
   };
 
+  const handlePushToggle = async (enabled: boolean) => {
+    handleSettingChange('pushNotifications', enabled);
+    if (enabled && messaging && user) {
+        try {
+            const permission = await Notification.requestPermission();
+            if (permission === 'granted') {
+                console.log('Notification permission granted.');
+                
+                // IMPORTANT: You must replace this placeholder with your own VAPID key
+                // from the Firebase Console (Project Settings > Cloud Messaging > Web Push certificates)
+                const vapidKey = "YOUR_VAPID_KEY_FROM_FIREBASE_CONSOLE_SETTINGS_CLOUD_MESSAGING";
+                if (vapidKey.includes("YOUR_VAPID_KEY")) {
+                  toast({ variant: "destructive", title: "Action Required", description: "VAPID key is missing. Please add it in app-settings.tsx to enable push notifications."});
+                  console.error("VAPID key is missing. Please add it in app-settings.tsx to enable push notifications.");
+                  handleSettingChange('pushNotifications', false);
+                  return;
+                }
+
+                const fcmToken = await getToken(messaging, { vapidKey });
+
+                if (fcmToken) {
+                    await saveFcmToken(user.uid, fcmToken);
+                    toast({ title: "Notifications Enabled", description: "You're all set up for push notifications." });
+                } else {
+                    console.log('No registration token available. Request permission to generate one.');
+                    toast({ variant: "destructive", title: "Could not get token", description: "Failed to get notification token." });
+                    handleSettingChange('pushNotifications', false);
+                }
+            } else {
+                console.log('Unable to get permission to notify.');
+                 toast({ variant: "destructive", title: "Permission Denied", description: "You will not receive notifications." });
+                 handleSettingChange('pushNotifications', false);
+            }
+        } catch (error) {
+            console.error('An error occurred while getting token. ', error);
+            toast({ variant: "destructive", title: "Setup Error", description: "An error occurred while setting up notifications." });
+            handleSettingChange('pushNotifications', false);
+        }
+    }
+  };
+
+  const handleTestPush = async () => {
+    if (!user) return;
+    setIsTestingPush(true);
+    try {
+        const result = await sendTestNotification(user.uid);
+        if(result.success) {
+            toast({ title: "Request Sent", description: result.message });
+        } else {
+            toast({ variant: "destructive", title: "Request Failed", description: result.message });
+        }
+    } catch(error) {
+        const desc = error instanceof Error ? error.message : "An unknown error occurred.";
+        toast({ variant: "destructive", title: "Error", description: desc });
+    } finally {
+        setIsTestingPush(false);
+    }
+  }
+
 
   return (
     <>
@@ -109,7 +172,7 @@ export function AppSettings({ userData, onUpdate }: AppSettingsProps) {
           </div>
       </div>
       <div className="space-y-4">
-        <h3 className="text-lg font-medium text-foreground">Gamification</h3>
+        <h3 className="text-lg font-medium text-foreground">Achievements</h3>
         <div className="space-y-2">
             <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                 <Label htmlFor="daily-streaks" className="flex items-center gap-3 font-medium">
@@ -149,8 +212,16 @@ export function AppSettings({ userData, onUpdate }: AppSettingsProps) {
                     <BellDot className="w-5 h-5 text-primary" />
                     Push Notifications
                     </Label>
-                <Switch id="push-notifications" checked={userData.appSettings.pushNotifications} onCheckedChange={(v) => handleSettingChange('pushNotifications', v)} />
+                <Switch id="push-notifications" checked={userData.appSettings.pushNotifications} onCheckedChange={handlePushToggle} />
             </div>
+            {userData.appSettings.pushNotifications && (
+                <div className="p-3 rounded-lg bg-muted/30">
+                    <Button onClick={handleTestPush} disabled={isTestingPush}>
+                        <BellDot className="mr-2 h-4 w-4" />
+                        {isTestingPush ? 'Sending...' : 'Send Test Notification'}
+                    </Button>
+                </div>
+            )}
             <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                 <Label htmlFor="sms-reminders" className="flex items-center gap-3 font-medium">
                     <MessageSquareText className="w-5 h-5 text-primary" />

@@ -2,6 +2,7 @@
 'use server';
 
 import { db } from '@/lib/firebase';
+import { adminMessaging } from '@/lib/firebase-admin';
 import { doc, getDoc, setDoc, serverTimestamp, type Timestamp, deleteDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { sendSms } from '@/services/send-sms';
 import { type UserData, defaultUserData, type WeightReading, type BloodPressureReading } from '@/lib/user-data';
@@ -234,5 +235,77 @@ export async function addWeightReading(userId: string, newReading: Omit<WeightRe
     } catch (error) {
         console.error("Firebase Error: Failed to add weight reading:", error);
         throw new Error("Could not save weight reading to the database.");
+    }
+}
+
+/**
+ * Saves a new FCM token for a user, ensuring no duplicates.
+ */
+export async function saveFcmToken(userId: string, token: string): Promise<void> {
+    if (!userId || !token) {
+        throw new Error("User ID and token are required.");
+    }
+    const userDocRef = doc(db, 'users', userId);
+    try {
+        await updateDoc(userDocRef, {
+            fcmTokens: arrayUnion(token),
+            updatedAt: serverTimestamp(),
+        });
+    } catch (error) {
+        console.error("Firebase Error: Failed to save FCM token:", error);
+        throw new Error("Could not save notification token to the database.");
+    }
+}
+
+/**
+ * Sends a test push notification to a user.
+ */
+export async function sendTestNotification(userId: string): Promise<{success: boolean, message: string}> {
+    if (!userId) {
+        throw new Error("User ID is required.");
+    }
+
+    const userDocRef = doc(db, 'users', userId);
+    const userDocSnap = await getDoc(userDocRef);
+
+    if (!userDocSnap.exists()) {
+        return { success: false, message: "User not found." };
+    }
+
+    const userData = userDocSnap.data() as UserData;
+    const tokens = userData.fcmTokens;
+
+    if (!tokens || tokens.length === 0) {
+        return { success: false, message: "No notification tokens found for this user. Please enable notifications and try again." };
+    }
+
+    const message = {
+        notification: {
+            title: 'Water4Weightloss Test',
+            body: '💧 This is a test notification to confirm everything is working!',
+        },
+        tokens: tokens,
+    };
+
+    try {
+        const response = await adminMessaging.sendMulticast(message);
+        console.log('Successfully sent message:', response);
+        if (response.failureCount > 0) {
+            const failedTokens: string[] = [];
+            response.responses.forEach((resp, idx) => {
+                if (!resp.success) {
+                    failedTokens.push(tokens[idx]);
+                }
+            });
+            console.warn('List of tokens that caused failures: ' + failedTokens);
+            return { success: false, message: `Sent, but ${response.failureCount} message(s) failed. Check server logs.` };
+        }
+        return { success: true, message: `Test notification sent to ${response.successCount} device(s).` };
+    } catch (error) {
+        console.error('Error sending test notification:', error);
+        if (error instanceof Error && error.message.includes('auth-error')) {
+             return { success: false, message: "Authentication error with FCM. Check your server credentials." };
+        }
+        return { success: false, message: "An error occurred while sending the notification." };
     }
 }

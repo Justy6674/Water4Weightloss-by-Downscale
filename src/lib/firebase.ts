@@ -2,6 +2,7 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth, setPersistence, browserLocalPersistence, browserSessionPersistence } from "firebase/auth";
+import { getMessaging } from "firebase/messaging";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 
 const firebaseConfig = {
@@ -65,5 +66,6 @@ if (typeof window !== "undefined" && process.env.NODE_ENV === 'production') {
 }
 
 const db = getFirestore(app);
+const messaging = typeof window !== 'undefined' ? getMessaging(app) : null;
 
-export { app, db, auth };
+export { app, db, auth, messaging };

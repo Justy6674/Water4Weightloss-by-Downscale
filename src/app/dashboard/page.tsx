@@ -7,7 +7,8 @@ import Image from "next/image"
 import { useState, useEffect, useMemo, useRef, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { onAuthStateChanged, type User } from "firebase/auth"
-import { auth, db } from "@/lib/firebase"
+import { auth, db, messaging } from "@/lib/firebase"
+import { onMessage } from "firebase/messaging"
 import { doc, getDoc, setDoc, serverTimestamp, Timestamp } from "firebase/firestore"
 import { Droplets, Settings, Trash2, LogOut, ExternalLink, Cog, Flame, Star, Trophy } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -233,6 +234,19 @@ const getCreateDbInstructions = () => (
       loadData(user.uid);
     }
   }, [user]);
+
+  useEffect(() => {
+    if (messaging) {
+        const unsubscribe = onMessage(messaging, (payload) => {
+            console.log('Foreground message received. ', payload);
+            toast({
+                title: payload.notification?.title,
+                description: payload.notification?.body,
+            });
+        });
+        return () => unsubscribe();
+    }
+  }, [toast]);
   
   const hydrationPercentage = useMemo(() => {
     if (!userData) return 0;

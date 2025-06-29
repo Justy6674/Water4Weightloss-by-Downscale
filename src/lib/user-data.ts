@@ -33,6 +33,7 @@ export interface UserData {
         notificationFrequency: NotificationFrequency;
         vibrationFeedback: "light" | "medium" | "heavy";
     };
+    fcmTokens?: string[];
     bodyMetrics: {
         weight: string;
         waist: string;
@@ -92,5 +93,6 @@ export const defaultUserData: Omit<UserData, 'updatedAt' | 'createdAt'> = {
         { weight: 81.9, timestamp: new Date('2024-05-15T09:00:00Z').toISOString() },
         { weight: 81.2, timestamp: new Date('2024-06-15T09:00:00Z').toISOString() },
     ],
+    fcmTokens: [],
     bloodPressureLog: [],
 };
