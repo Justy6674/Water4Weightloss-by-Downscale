@@ -7,9 +7,8 @@ import * as admin from 'firebase-admin';
 if (!admin.apps.length) {
   try {
     // When running on Google Cloud (App Hosting, Cloud Functions, etc.),
-    // the GOOGLE_APPLICATION_CREDENTIALS environment variable is set automatically.
-    // The SDK will use the associated service account permissions. This is the
-    // standard for production environments.
+    // the GOOGLE_APPLICATION_CREDENTIALS environment variable is often set automatically.
+    // The SDK uses this for production environments.
     if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
       console.log('Initializing Firebase Admin SDK for Production (Application Default Credentials)...');
       admin.initializeApp({
@@ -17,7 +16,7 @@ if (!admin.apps.length) {
       });
       console.log('Firebase Admin SDK initialized successfully for production.');
     } else {
-      // For local development, we use the service account file.
+      // For local development, we fall back to using the service account file.
       // This allows the server to run with admin privileges on a local machine.
       console.log('Initializing Firebase Admin SDK for Local Development (service-account.json)...');
       const serviceAccount = require('../../service-account.json');
@@ -26,8 +25,8 @@ if (!admin.apps.length) {
           throw new Error('The service-account.json file is missing, incomplete, or invalid. Please ensure it is correctly placed in the root directory and contains your project credentials.');
       }
 
-      // CRITICAL FIX: The private key from the JSON file has literal "\\n" which must be
-      // replaced with actual newline characters for the PEM parser to work.
+      // CRITICAL FIX: The private key from the JSON file often has literal "\\n" 
+      // which must be replaced with actual newline characters for the PEM parser to work.
       const formattedPrivateKey = serviceAccount.private_key.replace(/\\n/g, '\n');
 
       admin.initializeApp({

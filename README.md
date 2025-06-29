@@ -105,19 +105,6 @@ GOOGLE_AI_API_KEY=
 TWILIO_ACCOUNT_SID=
 TWILIO_AUTH_TOKEN=
 TWILIO_PHONE_NUMBER=
-
-# --- Firebase Admin SDK (for Local Development ONLY) ---
-# The following three variables are required to run server-side logic (like sending push notifications) on your local machine.
-# When deployed to App Hosting, the application uses secure Application Default Credentials instead.
-# You can find these values in the `service-account.json` file you downloaded from Firebase.
-
-FIREBASE_PROJECT_ID=your-project-id-from-the-json-file
-FIREBASE_CLIENT_EMAIL=your-client-email-from-the-json-file
-
-# For the private key, copy the entire value from the JSON file, including the -----BEGIN... and -----END... parts.
-# The `\n` characters are important and must be preserved.
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_KEY_CONTENT_HERE_WITH_LOTS_OF_NEWLINES\n-----END PRIVATE KEY-----\n"
-
 ```
 
 **Step 2: Add `service-account.json`**
@@ -128,7 +115,7 @@ For secure server-side operations (like sending push notifications), the applica
 2.  Click **Generate new private key** and download the JSON file.
 3.  Rename the downloaded file to `service-account.json`.
 4.  Place this file in the **root directory** of the project.
-5.  **Important:** This file contains highly sensitive secrets and should **never** be committed to public version control. Ensure it is listed in your `.gitignore` file. **The application uses this file as a source for you to copy credentials into your `.env.local` file for local development.**
+5.  **Important:** This file contains highly sensitive secrets and should **never** be committed to public version control. Ensure it is listed in your `.gitignore` file. **The application reads this file directly for local development.**
 
 ### 4\. Run the Application
 
