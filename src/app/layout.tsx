@@ -9,9 +9,6 @@ import { BookUser } from 'lucide-react';
 export const metadata: Metadata = {
   title: 'Water4Weightloss',
   description: 'Track your hydration and achieve your weight loss goals.',
-  icons: {
-    icon: '/favicon.ico',
-  },
 };
 
 export default function RootLayout({
@@ -25,6 +22,10 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Roboto:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <meta name="theme-color" content="#334155" />
       </head>
       <body className="font-body antialiased flex flex-col min-h-screen">
         <div className="flex-grow">

@@ -15,16 +15,36 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
-import { signInWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence, onAuthStateChanged, type User } from "firebase/auth"
+import { 
+  signInWithEmailAndPassword, 
+  setPersistence, 
+  browserLocalPersistence, 
+  browserSessionPersistence, 
+  onAuthStateChanged, 
+  signInWithPopup,
+  GoogleAuthProvider,
+  type User 
+} from "firebase/auth"
 import { auth } from "@/lib/firebase"
-import { User as UserIcon, Lock, Terminal } from "lucide-react"
+import { User as UserIcon, Lock, Terminal, Phone } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+
+const GoogleIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px">
+      <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24s8.955,20,20,20s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
+      <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/>
+      <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.223,0-9.655-3.357-11.303-8H6.306C9.656,39.663,16.318,44,24,44z"/>
+      <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.447-2.275,4.485-4.124,5.992l6.19,5.238C39.712,34.466,44,28.756,44,20C44,22.659,43.862,21.35,43.611,20.083z"/>
+    </svg>
+);
+
 
 function LoginPageContents() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [rememberMe, setRememberMe] = useState(true)
     const [isLoading, setIsLoading] = useState(false)
+    const [isGoogleLoading, setIsGoogleLoading] = useState(false)
     const [user, setUser] = useState<User | null>(null)
     const [checkingAuth, setCheckingAuth] = useState(true);
     const [authError, setAuthError] = useState<string | null>(null);
@@ -71,6 +91,26 @@ function LoginPageContents() {
             setIsLoading(false)
         }
     }
+
+    const handleGoogleLogin = async () => {
+        setIsGoogleLoading(true);
+        setAuthError(null);
+        try {
+            const provider = new GoogleAuthProvider();
+            await signInWithPopup(auth, provider);
+            // onAuthStateChanged will handle the redirect
+        } catch (error) {
+            const firebaseError = error as { code?: string; message: string };
+            console.error("Google login failed:", firebaseError);
+            let description = "Could not sign in with Google. Please try again.";
+            if (firebaseError.code === 'auth/popup-closed-by-user') {
+                description = "Sign-in popup was closed. Please try again.";
+            }
+            setAuthError(description);
+        } finally {
+            setIsGoogleLoading(false);
+        }
+    };
     
     if (checkingAuth || user) {
         return null; // or a loading spinner while auth state is being checked or redirecting
@@ -118,7 +158,7 @@ function LoginPageContents() {
                             <Input
                                 id="email"
                                 type="email"
-                                placeholder="Username"
+                                placeholder="Email"
                                 required
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
@@ -164,6 +204,31 @@ function LoginPageContents() {
                         {isLoading ? 'Logging in...' : 'Login'}
                     </Button>
                 </form>
+
+                <div className="relative my-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-orange-200/20" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-slate-800/50 px-2 text-orange-200/80">
+                      Or continue with
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <Button variant="outline" className="h-12 bg-transparent border-[#6a5349] text-white hover:bg-[#6a5349]" onClick={handleGoogleLogin} disabled={isGoogleLoading || isLoading}>
+                    <GoogleIcon />
+                    <span className="ml-2">Google</span>
+                  </Button>
+                  <Button asChild variant="outline" className="h-12 bg-transparent border-[#6a5349] text-white hover:bg-[#6a5349]">
+                    <Link href="/phone-signin">
+                        <Phone />
+                        <span className="ml-2">Phone</span>
+                    </Link>
+                  </Button>
+                </div>
+
                 <div className="mt-6 text-center text-sm text-[#f7f2d3] [text-shadow:0_1px_2px_rgba(0,0,0,0.5)]">
                     Don&apos;t have an account?{" "}
                     <Link href="/signup" className="underline font-bold text-[#f7f2d3] [text-shadow:0_1px_2px_rgba(0,0,0,0.5)]">
