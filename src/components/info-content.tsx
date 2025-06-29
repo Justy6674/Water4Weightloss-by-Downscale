@@ -1,3 +1,4 @@
+
 "use client"
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
@@ -67,42 +68,54 @@ export function InfoContent() {
                         <section>
                             <h3>What Are EDCs and Why Do They Matter?</h3>
                             <p>
-                                Plastics are everywhere in our lives, but some contain chemicals called <strong>Endocrine Disrupting Chemicals (EDCs)</strong>. These are substances, like BPA and phthalates, that can leak from plastic containers into your food and water.
+                                Plastics are everywhere, but many contain <strong>Endocrine-Disrupting Chemicals (EDCs)</strong> like BPA and phthalates. These can interfere with your body's hormones, which regulate metabolism, appetite, and fat storage.
                             </p>
                             <p>
-                                The concern is that these chemicals can mimic or interfere with your body's natural hormones. This can disrupt your metabolism, making it harder for your body to manage weight, blood sugar, and fat storage. Think of it as unwanted noise that can confuse your body’s internal communication system.
+                                These chemicals are sometimes called "obesogens" because they can disrupt how your body handles fat. Growing evidence shows a link between long-term exposure to these chemicals and challenges with weight management, insulin resistance, and other metabolic issues.
                             </p>
                         </section>
 
                         <Separator />
 
                         <section>
-                            <h3>Simple & Powerful Steps to Reduce Exposure</h3>
+                            <h3>How Plastic EDCs Can Affect Weight</h3>
                             <p>
-                                The good news is that reducing your exposure is straightforward and doesn't require drastic changes. It's about making small, smart swaps that have a big impact over time.
+                                EDCs can hijack the body's metabolic controls. For example, BPA can alter gene expression in fat cells, the pancreas, and the liver. Phthalates can stimulate the formation of fat cells and may also reduce the activity of "brown fat," which is the type of fat that burns calories to produce heat.
+                            </p>
+                            <p>
+                                Essentially, these chemicals can create a "perfect storm" of metabolic problems: increasing fat storage, reducing your body's energy-burning rate, promoting insulin resistance, and confusing the hormones that control appetite.
+                            </p>
+                        </section>
+
+                        <Separator />
+
+                        <section>
+                            <h3>Reducing Your Exposure: The Power of Glass and Steel</h3>
+                            <p>
+                                The great news is that you can significantly reduce your exposure with a few simple, powerful changes. The goal is to minimize contact between your food/water and plastic, especially when it's heated.
                             </p>
                             <ul className="list-disc space-y-2 pl-6">
                                 <li>
-                                    <strong>Switch Your Water Bottle:</strong> This is the easiest and most impactful change. Swapping your plastic water bottle for one made of <strong>glass or stainless steel</strong> significantly reduces daily EDC exposure.
+                                    <strong>Swap Your Water Bottle:</strong> This is the easiest and most impactful first step. Using a <strong>glass or stainless steel</strong> water bottle dramatically cuts down on daily EDC exposure.
                                 </li>
                                 <li>
-                                    <strong>Store Food in Glass:</strong> Use glass containers for leftovers instead of plastic ones. This is especially important for fatty or acidic foods.
+                                    <strong>Use Glass for Storage:</strong> Store leftovers in glass containers instead of plastic, especially for hot, fatty, or acidic foods.
                                 </li>
                                 <li>
-                                    <strong>Avoid Heating Plastics:</strong> Never microwave food in plastic containers. Heat can cause chemicals to leach into your food at a much higher rate.
+                                    <strong>Never Heat Food in Plastic:</strong> Microwaving in plastic can cause chemicals to transfer into your food at a much higher rate. Transfer food to a glass or ceramic dish first.
                                 </li>
                             </ul>
                              <blockquote className="border-l-4 border-primary pl-4 italic my-4 text-muted-foreground">
-                                <strong>A note on "BPA-Free":</strong> While it sounds reassuring, products labeled "BPA-free" often use similar replacement chemicals that can have the same hormonal effects. Because of this, choosing glass or stainless steel is always the safest and most reliable option.
+                                <strong>A Word on "BPA-Free" Plastics:</strong> While it sounds safer, manufacturers often replace BPA with other chemicals (like BPS or BPF) that can have similar hormone-disrupting effects. For this reason, choosing inert materials like glass or stainless steel is always the most reliable and safest choice.
                              </blockquote>
                         </section>
 
-                         <Separator />
+                        <Separator />
 
                         <section>
-                            <h3>Your Health is a Holistic Journey</h3>
+                            <h3>Part of Your Holistic Health Plan</h3>
                             <p>
-                                Reducing exposure to EDCs is another tool in your wellness toolkit, just like proper hydration, balanced nutrition, and regular movement. By making these simple swaps, you are creating a better internal environment for your body to thrive and achieve its goals.
+                                Thinking about your environmental exposures is another tool in your wellness toolkit, just like balanced nutrition, regular movement, and consistent hydration. By making these simple swaps, you are helping create a better internal environment for your body to thrive and reach your health goals.
                             </p>
                         </section>
                     </div>
