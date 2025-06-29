@@ -2,11 +2,11 @@
 {
   "name": "Water4Weightloss",
   "short_name": "W4W",
+  "description": "Track your hydration and achieve your weight loss goals.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#334155",
   "theme_color": "#334155",
-  "description": "Track your hydration and achieve your weight loss goals.",
   "icons": [
     {
       "src": "/favicon 192x192.png",
