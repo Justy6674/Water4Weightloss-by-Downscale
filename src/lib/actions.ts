@@ -7,7 +7,7 @@ import { doc, getDoc, setDoc, serverTimestamp, type Timestamp, deleteDoc, update
 import { sendSms } from '@/services/send-sms';
 import { type UserData, defaultUserData, type WeightReading, type BloodPressureReading } from '@/lib/user-data';
 import { generateReminder } from '@/ai/flows/reminder-message-flow';
-import { differenceInHours } from 'date-fns';
+import { differenceInHours, isToday } from 'date-fns';
 
 
 /**
@@ -19,19 +19,19 @@ function makeDataSerializable(data: object): any {
 
     for (const key in data) {
         const value = (data as any)[key];
-        if (value && typeof value === 'object' && 'toDate' in value) {
+        if (value instanceof Timestamp) {
             sanitizedData[key] = value.toDate().toISOString();
         } else if (Array.isArray(value)) {
             sanitizedData[key] = value.map(item => {
-                if (item && typeof item === 'object' && 'toDate' in item) {
-                    return item.toDate().toISOString();
-                }
-                if (item && typeof item === 'object' && item.timestamp && 'toDate' in item.timestamp) {
+                if (item && typeof item === 'object' && item.timestamp instanceof Timestamp) {
                     return { ...item, timestamp: item.timestamp.toDate().toISOString() };
                 }
                 return item;
             });
-        } else {
+        } else if (value && typeof value === 'object' && !(value instanceof Timestamp)) {
+            sanitizedData[key] = makeDataSerializable(value);
+        }
+        else {
             sanitizedData[key] = value;
         }
     }
@@ -331,7 +331,7 @@ export async function sendReminder(userId: string) {
     }
 
     const userData = userDocSnap.data() as UserData;
-    const { appSettings, bodyMetrics, hydration, dailyGoal, motivationTone, updatedAt } = userData;
+    const { appSettings, bodyMetrics, hydration, dailyGoal, motivationTone, updatedAt, lastSmsSentDate, smsSentCount } = userData;
 
     // 1. Check if reminders are enabled at all
     if (appSettings.notificationFrequency === 'off' || (!appSettings.pushNotifications && !appSettings.smsReminders)) {
@@ -378,6 +378,7 @@ export async function sendReminder(userId: string) {
     // 4. Send notifications
     let pushSent = false;
     let smsSent = false;
+    let newSmsCount = smsSentCount || 0;
 
     if (appSettings.pushNotifications && userData.fcmTokens && userData.fcmTokens.length > 0) {
         const message = {
@@ -389,11 +390,25 @@ export async function sendReminder(userId: string) {
     }
 
     if (appSettings.smsReminders && bodyMetrics.phone) {
-        try {
-            await sendSms(bodyMetrics.phone, messageBody);
-            smsSent = true;
-        } catch (e) {
-            console.error(`Failed to send SMS to user ${userId}`, e);
+        const lastSentDate = (lastSmsSentDate as Timestamp)?.toDate();
+        const smsCount = isToday(lastSentDate || 0) ? newSmsCount : 0;
+
+        if (smsCount < 2) {
+            try {
+                await sendSms(bodyMetrics.phone, messageBody);
+                smsSent = true;
+                newSmsCount = smsCount + 1;
+                // Update the user's document with the new count and date
+                await updateDoc(userDocRef, {
+                    smsSentCount: newSmsCount,
+                    lastSmsSentDate: serverTimestamp(),
+                    updatedAt: serverTimestamp() 
+                });
+            } catch (e) {
+                console.error(`Failed to send SMS to user ${userId}`, e);
+            }
+        } else {
+            console.log(`SMS limit reached for user ${userId} today.`);
         }
     }
 

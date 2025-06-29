@@ -47,6 +47,9 @@ export interface UserData {
     };
     weightLog: WeightReading[];
     bloodPressureLog: BloodPressureReading[];
+    // For SMS limiting
+    smsSentCount: number;
+    lastSmsSentDate: string | Timestamp | null;
     // Timestamps are stored as Firestore Timestamps but will be converted to strings for the client
     updatedAt?: string | Timestamp;
     createdAt?: string | Timestamp;
@@ -95,4 +98,6 @@ export const defaultUserData: Omit<UserData, 'updatedAt' | 'createdAt'> = {
     ],
     fcmTokens: [],
     bloodPressureLog: [],
+    smsSentCount: 0,
+    lastSmsSentDate: null,
 };

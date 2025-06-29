@@ -73,7 +73,7 @@ Follow these steps to set up the development environment.
 
 The application requires credentials for Firebase, Google AI, and Twilio.
 
-#### Step 1: Get Firebase Service Account Key
+#### Step 1: Get Firebase Service Account Key (for Local Development)
 
 For local development, the server needs secret credentials to act on your behalf.
 
@@ -84,7 +84,7 @@ For local development, the server needs secret credentials to act on your behalf
 
 #### Step 2: Create and Populate `.env.local`
 
-Create a file named `.env.local` in the root of your project. Copy the template below and fill it with your credentials.
+Create a file named `.env.local` in the root of your project. Copy the template below and fill it with your credentials. **This is for local development only.** Your deployed application uses a more secure method to access these secrets.
 
 ```bash
 # .env.local
@@ -99,8 +99,10 @@ NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
 NEXT_PUBLIC_FIREBASE_APP_ID=
 NEXT_PUBLIC_RECAPTCHA_SITE_KEY=
 
-# --- Other Services (Server-Side Secrets) ---
+# --- Google AI (Server-Side Secret) ---
 GOOGLE_AI_API_KEY=
+
+# --- Twilio for SMS Reminders (Server-Side Secrets) ---
 TWILIO_ACCOUNT_SID=
 TWILIO_AUTH_TOKEN=
 TWILIO_PHONE_NUMBER=
@@ -118,6 +120,20 @@ npm run dev
 ```
 
 The application will be available at `http://localhost:3002` or another specified port.
+
+## ⏰ Setting Up Scheduled Reminders
+
+The application includes a `sendReminder` server action that can send Push and SMS notifications. To make this run automatically, you need to trigger it on a schedule. The recommended way is using **Google Cloud Scheduler**.
+
+1.  **Deploy your application.** The scheduler needs a public URL to call.
+2.  Go to the **Google Cloud Scheduler** in your Google Cloud Console.
+3.  Create a new job with the following settings:
+    *   **Target type**: `HTTP`
+    *   **URL**: `https://<your-deployed-app-url>/api/cron/send-reminders` (You will need to create this API route that calls the `sendReminder` action for each user).
+    *   **Frequency**: A cron schedule like `0 * * * *` to run it every hour.
+    *   **Authentication**: You should secure this endpoint, for example, by requiring a secret key in the header that your scheduler job provides.
+
+*Note: A full implementation of the cron job API route is beyond the scope of this file but involves fetching all users and calling the `sendReminder(userId)` action for each.*
 
 ## 🗂️ Project Structure
 
