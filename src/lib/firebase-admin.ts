@@ -2,21 +2,27 @@
 'use server';
 
 import * as admin from 'firebase-admin';
+import serviceAccount from '../../service-account.json';
 
-// This is the standard and most secure way to initialize the Firebase Admin SDK.
-// It relies on Application Default Credentials (ADC), which are automatically
-// available in Google Cloud environments like App Hosting.
-// This avoids hardcoding service account keys in the source code.
+// This file initializes the Firebase Admin SDK for server-side operations.
+// It checks if the app is already initialized to prevent re-initialization,
+// which is a common issue in Next.js with hot-reloading.
+
 if (!admin.apps.length) {
   try {
-    admin.initializeApp();
+    // Initialize the Admin SDK using the service account credentials.
+    // The `admin.credential.cert()` method correctly processes the service account JSON object.
+    admin.initializeApp({
+      // We cast the imported JSON to the type the SDK expects.
+      credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
+    });
   } catch (error: any) {
+    // If initialization fails, log the error and throw a new, more descriptive error
+    // to halt the server and make the issue immediately visible. This is crucial for debugging.
     console.error('CRITICAL: Firebase Admin SDK initialization failed.', error);
-    // Throw a clear error to stop the server from running in a broken state.
-    // This makes debugging much easier if the environment is misconfigured.
-    throw new Error(`Failed to initialize Firebase Admin SDK. This is likely a problem with Application Default Credentials. Error: ${error.message}`);
+    throw new Error(`Failed to initialize Firebase Admin SDK. Check the service-account.json file and server logs. Error: ${error.message}`);
   }
 }
 
-// Export the initialized services
+// Export the initialized services for use in other server-side files (e.g., Server Actions).
 export const adminMessaging = admin.messaging();
