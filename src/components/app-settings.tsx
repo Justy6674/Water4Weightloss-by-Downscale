@@ -26,11 +26,21 @@ export function AppSettings({ userData, onUpdate }: AppSettingsProps) {
   const [isSavingPhone, setIsSavingPhone] = React.useState(false);
 
   const handleSettingChange = (key: keyof UserData['appSettings'] | 'motivationTone' | 'dailyGoal', value: any) => {
-    if (key === 'motivationTone' || key === 'dailyGoal') {
+    if (key === 'motivationTone') {
       onUpdate({ [key]: value });
-    } else {
-      onUpdate({ appSettings: { ...userData.appSettings, [key as keyof UserData['appSettings']]: value } });
+      toast({
+        title: "AI Tone Updated",
+        description: `Your motivational messages will now have a ${value} tone.`,
+      });
+      return;
     }
+
+    if (key === 'dailyGoal') {
+      onUpdate({ [key]: value });
+      return;
+    }
+
+    onUpdate({ appSettings: { ...userData.appSettings, [key as keyof UserData['appSettings']]: value } });
   };
 
   const handleSavePhone = async () => {
