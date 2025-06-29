@@ -1,9 +1,8 @@
 
 'use server';
 
-import { db } from '@/lib/firebase';
-import { adminMessaging } from '@/lib/firebase-admin';
-import { doc, getDoc, setDoc, serverTimestamp, type Timestamp, deleteDoc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { adminDb, adminMessaging } from '@/lib/firebase-admin';
+import * as admin from 'firebase-admin';
 import { sendSms } from '@/services/send-sms';
 import { type UserData, defaultUserData, type WeightReading, type BloodPressureReading } from '@/lib/user-data';
 import { generateReminder } from '@/ai/flows/reminder-message-flow';
@@ -19,16 +18,16 @@ function makeDataSerializable(data: object): any {
 
     for (const key in data) {
         const value = (data as any)[key];
-        if (value instanceof Timestamp) {
+        if (value instanceof admin.firestore.Timestamp) {
             sanitizedData[key] = value.toDate().toISOString();
         } else if (Array.isArray(value)) {
             sanitizedData[key] = value.map(item => {
-                if (item && typeof item === 'object' && item.timestamp instanceof Timestamp) {
+                if (item && typeof item === 'object' && item.timestamp instanceof admin.firestore.Timestamp) {
                     return { ...item, timestamp: item.timestamp.toDate().toISOString() };
                 }
                 return item;
             });
-        } else if (value && typeof value === 'object' && !(value instanceof Timestamp)) {
+        } else if (value && typeof value === 'object' && !(value instanceof admin.firestore.Timestamp)) {
             sanitizedData[key] = makeDataSerializable(value);
         }
         else {
@@ -49,15 +48,15 @@ export async function ensureUserDocument(userId: string): Promise<void> {
         console.error("ensureUserDocument called without a userId.");
         return;
     }
-    const userDocRef = doc(db, 'users', userId);
+    const userDocRef = adminDb.collection('users').doc(userId);
 
     try {
-        const userDocSnap = await getDoc(userDocRef);
-        if (!userDocSnap.exists()) {
-            await setDoc(userDocRef, {
+        const userDocSnap = await userDocRef.get();
+        if (!userDocSnap.exists) {
+            await userDocRef.set({
                 ...defaultUserData,
-                createdAt: serverTimestamp(),
-                updatedAt: serverTimestamp(),
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
             });
         }
     } catch (error) {
@@ -75,17 +74,15 @@ export async function ensureUserDocument(userId: string): Promise<void> {
  * This function also ensures the returned data is serializable for Next.js.
  */
 export async function getUserData(userId: string): Promise<UserData> {
-    const userDocRef = doc(db, 'users', userId);
+    const userDocRef = adminDb.collection('users').doc(userId);
     try {
         await ensureUserDocument(userId);
-        const userDocSnap = await getDoc(userDocRef);
+        const userDocSnap = await userDocRef.get();
 
-        if (userDocSnap.exists()) {
-            // Document exists, return its data after ensuring it's serializable
+        if (userDocSnap.exists) {
             const existingData = userDocSnap.data() as UserData;
             return makeDataSerializable(existingData);
         } else {
-            // This is now an unexpected error, as the document should have been created on login.
             console.error(`CRITICAL: User document not found for user ${userId} and could not be created.`);
             throw new Error("Your user profile could not be found or created. Please check database permissions.");
         }
@@ -94,18 +91,7 @@ export async function getUserData(userId: string): Promise<UserData> {
         let errorMessage = "Could not connect to the database. Please ensure Firestore is enabled in your Firebase project and that your security rules allow access.";
         if (error instanceof Error) {
             if (error.message.includes("DATABASE ACCESS DENIED")) {
-                return Promise.reject(error); // Re-throw the specific error to be caught by the UI
-            }
-            if ('code' in error) {
-                const firebaseError = error as { code: string; message: string };
-                if (firebaseError.code === 'permission-denied' || firebaseError.code === 'unauthenticated') {
-                    errorMessage = "DATABASE ACCESS DENIED. This is a security rules issue. Go to your Firebase Console -> Firestore Database -> Rules, and change `allow read, write: if false;` to `allow read, write: if request.auth != null;`. This allows any logged-in user to access their data.";
-                } else if (firebaseError.code === 'failed-precondition') {
-                     errorMessage = "Firestore database has not been created or is misconfigured. Please go to the Firestore Database section of your Firebase Console and ensure a database exists by clicking 'Create database'.";
-                } else {
-                    // Include the specific Firebase error code for better debugging
-                    errorMessage = `A Firebase error occurred: ${firebaseError.message} (Code: ${firebaseError.code}). Please check your Firebase setup.`;
-                }
+                return Promise.reject(error);
             }
         }
         throw new Error(errorMessage);
@@ -119,24 +105,15 @@ export async function updateUserData(userId: string, data: Partial<UserData>): P
     if (!userId) {
         throw new Error("Update failed: No user ID provided.");
     };
-    const userDocRef = doc(db, 'users', userId);
+    const userDocRef = adminDb.collection('users').doc(userId);
     try {
-        await setDoc(userDocRef, {
+        await userDocRef.set({
             ...data,
-            updatedAt: serverTimestamp(),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         }, { merge: true });
     } catch (error) {
         console.error("Firebase Error: Failed to update user data:", error);
-        let errorMessage = "Could not save data to the database. Please check your Firestore connection and permissions.";
-         if (error instanceof Error && 'code' in error) {
-            const firebaseError = error as { code: string; message: string };
-            if (firebaseError.code === 'permission-denied') {
-                 errorMessage = "Could not save data due to a permissions issue. Please check your Firestore Security Rules in the Firebase console.";
-            } else {
-                errorMessage = `A Firebase error occurred while saving data: ${firebaseError.message} (Code: ${firebaseError.code}).`;
-            }
-        }
-        throw new Error(errorMessage);
+        throw new Error("Could not save data to the database. Please check your Firestore connection and permissions.");
     }
 }
 
@@ -148,14 +125,11 @@ export async function deleteUserData(userId: string): Promise<void> {
     if (!userId) {
         throw new Error("Cannot delete data: No user ID provided.");
     }
-    const userDocRef = doc(db, 'users', userId);
+    const userDocRef = adminDb.collection('users').doc(userId);
     try {
-        await deleteDoc(userDocRef);
+        await userDocRef.delete();
     } catch (error) {
         console.error("Firebase Error: Failed to delete user data:", error);
-        if (error instanceof Error && 'code' in error && (error as any).code === 'permission-denied') {
-            throw new Error("Could not delete user data due to a permissions issue. Check your Firestore security rules.");
-        }
         throw new Error("Could not delete user data from the database. Please check your connection and permissions.");
     }
 }
@@ -169,24 +143,19 @@ export async function savePhoneNumberAndSendConfirmation(userId: string, phone: 
     throw new Error('User ID and phone number are required.');
   }
 
-  const userDocRef = doc(db, 'users', userId);
+  const userDocRef = adminDb.collection('users').doc(userId);
   try {
-    // Use updateDoc with dot notation to avoid overwriting the entire bodyMetrics object
-    await updateDoc(userDocRef, {
+    await userDocRef.update({
         'bodyMetrics.phone': phone,
-        updatedAt: serverTimestamp()
+        updatedAt: admin.firestore.FieldValue.serverTimestamp()
     });
 
-    // Send the confirmation SMS
     await sendSms(phone, `Thanks for signing up for Water4Weightloss notifications! We'll keep you hydrated.`);
     
     return { success: true, message: 'Phone number saved and confirmation sent.' };
   } catch (error) {
     console.error('Error in savePhoneNumberAndSendConfirmation:', error);
     if (error instanceof Error) {
-        if (error.message.includes('permission-denied')) {
-             return { success: false, message: "Could not save phone number due to a permissions issue. Please check your Firestore Security Rules." };
-        }
         return { success: false, message: error.message };
     }
     return { success: false, message: 'An unknown error occurred.' };
@@ -200,15 +169,15 @@ export async function addBloodPressureReading(userId: string, newReading: Omit<B
     if (!userId) {
         throw new Error("Update failed: No user ID provided.");
     }
-    const userDocRef = doc(db, 'users', userId);
+    const userDocRef = adminDb.collection('users').doc(userId);
     try {
         const readingWithTimestamp = {
             ...newReading,
-            timestamp: serverTimestamp()
+            timestamp: admin.firestore.FieldValue.serverTimestamp()
         };
-        await updateDoc(userDocRef, {
-            bloodPressureLog: arrayUnion(readingWithTimestamp),
-            updatedAt: serverTimestamp(),
+        await userDocRef.update({
+            bloodPressureLog: admin.firestore.FieldValue.arrayUnion(readingWithTimestamp),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
     } catch (error) {
         console.error("Firebase Error: Failed to add blood pressure reading:", error);
@@ -223,17 +192,16 @@ export async function addWeightReading(userId: string, newReading: Omit<WeightRe
     if (!userId) {
         throw new Error("Update failed: No user ID provided.");
     }
-    const userDocRef = doc(db, 'users', userId);
+    const userDocRef = adminDb.collection('users').doc(userId);
     try {
         const readingWithTimestamp = {
             ...newReading,
-            timestamp: serverTimestamp()
+            timestamp: admin.firestore.FieldValue.serverTimestamp()
         };
-        // Also update the main weight metric for quick access
-        await updateDoc(userDocRef, {
-            weightLog: arrayUnion(readingWithTimestamp),
+        await userDocRef.update({
+            weightLog: admin.firestore.FieldValue.arrayUnion(readingWithTimestamp),
             'bodyMetrics.weight': newReading.weight.toString(),
-            updatedAt: serverTimestamp(),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
     } catch (error) {
         console.error("Firebase Error: Failed to add weight reading:", error);
@@ -248,11 +216,11 @@ export async function saveFcmToken(userId: string, token: string): Promise<void>
     if (!userId || !token) {
         throw new Error("User ID and token are required.");
     }
-    const userDocRef = doc(db, 'users', userId);
+    const userDocRef = adminDb.collection('users').doc(userId);
     try {
-        await updateDoc(userDocRef, {
-            fcmTokens: arrayUnion(token),
-            updatedAt: serverTimestamp(),
+        await userDocRef.update({
+            fcmTokens: admin.firestore.FieldValue.arrayUnion(token),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
     } catch (error) {
         console.error("Firebase Error: Failed to save FCM token:", error);
@@ -268,10 +236,10 @@ export async function sendTestNotification(userId: string): Promise<{success: bo
         throw new Error("User ID is required.");
     }
 
-    const userDocRef = doc(db, 'users', userId);
-    const userDocSnap = await getDoc(userDocRef);
+    const userDocRef = adminDb.collection('users').doc(userId);
+    const userDocSnap = await userDocRef.get();
 
-    if (!userDocSnap.exists()) {
+    if (!userDocSnap.exists) {
         return { success: false, message: "User not found." };
     }
 
@@ -306,9 +274,6 @@ export async function sendTestNotification(userId: string): Promise<{success: bo
         return { success: true, message: `Test notification sent to ${response.successCount} device(s).` };
     } catch (error) {
         console.error('Error sending test notification:', error);
-        if (error instanceof Error && error.message.includes('auth-error')) {
-             return { success: false, message: "Authentication error with FCM. Check your server credentials." };
-        }
         return { success: false, message: "An error occurred while sending the notification." };
     }
 }
@@ -323,24 +288,22 @@ export async function sendReminder(userId: string) {
         return { success: false, message: "User ID is required." };
     }
 
-    const userDocRef = doc(db, 'users', userId);
-    const userDocSnap = await getDoc(userDocRef);
+    const userDocRef = adminDb.collection('users').doc(userId);
+    const userDocSnap = await userDocRef.get();
 
-    if (!userDocSnap.exists()) {
+    if (!userDocSnap.exists) {
         return { success: false, message: "User not found." };
     }
 
     const userData = userDocSnap.data() as UserData;
     const { appSettings, bodyMetrics, hydration, dailyGoal, motivationTone, updatedAt, lastSmsSentDate, smsSentCount } = userData;
 
-    // 1. Check if reminders are enabled at all
     if (appSettings.notificationFrequency === 'off' || (!appSettings.pushNotifications && !appSettings.smsReminders)) {
         return { success: true, message: "User has reminders turned off." };
     }
 
-    // 2. Check if a reminder is due based on frequency
     const now = new Date();
-    const lastUpdate = (updatedAt as Timestamp)?.toDate() || new Date();
+    const lastUpdate = (updatedAt as admin.firestore.Timestamp)?.toDate() || new Date();
     const hoursSinceLastDrink = differenceInHours(now, lastUpdate);
     let shouldSend = false;
 
@@ -352,7 +315,6 @@ export async function sendReminder(userId: string) {
             if (hoursSinceLastDrink >= 4) shouldSend = true;
             break;
         case 'intelligent':
-            // Simple intelligent logic: send if it's been > 2 hours and they are behind schedule
             if (hoursSinceLastDrink >= 2 && (hydration / dailyGoal) < (now.getHours() / 24)) {
                 shouldSend = true;
             }
@@ -363,7 +325,6 @@ export async function sendReminder(userId: string) {
          return { success: true, message: "No reminder needed at this time." };
     }
 
-    // 3. Generate the reminder message
     const hydrationPercentage = (hydration / dailyGoal) * 100;
     const timeOfDay = now.getHours() < 12 ? "morning" : now.getHours() < 18 ? "afternoon" : "evening";
     
@@ -375,7 +336,6 @@ export async function sendReminder(userId: string) {
     });
     const messageBody = reminder.message;
 
-    // 4. Send notifications
     let pushSent = false;
     let smsSent = false;
     let newSmsCount = smsSentCount || 0;
@@ -390,19 +350,17 @@ export async function sendReminder(userId: string) {
     }
 
     if (appSettings.smsReminders && bodyMetrics.phone) {
-        const lastSentDate = (lastSmsSentDate as Timestamp)?.toDate();
-        const smsCount = isToday(lastSentDate || 0) ? newSmsCount : 0;
+        const lastSentDateObj = (lastSmsSentDate as admin.firestore.Timestamp)?.toDate();
+        const smsCountToday = lastSentDateObj && isToday(lastSentDateObj) ? newSmsCount : 0;
 
-        if (smsCount < 2) {
+        if (smsCountToday < 2) {
             try {
                 await sendSms(bodyMetrics.phone, messageBody);
                 smsSent = true;
-                newSmsCount = smsCount + 1;
-                // Update the user's document with the new count and date
-                await updateDoc(userDocRef, {
-                    smsSentCount: newSmsCount,
-                    lastSmsSentDate: serverTimestamp(),
-                    updatedAt: serverTimestamp() 
+                await userDocRef.update({
+                    smsSentCount: smsCountToday + 1,
+                    lastSmsSentDate: admin.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: admin.firestore.FieldValue.serverTimestamp() 
                 });
             } catch (e) {
                 console.error(`Failed to send SMS to user ${userId}`, e);
