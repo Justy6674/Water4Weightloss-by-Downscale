@@ -32,6 +32,7 @@ export async function generateReminder(input: ReminderInput): Promise<ReminderOu
 
 const prompt = ai.definePrompt({
   name: 'reminderMessagePrompt',
+  model: 'gemini-1.5-flash',
   input: {schema: ReminderInputSchema},
   output: {schema: ReminderOutputSchema},
   prompt: `You are an AI assistant that sends brief, effective hydration reminders.

@@ -156,6 +156,15 @@ const getCreateDbInstructions = () => (
         };
         
         const today = new Date();
+        const lastUpdateDate = firestoreData.updatedAt ? (firestoreData.updatedAt as Timestamp).toDate() : new Date(0);
+        let hydrationWasReset = false;
+
+        if (!isSameDay(lastUpdateDate, today)) {
+          console.log("New day detected. Resetting daily hydration to 0.");
+          data.hydration = 0;
+          hydrationWasReset = true;
+        }
+
         const lastGoalDate = data.lastGoalMetDate ? parseISO(data.lastGoalMetDate as string) : null;
         let streakWasReset = false;
         
@@ -184,10 +193,15 @@ const getCreateDbInstructions = () => (
         });
         
         setUserData(serializableData as UserData);
-        if (streakWasReset) {
-          if(user) {
-            updateUserData(user.uid, { streak: 0 });
-          }
+
+        if (user) {
+            const updatesToPersist: Partial<UserData> = {};
+            if (hydrationWasReset) updatesToPersist.hydration = 0;
+            if (streakWasReset) updatesToPersist.streak = 0;
+
+            if (Object.keys(updatesToPersist).length > 0) {
+                updateUserData(user.uid, updatesToPersist);
+            }
         }
 
       } catch (error) {
