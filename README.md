@@ -108,7 +108,7 @@ TWILIO_PHONE_NUMBER=
 
 **Step 2: Get Your Service Account Credentials**
 
-For local development, you need the three `FIREBASE_ADMIN_*` values.
+For local development, you need the three `FIREBASE_*` values.
 1.  In your Firebase Project Settings, go to the **Service accounts** tab.
 2.  Click **Generate new private key** and download the JSON file.
 3.  Open the downloaded file and copy the `project_id`, `client_email`, and `private_key` values into the corresponding variables in your `.env.local` file.
@@ -130,14 +130,14 @@ The codebase is organized into a clean, modern Next.js project structure.
 
 ```
 water4weightloss/
-├── public/             # Static assets (images, fonts)
+├── public/             # Static assets (images, fonts, manifest.json)
 ├── src/
 │   ├── app/            # Next.js app router pages
 │   ├── components/     # Reusable React components
 │   ├── lib/            # Helper functions, Firebase config
 │   └── types/          # TypeScript type definitions
 ├── .env.local          # Environment variables (DO NOT COMMIT if public repo)
-└── firebase.json       # Firebase project configuration
+├── firebase.json       # Firebase project configuration
 ```
 
 ## 🤖 AI Development & Contribution
