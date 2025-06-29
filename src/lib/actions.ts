@@ -6,6 +6,9 @@ import { adminMessaging } from '@/lib/firebase-admin';
 import { doc, getDoc, setDoc, serverTimestamp, type Timestamp, deleteDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { sendSms } from '@/services/send-sms';
 import { type UserData, defaultUserData, type WeightReading, type BloodPressureReading } from '@/lib/user-data';
+import { generateReminder } from '@/ai/flows/reminder-message-flow';
+import { differenceInHours } from 'date-fns';
+
 
 /**
  * Ensures that any Firestore Timestamp objects are converted to ISO strings,
@@ -308,4 +311,91 @@ export async function sendTestNotification(userId: string): Promise<{success: bo
         }
         return { success: false, message: "An error occurred while sending the notification." };
     }
+}
+
+/**
+ * This function would be triggered by a scheduled job (e.g., a cron job) for each user.
+ * It checks if a reminder is needed and sends one via Push Notification and/or SMS.
+ */
+export async function sendReminder(userId: string) {
+    if (!userId) {
+        console.error("sendReminder called without userId.");
+        return { success: false, message: "User ID is required." };
+    }
+
+    const userDocRef = doc(db, 'users', userId);
+    const userDocSnap = await getDoc(userDocRef);
+
+    if (!userDocSnap.exists()) {
+        return { success: false, message: "User not found." };
+    }
+
+    const userData = userDocSnap.data() as UserData;
+    const { appSettings, bodyMetrics, hydration, dailyGoal, motivationTone, updatedAt } = userData;
+
+    // 1. Check if reminders are enabled at all
+    if (appSettings.notificationFrequency === 'off' || (!appSettings.pushNotifications && !appSettings.smsReminders)) {
+        return { success: true, message: "User has reminders turned off." };
+    }
+
+    // 2. Check if a reminder is due based on frequency
+    const now = new Date();
+    const lastUpdate = (updatedAt as Timestamp)?.toDate() || new Date();
+    const hoursSinceLastDrink = differenceInHours(now, lastUpdate);
+    let shouldSend = false;
+
+    switch (appSettings.notificationFrequency) {
+        case 'hourly':
+            if (hoursSinceLastDrink >= 1) shouldSend = true;
+            break;
+        case 'four-hours':
+            if (hoursSinceLastDrink >= 4) shouldSend = true;
+            break;
+        case 'intelligent':
+            // Simple intelligent logic: send if it's been > 2 hours and they are behind schedule
+            if (hoursSinceLastDrink >= 2 && (hydration / dailyGoal) < (now.getHours() / 24)) {
+                shouldSend = true;
+            }
+            break;
+    }
+    
+    if (!shouldSend) {
+         return { success: true, message: "No reminder needed at this time." };
+    }
+
+    // 3. Generate the reminder message
+    const hydrationPercentage = (hydration / dailyGoal) * 100;
+    const timeOfDay = now.getHours() < 12 ? "morning" : now.getHours() < 18 ? "afternoon" : "evening";
+    
+    const reminder = await generateReminder({
+        hydrationPercentage,
+        preferredTone: motivationTone,
+        timeSinceLastDrink: `${hoursSinceLastDrink} hour(s)`,
+        timeOfDay,
+    });
+    const messageBody = reminder.message;
+
+    // 4. Send notifications
+    let pushSent = false;
+    let smsSent = false;
+
+    if (appSettings.pushNotifications && userData.fcmTokens && userData.fcmTokens.length > 0) {
+        const message = {
+            notification: { title: 'Hydration Reminder', body: messageBody },
+            tokens: userData.fcmTokens,
+        };
+        await adminMessaging.sendMulticast(message);
+        pushSent = true;
+    }
+
+    if (appSettings.smsReminders && bodyMetrics.phone) {
+        try {
+            await sendSms(bodyMetrics.phone, messageBody);
+            smsSent = true;
+        } catch (e) {
+            console.error(`Failed to send SMS to user ${userId}`, e);
+        }
+    }
+
+    return { success: true, message: `Reminder sent. Push: ${pushSent}, SMS: ${smsSent}`};
 }
