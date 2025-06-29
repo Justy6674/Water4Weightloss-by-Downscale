@@ -90,15 +90,8 @@ export function AppSettings({ userData, onUpdate }: AppSettingsProps) {
             if (permission === 'granted') {
                 console.log('Notification permission granted.');
                 
-                // IMPORTANT: You must replace this placeholder with your own VAPID key
-                // from the Firebase Console (Project Settings > Cloud Messaging > Web Push certificates)
-                const vapidKey = "YOUR_VAPID_KEY_FROM_FIREBASE_CONSOLE_SETTINGS_CLOUD_MESSAGING";
-                if (vapidKey.includes("YOUR_VAPID_KEY")) {
-                  toast({ variant: "destructive", title: "Action Required", description: "VAPID key is missing. Please add it in app-settings.tsx to enable push notifications."});
-                  console.error("VAPID key is missing. Please add it in app-settings.tsx to enable push notifications.");
-                  handleSettingChange('pushNotifications', false);
-                  return;
-                }
+                // This is a public key for browser push notifications.
+                const vapidKey = "BP0d5qhNgVDDBcWwbUdgaeZayuZGTW2-aZdlCPJ-l0ziEk_3sfWWsYT_YTMR4-5CYsM6vUUyZbGBmkC876LjA94";
 
                 const fcmToken = await getToken(messaging, { vapidKey });
 
@@ -107,7 +100,7 @@ export function AppSettings({ userData, onUpdate }: AppSettingsProps) {
                     toast({ title: "Notifications Enabled", description: "You're all set up for push notifications." });
                 } else {
                     console.log('No registration token available. Request permission to generate one.');
-                    toast({ variant: "destructive", title: "Could not get token", description: "Failed to get notification token." });
+                    toast({ variant: "destructive", title: "Could not get token", description: "Failed to get notification token. Ensure firebase-messaging-sw.js is set up." });
                     handleSettingChange('pushNotifications', false);
                 }
             } else {
@@ -117,7 +110,7 @@ export function AppSettings({ userData, onUpdate }: AppSettingsProps) {
             }
         } catch (error) {
             console.error('An error occurred while getting token. ', error);
-            toast({ variant: "destructive", title: "Setup Error", description: "An error occurred while setting up notifications." });
+            toast({ variant: "destructive", title: "Setup Error", description: "An error occurred while setting up notifications. Check console for details." });
             handleSettingChange('pushNotifications', false);
         }
     }
