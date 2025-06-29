@@ -44,8 +44,8 @@ if (missingKeys.length > 0) {
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-// Initialize App Check only on the client side
-if (typeof window !== "undefined") {
+// Initialize App Check only on the client side, and only in production
+if (typeof window !== "undefined" && process.env.NODE_ENV === 'production') {
   initializeAppCheck(app, {
     provider: new ReCaptchaV3Provider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!),
     isTokenAutoRefreshEnabled: true,
