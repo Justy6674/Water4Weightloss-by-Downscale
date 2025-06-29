@@ -20,6 +20,7 @@ import {
   onAuthStateChanged, 
   signInWithPopup,
   GoogleAuthProvider,
+  sendPasswordResetEmail,
   type User 
 } from "firebase/auth"
 import { FirebaseError } from "firebase/app"
@@ -79,7 +80,6 @@ function LoginPageContents() {
         setIsLoading(true)
         setAuthError(null);
         try {
-            // Persistence is now set globally in firebase.ts, so we just sign in.
             await signInWithEmailAndPassword(auth, email, password)
         } catch (error) {
             let description = "An unexpected error occurred. Please try again.";
@@ -93,7 +93,7 @@ function LoginPageContents() {
                     description = "An unexpected error occurred. Please check the console for details.";
                 }
             } else {
-                console.error("An unexpected error occurred during login:", error);
+                console.warn("An unexpected error occurred during login:", error);
             }
             setAuthError(description);
         } finally {
@@ -117,7 +117,7 @@ function LoginPageContents() {
                     description = "An account already exists with the same email address but different sign-in credentials. Please sign in using the original method."
                 }
             } else {
-                 console.error("An unexpected error occurred during Google login:", error);
+                 console.warn("An unexpected error occurred during Google login:", error);
             }
             setAuthError(description);
         } finally {
@@ -125,6 +125,34 @@ function LoginPageContents() {
         }
     };
     
+    const handlePasswordReset = async () => {
+        if (!email) {
+            setAuthError("Please enter your email address to reset your password.");
+            return;
+        }
+        setIsLoading(true);
+        setAuthError(null);
+        try {
+            await sendPasswordResetEmail(auth, email);
+            toast({
+                title: "Password Reset Email Sent",
+                description: `If an account for ${email} exists, a password reset link has been sent.`,
+            });
+        } catch (error) {
+            // For security, we don't reveal if an email is registered or not.
+            // So we show a generic success message even on failure.
+             toast({
+                title: "Password Reset Email Sent",
+                description: `If an account for ${email} exists, a password reset link has been sent.`,
+            });
+            if (error instanceof FirebaseError) {
+                console.warn("Password reset attempt failed (user sees success message):", error.code);
+            }
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     if (checkingAuth || user) {
         return null; 
     }
@@ -209,9 +237,14 @@ function LoginPageContents() {
                                 Stay logged in
                             </label>
                         </div>
-                        <Link href="#" className="font-medium text-[#f7f2d3] hover:underline [text-shadow:0_1px_2px_rgba(0,0,0,0.5)]">
+                        <button
+                          type="button"
+                          onClick={handlePasswordReset}
+                          className="font-medium text-[#f7f2d3] hover:underline [text-shadow:0_1px_2px_rgba(0,0,0,0.5)] disabled:opacity-50"
+                          disabled={isLoading}
+                        >
                             Forgot password?
-                        </Link>
+                        </button>
                     </div>
                     <Button type="submit" className="w-full bg-white text-black h-12 rounded-lg font-bold text-base hover:bg-gray-200" disabled={isLoading}>
                         {isLoading ? 'Logging in...' : 'Login'}
