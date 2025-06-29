@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation"
 import { onAuthStateChanged, type User } from "firebase/auth"
 import { auth, db } from "@/lib/firebase"
 import { doc, getDoc, setDoc, serverTimestamp, Timestamp } from "firebase/firestore"
-import { Droplets, Settings, Trash2, LogOut, ExternalLink, Cog } from "lucide-react"
+import { Droplets, Settings, Trash2, LogOut, ExternalLink, Cog, Flame, Star, Trophy } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -31,8 +31,10 @@ import { Confetti } from "@/components/confetti"
 import { updateUserData, deleteUserData, addWeightReading, addBloodPressureReading } from "@/lib/actions"
 import { type UserData, type Tone, defaultUserData, type WeightReading, type BloodPressureReading } from "@/lib/user-data"
 import { AppSettings } from "@/components/app-settings"
+import { isSameDay, isYesterday, parseISO } from 'date-fns';
 
 type MilestoneStatus = MotivationInput['milestoneStatus'];
+type MilestoneInfo = { milestoneStatus: MilestoneStatus, nextMilestoneInfo: string };
 
 function DashboardContents() {
   const { toast } = useToast()
@@ -47,6 +49,7 @@ function DashboardContents() {
   const [isLoadingMotivation, setIsLoadingMotivation] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [milestone, setMilestone] = useState<MilestoneInfo>({ milestoneStatus: 'none', nextMilestoneInfo: '' });
   const initialMotivationFetched = useRef(false);
 
   const getSecurityRuleInstructions = () => (
@@ -134,7 +137,7 @@ const getCreateDbInstructions = () => (
         }
 
         const firestoreData = userDocSnap.data() || {};
-        const data: UserData = {
+        let data: UserData = {
             ...(defaultUserData as UserData),
             ...firestoreData,
             appSettings: {
@@ -147,13 +150,26 @@ const getCreateDbInstructions = () => (
             },
             weightLog: firestoreData.weightLog || [],
             bloodPressureLog: firestoreData.bloodPressureLog || [],
+            lastGoalMetDate: firestoreData.lastGoalMetDate || null,
         };
         
+        const today = new Date();
+        const lastGoalDate = data.lastGoalMetDate ? parseISO(data.lastGoalMetDate as string) : null;
+        let streakWasReset = false;
+        
+        if (data.streak > 0 && lastGoalDate && !isSameDay(lastGoalDate, today) && !isYesterday(lastGoalDate)) {
+            console.log("Streak broken. Resetting to 0.");
+            data.streak = 0;
+            streakWasReset = true;
+        }
+
         const serializableData: any = { ...data };
         
         Object.keys(serializableData).forEach(key => {
             const value = serializableData[key];
             if (value instanceof Timestamp) {
+                serializableData[key] = value.toDate().toISOString();
+            } else if (key === 'lastGoalMetDate' && value instanceof Timestamp) {
                 serializableData[key] = value.toDate().toISOString();
             } else if (Array.isArray(value)) {
                 serializableData[key] = value.map(item => {
@@ -166,6 +182,10 @@ const getCreateDbInstructions = () => (
         });
         
         setUserData(serializableData as UserData);
+        if (streakWasReset) {
+            updateUserData(userId, { streak: 0 });
+        }
+
       } catch (error) {
         console.error("Failed to load user data:", error);
         
@@ -223,7 +243,7 @@ const getCreateDbInstructions = () => (
     return "evening"
   }, []);
   
-  const getMilestoneContext = useCallback((): { milestoneStatus: MilestoneStatus, nextMilestoneInfo: string } => {
+  const getMilestoneContext = useCallback((): MilestoneInfo => {
     if (!userData) return { milestoneStatus: 'none', nextMilestoneInfo: '' };
     const now = new Date();
     const hour = now.getHours();
@@ -245,6 +265,12 @@ const getCreateDbInstructions = () => (
     }
     return { milestoneStatus: 'none', nextMilestoneInfo: 'All daily milestones passed.' };
   }, [userData]);
+
+  useEffect(() => {
+    if (userData) {
+      setMilestone(getMilestoneContext());
+    }
+  }, [userData, getMilestoneContext]);
 
   const fetchMotivation = useCallback(async (drinkSize: number) => {
     if (!userData) return;
@@ -285,19 +311,40 @@ const getCreateDbInstructions = () => (
 
 
   const handleAddWater = (amount: number) => {
-    if (!userData || !user || amount <= 0) return
+    if (!userData || !user || amount <= 0) return;
     const oldHydration = userData.hydration;
-    const newHydration = Math.min(userData.dailyGoal, userData.hydration + amount)
+    const newHydration = Math.min(userData.dailyGoal, userData.hydration + amount);
     
-    const updatedData = { ...userData, hydration: newHydration, lastDrinkSize: amount };
-    setUserData(updatedData);
-    updateUserData(user.uid, { hydration: newHydration, lastDrinkSize: amount });
+    const updates: Partial<UserData> = {
+      hydration: newHydration,
+      lastDrinkSize: amount,
+    };
 
-    fetchMotivation(amount);
+    const goalJustMet = newHydration >= userData.dailyGoal && oldHydration < userData.dailyGoal;
 
-    if (userData.appSettings.confettiEffects && newHydration >= userData.dailyGoal && oldHydration < userData.dailyGoal) {
-      setShowConfetti(true)
+    if (goalJustMet) {
+      const today = new Date();
+      const lastGoalDate = userData.lastGoalMetDate ? parseISO(userData.lastGoalMetDate as string) : null;
+      let newStreak = 1;
+      
+      if (lastGoalDate && isYesterday(lastGoalDate)) {
+          newStreak = (userData.streak || 0) + 1;
+          toast({ title: "Streak Extended!", description: `You're now on a ${newStreak}-day streak!` });
+      } else {
+         toast({ title: "Streak Started!", description: "You've started a new hydration streak. Keep it up!" });
+      }
+
+      updates.streak = newStreak;
+      updates.lastGoalMetDate = today.toISOString();
+
+      if (userData.appSettings.confettiEffects) {
+        setShowConfetti(true);
+      }
     }
+    
+    setUserData(prevData => ({ ...prevData!, ...updates }));
+    updateUserData(user.uid, updates);
+    fetchMotivation(amount);
   }
 
   const handleManualAdd = () => {
@@ -502,6 +549,38 @@ const getCreateDbInstructions = () => (
                         <Progress value={hydrationPercentage} className="w-full h-3" />
                         </CardContent>
                     </Card>
+
+                    {(userData.appSettings.dailyStreaks || userData.appSettings.progressMilestones) && (
+                        <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Trophy className="text-primary" />
+                                    <span>Gamification</span>
+                                </CardTitle>
+                                <CardDescription>Your progress and milestones.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                {userData.appSettings.dailyStreaks && (
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <Flame className="w-5 h-5 text-amber-500" />
+                                            <p className="font-medium">Daily Hydration Streak</p>
+                                        </div>
+                                        <p className="font-bold text-2xl text-primary">{userData.streak} <span className="text-base font-medium text-muted-foreground">{userData.streak === 1 ? 'day' : 'days'}</span></p>
+                                    </div>
+                                )}
+                                {userData.appSettings.progressMilestones && (
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <Star className="w-5 h-5 text-yellow-500" />
+                                            <p className="font-medium">Next Milestone</p>
+                                        </div>
+                                        <p className="text-sm text-right text-muted-foreground font-semibold">{milestone.nextMilestoneInfo}</p>
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                    )}
 
                     <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
                         <CardHeader>

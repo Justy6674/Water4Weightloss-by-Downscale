@@ -21,6 +21,7 @@ export interface UserData {
     dailyGoal: number;
     streak: number;
     lastDrinkSize: number;
+    lastGoalMetDate: string | Timestamp | null;
     motivationTone: Tone;
     appSettings: {
         dailyStreaks: boolean;
@@ -79,6 +80,7 @@ export const defaultUserData: Omit<UserData, 'updatedAt' | 'createdAt'> = {
     dailyGoal: 3000,
     streak: 14,
     lastDrinkSize: 0,
+    lastGoalMetDate: new Date('2024-06-14T09:00:00Z').toISOString(), // Set to a "yesterday" like value for demo
     motivationTone: "supportive",
     appSettings: defaultAppSettings,
     bodyMetrics: defaultBodyMetrics,
