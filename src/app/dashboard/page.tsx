@@ -542,7 +542,7 @@ const getCreateDbInstructions = () => (
 
             <TabsContent value="dashboard">
               <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-                <div className="lg:col-span-2 flex flex-col gap-8">
+                <div className="lg:col-span-3 flex flex-col gap-8">
                     <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
                         <CardHeader>
                         <CardTitle className="flex items-center justify-between">
@@ -574,7 +574,56 @@ const getCreateDbInstructions = () => (
                             </div>
                         </CardContent>
                     </Card>
+                    
+                    <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
+                        <CardHeader>
+                            <CardTitle>Log Your Intake</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                             <Tabs defaultValue="bottles" className="w-full">
+                                <TabsList className="grid w-full grid-cols-2">
+                                <TabsTrigger value="bottles">Bottles</TabsTrigger>
+                                <TabsTrigger value="custom">Custom</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value="bottles" className="pt-4">
+                                <div className="grid grid-cols-3 gap-2 w-full">
+                                    <Button variant="secondary" onClick={() => handleAddWater(600)} className="h-auto flex-col py-2 gap-0">
+                                    <span className="font-semibold">Bottle</span>
+                                    <span className="text-xs text-muted-foreground">600ml</span>
+                                    </Button>
+                                    <Button variant="secondary" onClick={() => handleAddWater(750)} className="h-auto flex-col py-2 gap-0">
+                                    <span className="font-semibold">Bottle</span>
+                                    <span className="text-xs text-muted-foreground">750ml</span>
+                                    </Button>
+                                    <Button variant="secondary" onClick={() => handleAddWater(1000)} className="h-auto flex-col py-2 gap-0">
+                                    <span className="font-semibold">Bottle</span>
+                                    <span className="text-xs text-muted-foreground">1L</span>
+                                    </Button>
+                                </div>
+                                </TabsContent>
+                                <TabsContent value="custom" className="pt-4 space-y-4">
+                                <div className="w-full space-y-2">
+                                    <Label htmlFor="manual-add">Log Custom Amount (ml)</Label>
+                                    <div className="flex gap-2">
+                                    <Input
+                                        id="manual-add"
+                                        type="number"
+                                        placeholder="e.g. 187"
+                                        value={manualAmount}
+                                        onChange={(e) => setManualAmount(e.target.value)}
+                                        onKeyPress={(e) => e.key === 'Enter' && handleManualAdd()}
+                                        className="font-code"
+                                    />
+                                    <Button onClick={handleManualAdd}>Add</Button>
+                                    </div>
+                                </div>
+                                </TabsContent>
+                            </Tabs>
+                        </CardContent>
+                     </Card>
+                </div>
 
+                 <div className="lg:col-span-2 flex flex-col gap-8">
                     <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
@@ -625,55 +674,6 @@ const getCreateDbInstructions = () => (
                         )}
                         </CardContent>
                     </Card>
-                </div>
-
-                 <div className="lg:col-span-3">
-                     <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
-                        <CardHeader>
-                            <CardTitle>Log Your Intake</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                             <Tabs defaultValue="bottles" className="w-full">
-                                <TabsList className="grid w-full grid-cols-2">
-                                <TabsTrigger value="bottles">Bottles</TabsTrigger>
-                                <TabsTrigger value="custom">Custom</TabsTrigger>
-                                </TabsList>
-                                <TabsContent value="bottles" className="pt-4">
-                                <div className="grid grid-cols-3 gap-2 w-full">
-                                    <Button variant="secondary" onClick={() => handleAddWater(600)} className="h-auto flex-col py-2 gap-0">
-                                    <span className="font-semibold">Bottle</span>
-                                    <span className="text-xs text-muted-foreground">600ml</span>
-                                    </Button>
-                                    <Button variant="secondary" onClick={() => handleAddWater(750)} className="h-auto flex-col py-2 gap-0">
-                                    <span className="font-semibold">Bottle</span>
-                                    <span className="text-xs text-muted-foreground">750ml</span>
-                                    </Button>
-                                    <Button variant="secondary" onClick={() => handleAddWater(1000)} className="h-auto flex-col py-2 gap-0">
-                                    <span className="font-semibold">Bottle</span>
-                                    <span className="text-xs text-muted-foreground">1L</span>
-                                    </Button>
-                                </div>
-                                </TabsContent>
-                                <TabsContent value="custom" className="pt-4 space-y-4">
-                                <div className="w-full space-y-2">
-                                    <Label htmlFor="manual-add">Log Custom Amount (ml)</Label>
-                                    <div className="flex gap-2">
-                                    <Input
-                                        id="manual-add"
-                                        type="number"
-                                        placeholder="e.g. 187"
-                                        value={manualAmount}
-                                        onChange={(e) => setManualAmount(e.target.value)}
-                                        onKeyPress={(e) => e.key === 'Enter' && handleManualAdd()}
-                                        className="font-code"
-                                    />
-                                    <Button onClick={handleManualAdd}>Add</Button>
-                                    </div>
-                                </div>
-                                </TabsContent>
-                            </Tabs>
-                        </CardContent>
-                     </Card>
                  </div>
               </div>
             </TabsContent>
@@ -734,6 +734,3 @@ const getCreateDbInstructions = () => (
 export default function Dashboard() {
   return <DashboardContents />
 }
-
-    
-    
