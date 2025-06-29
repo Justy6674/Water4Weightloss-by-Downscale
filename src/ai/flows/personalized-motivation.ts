@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -42,7 +43,7 @@ export async function generateMotivation(input: MotivationInput): Promise<Motiva
 
 const prompt = ai.definePrompt({
   name: 'personalizedMotivationPrompt',
-  model: 'gemini-1.5-flash',
+  model: 'googleai/gemini-1.5-flash',
   input: {schema: MotivationInputSchema},
   output: {schema: MotivationOutputSchema},
   prompt: `You are an AI assistant designed to provide personalized motivational messages to users who are tracking their water intake for weight loss.
