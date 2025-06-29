@@ -43,7 +43,8 @@ export default function LandingPage() {
                 width="600"
                 height="400"
                 alt="Hero"
-                className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last lg:aspect-square"
+                className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last"
+                priority
               />
             </div>
           </div>

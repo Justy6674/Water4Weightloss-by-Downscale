@@ -1,3 +1,4 @@
+
 "use client"
 import React, { useState, useEffect, useRef } from "react"
 
@@ -10,32 +11,8 @@ type BubbleStyle = {
 
 export const WaterGlass = ({ percentage }: { percentage: number }) => {
   const waterHeight = Math.min(100, Math.max(0, percentage))
-  const [tilt, setTilt] = useState({ x: 0, y: 0 })
   const [bubbleStyles, setBubbleStyles] = useState<BubbleStyle[]>([])
-  const glassRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const handleOrientation = (event: DeviceOrientationEvent) => {
-      const { beta, gamma } = event
-      // beta is front-to-back tilt (-180 to 180)
-      // gamma is left-to-right tilt (-90 to 90)
-      
-      // Cap the tilt to a reasonable range to avoid extreme rotation
-      const cappedBeta = Math.max(-45, Math.min(45, beta || 0))
-      const cappedGamma = Math.max(-45, Math.min(45, gamma || 0))
-
-      setTilt({ x: cappedBeta, y: cappedGamma })
-    }
-
-    if (window.DeviceOrientationEvent) {
-      window.addEventListener('deviceorientation', handleOrientation)
-    }
-
-    return () => {
-      window.removeEventListener('deviceorientation', handleOrientation)
-    }
-  }, [])
-
+  
   useEffect(() => {
     // Generate bubble styles only on the client to avoid hydration mismatch
     const styles = Array.from({ length: 15 }).map(() => ({
@@ -49,16 +26,12 @@ export const WaterGlass = ({ percentage }: { percentage: number }) => {
 
   return (
     <div 
-      ref={glassRef}
       className="relative h-64 w-40 mx-auto border-4 border-slate-400/50 dark:border-slate-500/50 rounded-t-xl rounded-b-3xl bg-slate-500/10 backdrop-blur-sm overflow-hidden shadow-inner select-none"
-      style={{ perspective: '1000px' }}
     >
       <div
         className="absolute bottom-0 left-0 right-0 bg-primary/80 transition-all duration-1000 ease-in-out"
         style={{ 
           height: `${waterHeight}%`,
-          transform: `rotateX(${-tilt.x}deg) rotateY(${tilt.y}deg)`,
-          transformOrigin: 'bottom center',
         }}
       >
         {/* Bubbles */}

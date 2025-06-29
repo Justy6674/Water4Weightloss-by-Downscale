@@ -18,11 +18,6 @@ if (!admin.apps.length) {
       const serviceAccountString = await fs.readFile(serviceAccountPath, 'utf8');
       const serviceAccount = JSON.parse(serviceAccountString);
 
-      // Validate that the service account file is not just a template
-      if (!serviceAccount.project_id || serviceAccount.project_id.includes('PASTE_YOUR')) {
-          throw new Error('The service-account.json file contains placeholder values. Please ensure it contains your project\'s actual credentials, which you can download from the Firebase console.');
-      }
-
       // **THE CRITICAL FIX FOR PEM ERROR**: Replace escaped newlines with actual newlines.
       if (serviceAccount.private_key) {
         serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
@@ -38,9 +33,11 @@ if (!admin.apps.length) {
       let errorMessage = `Failed to initialize Firebase Admin SDK. Error: ${error.message}`;
 
       if (error.code === 'ENOENT') {
-          errorMessage = `CRITICAL: The 'service-account.json' file was not found in the project root. You stated you created it, so this may be a pathing issue. Please verify it is in the root directory and named correctly.`;
+          errorMessage = `CRITICAL: The 'service-account.json' file was not found in the project root. Please verify it is in the root directory and contains your actual credentials.`;
       } else if (error instanceof SyntaxError) {
           errorMessage = `CRITICAL: The 'service-account.json' file is not valid JSON. Please re-download it from your Firebase project settings and ensure it is not corrupted.`;
+      } else if (error.message.includes('Invalid PEM formatted message')) {
+          errorMessage = `CRITICAL: The private key in 'service-account.json' is malformed. This is an internal error in the credentials file itself. Please re-download the file from Firebase.`;
       }
       
       console.error('CRITICAL: Firebase Admin SDK initialization failed.', error);

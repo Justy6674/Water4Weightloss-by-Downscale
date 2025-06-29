@@ -1,5 +1,5 @@
 
-import type {Metadata} from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, Roboto, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
@@ -31,8 +31,11 @@ export const metadata: Metadata = {
     icon: '/favicon%20192x192.png',
     apple: '/favicon%20192x192.png',
   },
-  themeColor: '#334155',
 };
+
+export const viewport: Viewport = {
+  themeColor: '#334155',
+}
 
 export default function RootLayout({
   children,
