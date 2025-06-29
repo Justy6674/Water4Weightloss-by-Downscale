@@ -13,13 +13,13 @@ export function InfoContent() {
             <AccordionItem value="item-1">
                 <AccordionTrigger className="text-xl text-left font-headline hover:no-underline">The Science of Hydration</AccordionTrigger>
                 <AccordionContent>
-                    <div className="space-y-6 pt-2 prose prose-invert prose-p:text-card-foreground/90 prose-headings:text-foreground prose-h3:text-xl prose-strong:text-foreground">
+                    <div className="space-y-6 pt-2 prose prose-invert prose-p:text-card-foreground/90 prose-headings:text-foreground prose-h3:text-xl prose-strong:text-foreground prose-ul:list-disc prose-ul:pl-6 prose-blockquote:border-primary prose-blockquote:text-muted-foreground">
                         <section>
                             <h3>Understanding the Water–Fat Connection</h3>
                             <p>
                             Water is not just a passive fluid; it actively participates in your body’s metabolic processes. The first step in fat metabolism (hydrolysis) requires water molecules. If you’re not well-hydrated, your body’s ability to burn fat for energy can be compromised.
                             </p>
-                            <blockquote className="border-l-4 border-primary pl-4 italic my-4 text-muted-foreground">
+                            <blockquote>
                             <strong>In short:</strong> Adequate hydration is physiologically vital for fat metabolism.
                             </blockquote>
                             <p>
@@ -166,7 +166,7 @@ export function InfoContent() {
                             <p>
                                 BMI is a simple screening tool that uses your height and weight to estimate body fat. It's widely used, but it's important to understand its limitations. BMI does not account for muscle mass, bone density, or differences in body composition between genders and ethnicities. It is best used as a starting point for a conversation about health, not as a final verdict. Here are the standard BMI categories used for screening:
                             </p>
-                            <ul>
+                            <ul className="list-disc space-y-1 pl-6">
                                 <li><strong>18.5 - 24.9:</strong> Generally considered in the normal weight range.</li>
                                 <li><strong>25.0 - 29.9:</strong> Classified as overweight.</li>
                                 <li><strong>30.0 - 34.9:</strong> Classified as Class I Obesity.</li>
@@ -178,7 +178,7 @@ export function InfoContent() {
                             <p>
                                 Measuring your waist is another helpful tool because it gives an idea of abdominal fat, which is linked to metabolic health. For screening purposes, the following general cut-off points are often used:
                             </p>
-                           <ul>
+                           <ul className="list-disc space-y-1 pl-6">
                                 <li><strong>For Men:</strong> A waist circumference of 102 cm (40 inches) or more is often considered a risk factor.</li>
                                 <li><strong>For Women:</strong> A waist circumference of 88 cm (35 inches) or more is often considered a risk factor.</li>
                             </ul>
@@ -190,7 +190,7 @@ export function InfoContent() {
                             <p>
                                 When body fat increases to a point where it affects health, the challenges can be thought of in two main ways:
                             </p>
-                            <ul>
+                            <ul className="list-disc space-y-2 pl-6">
                                 <li>
                                     <strong>Fat Mass Disease:</strong> This refers to the physical and mechanical stress that excess weight can place on the body. This can lead to issues like osteoarthritis in the knees and hips, sleep apnea, or acid reflux.
                                 </li>
@@ -205,7 +205,7 @@ export function InfoContent() {
                             <p>
                                 Managing obesity is about much more than just the number on the scale; it's about improving your overall health and quality of life. Even a modest weight loss of 5-10% can lead to significant health improvements:
                             </p>
-                             <ul>
+                             <ul className="list-disc space-y-2 pl-6">
                                 <li>Improved blood sugar, blood pressure, and cholesterol levels.</li>
                                 <li>Reduced stress on joints and improved mobility.</li>
                                 <li>Better sleep and reduced risk of sleep apnea.</li>
@@ -231,19 +231,78 @@ export function InfoContent() {
             </AccordionItem>
             
             <AccordionItem value="item-4">
-                <AccordionTrigger className="text-xl text-left font-headline hover:no-underline">Hydration &amp; Weight Loss Medications</AccordionTrigger>
+                <AccordionTrigger className="text-xl text-left font-headline hover:no-underline">Medications for Weight Loss</AccordionTrigger>
                 <AccordionContent>
-                     <div className="space-y-6 pt-2 prose prose-invert prose-p:text-card-foreground/90 prose-headings:text-foreground prose-strong:text-foreground prose-blockquote:border-primary prose-blockquote:text-muted-foreground">
+                     <div className="space-y-6 pt-2 prose prose-invert prose-p:text-card-foreground/90 prose-headings:text-foreground prose-h3:text-xl prose-h4:text-lg prose-strong:text-foreground prose-ul:list-disc prose-ul:pl-6 prose-ul:space-y-2 prose-ol:list-decimal prose-ol:pl-6 prose-ol:space-y-2 prose-blockquote:border-primary prose-blockquote:text-muted-foreground">
                         <section>
-                           <p>
-                            If you are using weight loss medications (like GLP-1 agonists), staying hydrated is even more crucial. These medications can diminish your thirst drive, and side effects like nausea can deplete fluids.
-                            </p>
-                            <p>
-                            Crucially, many side effects of these medications are preventable or eased by hydration. Constipation, dry mouth, headaches, and fatigue can all be symptoms of mild dehydration. Drinking enough water can lessen these symptoms and make your treatment more comfortable.
-                            </p>
-                             <blockquote>
-                                <strong>Key takeaway:</strong> Hydration helps maximize your medication’s effectiveness and reduces side effects.
-                             </blockquote>
+                          <h4>GLP-1 and Dual-Incretin Agonists</h4>
+                          <p>Several large trials show dramatic weight loss with GLP‑1 and dual-agonists. In SURMOUNT‑1 (n≈2500, no diabetes), weekly tirzepatide (5–15 mg) plus lifestyle produced mean weight losses of ~15.0%, 19.5% and 20.9% at 72 weeks (5 mg/10 mg/15 mg) vs ~3.1% with placebo. 85–91% of tirzepatide patients lost ≥5% body weight; over half on 10–15 mg lost ≥20%<sup>[1]</sup>. In SURMOUNT‑2 (people with type 2 diabetes), tirzepatide 10 mg/15 mg gave ~13–15% weight loss vs ~3% on placebo (both with lifestyle)<sup>[2]</sup>. In SURPASS trials, tirzepatide (for diabetes) also produced greater weight loss than comparators; for example, SURPASS‑2 showed an approximate 11.2 kg loss with tirzepatide vs 5.7 kg with semaglutide 1 mg<sup>[3]</sup>.</p>
+                          <p><strong>Semaglutide:</strong> The STEP trials showed semaglutide 2.4 mg weekly causes substantial weight loss. In STEP‑1 (no diabetes), semaglutide yielded a –14.9% weight change over 68 weeks vs –2.4% with placebo (mean –15.3 kg vs –2.6 kg)<sup>[4]</sup>. In STEP‑2 (with diabetes) semaglutide 2.4 mg gave approximately –9.6% vs –3.4% on placebo<sup>[5]</sup>. In STEP‑4 (after a 20-week run-in), continuing semaglutide led to a further –7.9% loss, whereas switching to placebo led to a 6.9% regain<sup>[6]</sup>. In STEP‑8 (head-to-head), semaglutide 2.4 mg led to –15.8% vs –6.4% with daily liraglutide 3.0 mg<sup>[7]</sup>. STEP 3 (with intensive behavioral therapy) showed semaglutide 2.4 mg gave –16.0% vs –5.7% for placebo plus IBT<sup>[8]</sup>. Oral semaglutide (Rybelsus) in the PIONEER studies yields smaller weight loss (e.g. ~4.3 kg at the 14 mg dose over 26 weeks)<sup>[9]</sup>.</p>
+                          <p><strong>Liraglutide (3.0 mg daily):</strong> In the SCALE obesity trial, liraglutide (adjunct to diet/exercise) produced an ~8–9% body-weight reduction (~8.4 kg) at 56 weeks vs ~2–3% with placebo. About 63% on liraglutide lost ≥5% of weight vs 27% on placebo. The most common side effects were mild-to-moderate nausea or diarrhea<sup>[10]</sup>.</p>
+                        </section>
+
+                        <Separator/>
+
+                        <section>
+                          <h4>Other Approved Drugs</h4>
+                          <p><strong>Phentermine (± topiramate):</strong> Phentermine is a short‐term stimulant that suppresses appetite. In RCTs, phentermine 37.5 mg daily yielded ~7–8 kg (≈9%) weight loss over ~14 weeks vs 2–3 kg with placebo<sup>[11]</sup>. In one trial, >80% on phentermine lost ≥5% of baseline weight (versus far fewer with placebo). Combination phentermine/topiramate (Qsymia) produces even larger effects (10–12% loss)<sup>[12]</sup>. Phentermine is FDA-approved only for short-term use (up to 12 weeks) due to lack of long-term safety data.</p>
+                          <p><strong>Metformin:</strong> Though not FDA-approved as a weight-loss drug, metformin (often prescribed for prediabetes/diabetes) causes modest weight reduction (typically a few kilograms, ~2–3% of body weight) in many patients as a secondary effect<sup>[13]</sup>. It’s frequently used off-label for weight control.</p>
+                          <p><strong>Others:</strong> Other obesity medications include naltrexone/bupropion (Contrave) and orlistat (Xenical). Contrave (an opioid antagonist + antidepressant) gives modest (~5–6%) weight loss<sup>[14]</sup>. Orlistat (a lipase inhibitor) yields ~3% more loss than placebo<sup>[15]</sup>.</p>
+                        </section>
+
+                        <Separator/>
+                        
+                        <section>
+                          <h4>New and Emerging Therapies</h4>
+                          <p>New incretin-based therapies show very high efficacy. <strong>Retatrutide</strong> is a novel triple-agonist (GLP-1/GIP/glucagon). In a 48-week phase 2 trial, retatrutide 8 mg and 12 mg caused ~22.8% and 24.2% weight loss, respectively. Early data suggest >20% loss, making it a potential future breakthrough<sup>[16]</sup>. <strong>Danuglipron</strong> is an oral small-molecule GLP-1 agonist from Pfizer; a recent phase 2b trial showed placebo-adjusted weight reductions of ~8–13% at 32 weeks (–6.9% to –11.7% absolute, depending on dose)<sup>[17]</sup>. Other combination agonists (e.g. GLP-1/glucagon co-agonists like cotadutide, or other dual GLP-1/GIP drugs from various companies) are in clinical trials, aiming to expand options.</p>
+                        </section>
+
+                        <Separator/>
+
+                        <section>
+                          <h4>Efficacy Summary</h4>
+                          <ul>
+                            <li><strong>Tirzepatide</strong> (dual GIP/GLP-1 agonist): Up to ~20% weight loss at 72 weeks (15 mg dose) in non-diabetic obesity<sup>[1]</sup>; ~14–15% in T2D (SURMOUNT-2)<sup>[2]</sup>.</li>
+                            <li><strong>Semaglutide</strong> (GLP-1): ~15% weight loss at 68 weeks (2.4 mg dose) in non-diabetics<sup>[4]</sup>; ~10% with diabetes (STEP-2)<sup>[5]</sup>.</li>
+                            <li><strong>Liraglutide</strong> (GLP-1): ~8% weight loss at 56 weeks (3.0 mg)<sup>[10]</sup>.</li>
+                            <li><strong>Phentermine</strong>: ~7–9% weight loss in short-term trials<sup>[11]</sup>.</li>
+                            <li><strong>Metformin</strong>: Typically smaller effects (often &lt;5% body weight)<sup>[13]</sup>.</li>
+                          </ul>
+                          <p>These results greatly exceed older drugs. For example, placebo patients usually lose ~2–3% by lifestyle alone; adding one of these drugs shifts the average loss into double digits<sup>[1, 4]</sup>.</p>
+                        </section>
+
+                        <Separator/>
+                        
+                        <section>
+                          <h4>Safety &amp; Contraindications</h4>
+                          <p>All these medications have side effects and cannot be used by everyone. Common adverse events with GLP-1 agonists and Tirzepatide are gastrointestinal (nausea, vomiting, diarrhea), which are usually mild-to-moderate and often lessen over time<sup>[1, 4, 10]</sup>. Serious issues are rare but include pancreatitis (a warning for all GLP-1 agonists) and a contraindication in patients with a personal/family history of medullary thyroid carcinoma or MEN2 syndrome (based on rodent thyroid C-cell findings). Semaglutide and liraglutide are also contraindicated in pregnancy.</p>
+                          <p>Phentermine can raise heart rate and blood pressure and is contraindicated in those with uncontrolled hypertension, heart disease, hyperthyroidism, or a history of substance abuse. It is FDA-approved only for short-term (≤12 weeks) use. Metformin is generally safe but should be avoided in severe kidney or liver disease due to the risk of lactic acidosis and may cause transient GI upset.</p>
+                          <p>All therapies should be prescribed and monitored by a physician, with attention to individual health status and possible interactions. In clinical trials, these drugs were added to lifestyle changes (diet/exercise); their safety and efficacy in real-world use depend on proper titration and follow-up.</p>
+                        </section>
+
+                        <Separator/>
+
+                        <section>
+                            <h4 className="text-base">References</h4>
+                            <ol className="text-xs space-y-2">
+                                <li>Jastreboff, A. M., Aronne, L. J., Ahmad, N. N., Wharton, S., Connery, L., Alves, B., ... & SURMOUNT-1 Investigators. (2022). Tirzepatide once weekly for the treatment of obesity. <em>New England Journal of Medicine</em>, <em>387</em>(3), 205-216.</li>
+                                <li>Garvey, W. T., Frias, J. P., Jastreboff, A. M., le Roux, C. W., Sattar, N., Aizenberg, D., ... & SURMOUNT-2 Investigators. (2023). Tirzepatide once weekly for the treatment of obesity in people with type 2 diabetes (SURMOUNT-2): a randomised, double-blind, placebo-controlled, phase 3 trial. <em>The Lancet</em>, <em>402</em>(10402), 613-626.</li>
+                                <li>Frías, J. P., Davies, M. J., Rosenstock, J., Pérez Manghi, F. C., Fernández Landó, L., Bergman, B. K., ... & SURPASS-2 Investigators. (2021). Tirzepatide versus semaglutide once weekly in patients with type 2 diabetes. <em>New England Journal of Medicine</em>, <em>385</em>(6), 503-515.</li>
+                                <li>Wilding, J. P. H., Batterham, R. L., Calanna, S., Davies, M., Van Gaal, L. F., Lingvay, I., ... & STEP 1 Study Group. (2021). Once-weekly semaglutide in adults with overweight or obesity. <em>New England Journal of Medicine</em>, <em>384</em>(11), 989-1002.</li>
+                                <li>Davies, M., Færch, L., Jeppesen, O. K., Pakseresht, A., Pedersen, S. D., Perreault, L., ... & STEP 2 Study Group. (2021). Semaglutide 2·4 mg once a week in adults with overweight or obesity, and type 2 diabetes (STEP 2): a randomised, double-blind, double-dummy, placebo-controlled, phase 3 trial. <em>The Lancet</em>, <em>397</em>(10278), 971-984.</li>
+                                <li>Rubino, D. M., Greenway, F. L., Kent, C. K., O'Neil, P. M., Rosenstock, J., Sørrig, R., ... & STEP 4 Investigators. (2022). Effect of continued weekly subcutaneous semaglutide vs placebo on weight loss maintenance in adults with overweight or obesity: The STEP 4 randomized clinical trial. <em>JAMA</em>, <em>327</em>(2), 153-164.</li>
+                                <li>Rubino, D. M., Costello, H., Klem, C., O'Neil, P. M., Wadden, T. A., & STEP 8 Investigators. (2022). Effect of weekly subcutaneous semaglutide vs daily liraglutide on body weight in adults with overweight or obesity without diabetes: The STEP 8 randomized clinical trial. <em>JAMA</em>, <em>328</em>(18), 1827-1838.</li>
+                                <li>Wadden, T. A., Bailey, T. S., Billings, L. K., Davies, M., Frias, J. P., Koroleva, A., ... & STEP 3 Investigators. (2021). Effect of subcutaneous semaglutide vs placebo as an adjunct to intensive behavioral therapy on body weight in adults with overweight or obesity: The STEP 3 randomized clinical trial. <em>JAMA</em>, <em>325</em>(14), 1403-1413.</li>
+                                <li>Pratley, R., Amod, A., Hoff, S. T., Kadowaki, T., Lingvay, I., Nauck, M., ... & PIONEER 4 investigators. (2019). Oral semaglutide versus subcutaneous liraglutide and placebo in type 2 diabetes (PIONEER 4): a randomised, double-blind, phase 3a trial. <em>The Lancet</em>, <em>394</em>(10192), 39-50.</li>
+                                <li>Pi-Sunyer, X., Astrup, A., Fujioka, K., Greenway, F., Halpern, A., Krempf, M., ... & SCALE Obesity and Prediabetes NN8022-1839 Study Group. (2015). A randomized, controlled trial of 3.0 mg of liraglutide in weight management. <em>New England Journal of Medicine</em>, <em>373</em>(1), 11-22.</li>
+                                <li>Jordan, J., Astrup, A., Engeli, S., Narkiewicz, K., Day, W. W., & Finer, N. (2014). Cardiovascular effects of phentermine and topiramate: a new drug combination for the treatment of obesity. <em>Journal of hypertension</em>, <em>32</em>(6), 1178-1188.</li>
+                                <li>Allison, D. B., Gadde, K. M., Garvey, W. T., Peterson, C. A., Schwiers, M. L., Najarian, T., ... & Troupin, B. (2012). Controlled-release phentermine/topiramate in severely obese adults: a randomized controlled trial (EQUIP). <em>Obesity</em>, <em>20</em>(2), 330-342.</li>
+                                <li>Apolzan, J. W., Venditti, E. M., Edelstein, S. L., Knowler, W. C., Dabelea, D., Boyko, E. J., ... & Diabetes Prevention Program Research Group. (2019). Long-term weight loss with metformin or lifestyle intervention in the diabetes prevention program outcomes study. <em>Annals of internal medicine</em>, <em>170</em>(10), 682-690.</li>
+                                <li>Greenway, F. L., Fujioka, K., Plodkowski, R. A., O'Neil, P. M., Guttadauria, M., & The COR-I Study Group. (2010). Effect of naltrexone plus bupropion on weight loss in overweight and obese adults (COR-I): a multicentre, randomised, double-blind, placebo-controlled, phase 3 trial. <em>The Lancet</em>, <em>376</em>(9741), 595-605.</li>
+                                <li>Torgerson, J. S., Hauptman, J., Boldrin, M. N., & Sjöström, L. (2004). XENical in the prevention of diabetes in obese subjects (XENDOS) study: a randomized study of orlistat as an adjunct to lifestyle changes for the prevention of type 2 diabetes in obese patients. <em>Diabetes care</em>, <em>27</em>(1), 155-161.</li>
+                                <li>Jastreboff, A. M., Kaplan, L. M., Frías, J. P., Wu, Q., Du, Y., Gzoulis, M. G., ... & Retatrutide Phase 2 Investigators. (2023). Triple-hormone-receptor agonist retatrutide for obesity—a phase 2 trial. <em>New England Journal of Medicine</em>, <em>389</em>(6), 514-526.</li>
+                                <li>Pfizer. (2023, December 1). <em>Pfizer Provides Update on GLP-1-RA Clinical Development Program for Obesity and Diabetes</em>. [Press Release]. Retrieved from Pfizer's news releases.</li>
+                            </ol>
                         </section>
                     </div>
                 </AccordionContent>
