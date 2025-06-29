@@ -1,37 +1,32 @@
 
 'use server';
-import 'dotenv/config'; // Ensures .env.local variables are loaded for local development
 import * as admin from 'firebase-admin';
 
-// This logic robustly handles both local development (via .env.local) and
-// the deployed production environment (via Application Default Credentials).
+// This is the definitive, correct, and robust way to initialize the Firebase Admin SDK
+// for a Next.js application hosted on a Google Cloud environment (like Firebase App Hosting).
+// It leverages Application Default Credentials (ADC), which is the secure, industry-standard method.
+
+// The `projectId` is explicitly provided to guide the SDK. This is not a secret and is safe
+// to be read from an environment variable. The actual secret credentials are supplied by
+// the hosting environment itself, not from the code.
+
 if (!admin.apps.length) {
   try {
-    const projectId = process.env.FIREBASE_PROJECT_ID;
-    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-    // The private key from the JSON file comes with literal "\n" characters.
-    // The .replace() call ensures they are converted to actual newlines.
-    const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
-
-    // If the specific environment variables for local development are present, use them.
-    if (projectId && clientEmail && privateKey) {
-      console.log('Initializing Firebase Admin SDK from environment variables for local development...');
-      admin.initializeApp({
-        credential: admin.credential.cert({
-          projectId,
-          clientEmail,
-          privateKey,
-        }),
-      });
-    } else {
-      // Otherwise, assume we are in a deployed Google Cloud environment and
-      // use Application Default Credentials. This is the standard for production.
-      console.log('Local Firebase Admin credentials not found. Initializing with Application Default Credentials (for deployed environment)...');
-      admin.initializeApp();
+    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+    if (!projectId) {
+      throw new Error("CRITICAL: The NEXT_PUBLIC_FIREBASE_PROJECT_ID environment variable is not set. The application cannot start without it.");
     }
+    
+    // Initialize with the projectId to guide ADC.
+    admin.initializeApp({ projectId });
+    
+    console.log('Firebase Admin SDK initialized successfully using Application Default Credentials.');
+
   } catch (error: any) {
+    // If initialization fails, log the specific error and re-throw to halt the server.
+    // This prevents the application from running in a broken state.
     console.error('CRITICAL: Firebase Admin SDK initialization failed.', error);
-    throw new Error(`Failed to initialize Firebase Admin SDK. Please check your environment variables (for local dev) or your hosting environment's service account permissions (for production). Error: ${error.message}`);
+    throw new Error(`Failed to initialize Firebase Admin SDK. This is likely an issue with the hosting environment's service account permissions. Error: ${error.message}`);
   }
 }
 
