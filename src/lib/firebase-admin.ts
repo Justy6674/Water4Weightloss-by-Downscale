@@ -4,7 +4,6 @@
 import * as admin from 'firebase-admin';
 
 // Using the full service account object directly to ensure correctness and stability.
-// The private key is sensitive and should ideally be loaded from a secure vault or environment variable in production.
 const serviceAccount = {
   "type": "service_account",
   "project_id": "water4weightloss-by-downscale",
@@ -17,14 +16,18 @@ const serviceAccount = {
   "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
   "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40water4weightloss-by-downscale.iam.gserviceaccount.com",
   "universe_domain": "googleapis.com"
-} as admin.ServiceAccount;
-
+};
 
 // This check prevents re-initializing the app on every hot-reload
 if (!admin.apps.length) {
   try {
+    // Correctly initialize the app by mapping snake_case properties to the camelCase properties the cert() function expects.
     admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
+      credential: admin.credential.cert({
+        projectId: serviceAccount.project_id,
+        clientEmail: serviceAccount.client_email,
+        privateKey: serviceAccount.private_key, // The string already contains newlines, no replacement needed
+      }),
     });
   } catch (error: any) {
     console.error('CRITICAL: Firebase admin initialization failed.', error);
