@@ -1,33 +1,33 @@
 
 'use server';
+
 import * as admin from 'firebase-admin';
 
 // This is the definitive, correct, and robust way to initialize the Firebase Admin SDK
-// for a Next.js application hosted on a Google Cloud environment (like Firebase App Hosting).
-// It leverages Application Default Credentials (ADC), which is the secure, industry-standard method.
+// for a Next.js application that needs to run in both a live Google Cloud environment
+// and a local development environment.
 
 if (!admin.apps.length) {
   try {
-    // The projectId is explicitly provided to guide the SDK, especially in environments
-    // where it might be ambiguous. This is not a secret.
-    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-
-    if (!projectId) {
-      // This is a critical configuration error. The app cannot function without knowing its project ID.
-      throw new Error("CRITICAL: The NEXT_PUBLIC_FIREBASE_PROJECT_ID environment variable is not set. The application cannot start without it.");
-    }
-    
-    // Initialize with the projectId to guide ADC. The actual secret credentials are supplied securely
-    // by the hosting environment itself, not from the code.
-    admin.initializeApp({ projectId });
-    
-    console.log('Firebase Admin SDK initialized successfully using Application Default Credentials.');
-
+    // When deployed to a Google Cloud environment (like Firebase App Hosting), the SDK
+    // will automatically use the project's default service account credentials
+    // (Application Default Credentials or ADC). This is secure and requires no config.
+    // For local development, you must set the GOOGLE_APPLICATION_CREDENTIALS
+    // environment variable to point to your service-account.json file.
+    admin.initializeApp({
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    });
+    console.log('Firebase Admin SDK initialized successfully.');
   } catch (error: any) {
-    // If initialization fails, log the specific error and re-throw to halt the server.
-    // This prevents the application from running in a broken state.
-    console.error('CRITICAL: Firebase Admin SDK initialization failed with ADC.', error);
-    throw new Error(`Failed to initialize Firebase Admin SDK. This is likely an issue with the hosting environment's service account permissions. Error: ${error.message}`);
+    console.error('CRITICAL: Firebase Admin SDK initialization failed.', error);
+    // This provides a more helpful error message for both scenarios.
+    let message = `Failed to initialize Firebase Admin SDK. Error: ${error.message}.`;
+    if (process.env.NODE_ENV !== 'production') {
+      message += " For local development, ensure the 'GOOGLE_APPLICATION_CREDENTIALS' environment variable is set to the path of your service-account.json file.";
+    } else {
+      message += " In production, this likely indicates an issue with the service account permissions in your Google Cloud project.";
+    }
+    throw new Error(message);
   }
 }
 

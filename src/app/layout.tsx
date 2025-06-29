@@ -26,23 +26,8 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: 'Water4Weightloss',
   description: 'Track your hydration and achieve your weight loss goals.',
-  manifest: '/manifest.json',
   icons: {
     icon: '/favicon.ico',
-    shortcut: '/favicon-16x16.png',
-    apple: '/apple-touch-icon.png',
-    other: [
-      {
-        rel: 'icon',
-        url: '/favicon-32x32.png',
-        sizes: '32x32',
-      },
-      {
-        rel: 'icon',
-        url: '/android-chrome-192x192.png',
-        sizes: '192x192',
-      },
-    ],
   },
   themeColor: '#334155',
 };
