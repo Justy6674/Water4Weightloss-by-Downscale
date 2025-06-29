@@ -149,7 +149,7 @@ export function InfoContent() {
             <AccordionItem value="item-3">
                 <AccordionTrigger className="text-xl text-left font-headline hover:no-underline">Understanding BMI &amp; Waist Measurements</AccordionTrigger>
                 <AccordionContent>
-                     <div className="space-y-6 pt-2 prose prose-invert prose-p:text-card-foreground/90 prose-headings:text-foreground prose-h3:text-xl prose-h4:text-lg prose-strong:text-foreground prose-ol:list-decimal prose-ol:pl-6 prose-ol:space-y-2 prose-blockquote:border-primary prose-blockquote:text-muted-foreground">
+                     <div className="space-y-6 pt-2 prose prose-invert prose-p:text-card-foreground/90 prose-headings:text-foreground prose-h3:text-xl prose-h4:text-lg prose-strong:text-foreground prose-ul:list-disc prose-ul:pl-6 prose-ul:space-y-2 prose-blockquote:border-primary prose-blockquote:text-muted-foreground">
                         <section>
                             <h3>A Patient-First Approach to Health</h3>
                             <p>
@@ -164,12 +164,25 @@ export function InfoContent() {
                             <h3>What Are We Measuring?</h3>
                             <h4>Body Mass Index (BMI)</h4>
                             <p>
-                                BMI is a simple screening tool that uses your height and weight to estimate body fat. It's widely used, but it's important to understand its limitations. BMI does not account for muscle mass, bone density, or differences in body composition between genders and ethnicities. It is best used as a starting point for a conversation about health, not a final verdict.
+                                BMI is a simple screening tool that uses your height and weight to estimate body fat. It's widely used, but it's important to understand its limitations. BMI does not account for muscle mass, bone density, or differences in body composition between genders and ethnicities. It is best used as a starting point for a conversation about health, not as a final verdict. Here are the standard BMI categories used for screening:
                             </p>
+                            <ul>
+                                <li><strong>18.5 - 24.9:</strong> Generally considered in the normal weight range.</li>
+                                <li><strong>25.0 - 29.9:</strong> Classified as overweight.</li>
+                                <li><strong>30.0 - 34.9:</strong> Classified as Class I Obesity.</li>
+                                <li><strong>35.0 - 39.9:</strong> Classified as Class II Obesity.</li>
+                                <li><strong>40.0 and above:</strong> Classified as Class III Obesity.</li>
+                            </ul>
+
                             <h4 className="mt-4">Waist Circumference</h4>
                             <p>
-                                Measuring your waist is another helpful tool because it gives an idea of abdominal fat. An increase in waist size is linked to a higher risk of metabolic conditions like type 2 diabetes and heart disease. For most men, a goal is often under 102 cm (40 inches), and for women, under 88 cm (35 inches), though these can vary by ethnicity.
+                                Measuring your waist is another helpful tool because it gives an idea of abdominal fat, which is linked to metabolic health. For screening purposes, the following general cut-off points are often used:
                             </p>
+                           <ul>
+                                <li><strong>For Men:</strong> A waist circumference of 102 cm (40 inches) or more is often considered a risk factor.</li>
+                                <li><strong>For Women:</strong> A waist circumference of 88 cm (35 inches) or more is often considered a risk factor.</li>
+                            </ul>
+                            <p>It's important to note that these thresholds can vary by ethnicity. For example, lower cut-off points are often more appropriate for individuals of Asian descent.</p>
                         </section>
                         <Separator />
                         <section>
@@ -177,7 +190,7 @@ export function InfoContent() {
                             <p>
                                 When body fat increases to a point where it affects health, the challenges can be thought of in two main ways:
                             </p>
-                            <ul className="list-disc space-y-2 pl-6">
+                            <ul>
                                 <li>
                                     <strong>Fat Mass Disease:</strong> This refers to the physical and mechanical stress that excess weight can place on the body. This can lead to issues like osteoarthritis in the knees and hips, sleep apnea, or acid reflux.
                                 </li>
@@ -192,7 +205,7 @@ export function InfoContent() {
                             <p>
                                 Managing obesity is about much more than just the number on the scale; it's about improving your overall health and quality of life. Even a modest weight loss of 5-10% can lead to significant health improvements:
                             </p>
-                             <ul className="list-disc space-y-2 pl-6">
+                             <ul>
                                 <li>Improved blood sugar, blood pressure, and cholesterol levels.</li>
                                 <li>Reduced stress on joints and improved mobility.</li>
                                 <li>Better sleep and reduced risk of sleep apnea.</li>
@@ -239,5 +252,7 @@ export function InfoContent() {
     </div>
   )
 }
+
+    
 
     
