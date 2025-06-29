@@ -611,8 +611,8 @@ const getCreateDbInstructions = () => (
             <TabsContent value="information">
                 <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
                     <CardHeader>
-                        <CardTitle className="text-3xl font-headline">The Science of Hydration</CardTitle>
-                        <CardDescription>Information provided by Downscale Weight Loss Clinic.</CardDescription>
+                        <CardTitle className="text-3xl font-headline">Health & Hydration Information</CardTitle>
+                        <CardDescription>Expand the topics below to learn more.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <InfoContent />

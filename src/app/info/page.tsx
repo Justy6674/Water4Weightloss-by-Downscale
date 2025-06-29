@@ -19,12 +19,12 @@ function InfoPageContents() {
 
         <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
           <CardHeader>
-            <CardTitle className="text-3xl font-headline">The Science of Hydration for Weight Loss</CardTitle>
+            <CardTitle className="text-3xl font-headline">Health & Hydration Information</CardTitle>
             <CardDescription className="text-lg">
-              Information provided by Downscale Weight Loss Clinic.
+              Guidance and information provided by Downscale Weight Loss Clinic.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6 prose prose-invert prose-p:text-card-foreground/90 prose-headings:text-foreground prose-h2:text-2xl prose-h3:text-xl prose-strong:text-foreground">
+          <CardContent>
             <InfoContent />
           </CardContent>
         </Card>
