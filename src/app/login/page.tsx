@@ -17,9 +17,6 @@ import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { 
   signInWithEmailAndPassword, 
-  setPersistence, 
-  browserLocalPersistence, 
-  browserSessionPersistence, 
   onAuthStateChanged, 
   signInWithPopup,
   GoogleAuthProvider,
@@ -50,6 +47,12 @@ function LoginPageContents() {
     const [authError, setAuthError] = useState<string | null>(null);
     const router = useRouter()
     const { toast } = useToast()
+    
+    // On component mount, sync the "remember me" state with localStorage
+    useEffect(() => {
+        const savedPreference = JSON.parse(localStorage.getItem('rememberMe') || 'true');
+        setRememberMe(savedPreference);
+    }, []);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -65,13 +68,17 @@ function LoginPageContents() {
       }
     }, [user, router]);
 
+    const handleRememberMeChange = (checked: boolean) => {
+        setRememberMe(checked);
+        localStorage.setItem('rememberMe', JSON.stringify(checked));
+    };
+
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsLoading(true)
         setAuthError(null);
         try {
-            const persistence = rememberMe ? browserLocalPersistence : browserSessionPersistence;
-            await setPersistence(auth, persistence)
+            // Persistence is now set globally in firebase.ts, so we just sign in.
             await signInWithEmailAndPassword(auth, email, password)
         } catch (error) {
             const firebaseError = error as { code?: string; message: string };
@@ -122,7 +129,7 @@ function LoginPageContents() {
             <Image
                 src="/brick wall background login.png"
                 alt="Brick wall background"
-                layout="fill"
+                fill
                 objectFit="cover"
                 objectPosition="top"
                 priority
@@ -185,7 +192,7 @@ function LoginPageContents() {
                             <Checkbox
                                 id="remember-me"
                                 checked={rememberMe}
-                                onCheckedChange={(checked) => setRememberMe(!!checked)}
+                                onCheckedChange={(checked) => handleRememberMeChange(!!checked)}
                                 disabled={isLoading}
                                 className="border-[#6a5349] data-[state=checked]:bg-[#6a5349] data-[state=checked]:text-[#f7f2d3]"
                             />

@@ -1,7 +1,7 @@
 
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { getAuth, setPersistence, browserLocalPersistence, browserSessionPersistence } from "firebase/auth";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 
 const firebaseConfig = {
@@ -44,6 +44,18 @@ if (missingKeys.length > 0) {
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
+const auth = getAuth(app);
+
+// Set persistence on the client side based on user's last choice
+if (typeof window !== "undefined") {
+    const rememberMe = JSON.parse(localStorage.getItem('rememberMe') || 'true');
+    const persistence = rememberMe ? browserLocalPersistence : browserSessionPersistence;
+    setPersistence(auth, persistence)
+      .catch((error) => {
+        console.error("Firebase persistence error:", error);
+      });
+}
+
 // Initialize App Check only on the client side, and only in production
 if (typeof window !== "undefined" && process.env.NODE_ENV === 'production') {
   initializeAppCheck(app, {
@@ -53,6 +65,5 @@ if (typeof window !== "undefined" && process.env.NODE_ENV === 'production') {
 }
 
 const db = getFirestore(app);
-const auth = getAuth(app);
 
 export { app, db, auth };
