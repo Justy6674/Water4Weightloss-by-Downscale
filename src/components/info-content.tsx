@@ -233,81 +233,81 @@ export function InfoContent() {
             <AccordionItem value="item-4">
                 <AccordionTrigger className="text-xl text-left font-headline hover:no-underline">Medications for Weight Loss</AccordionTrigger>
                 <AccordionContent>
-                     <div className="space-y-6 pt-2 prose prose-invert prose-p:text-card-foreground/90 prose-headings:text-foreground prose-h3:text-xl prose-h4:text-lg prose-h5:font-bold prose-strong:text-foreground prose-ul:list-disc prose-ul:pl-6 prose-ul:space-y-2 prose-ol:list-decimal prose-ol:pl-6 prose-ol:space-y-2 prose-blockquote:border-primary prose-blockquote:text-muted-foreground">
+                    <div className="space-y-6 pt-2 prose prose-invert prose-p:text-card-foreground/90 prose-headings:text-foreground prose-h3:text-xl prose-h4:text-lg prose-h5:font-bold prose-strong:text-foreground prose-ul:list-disc prose-ul:pl-6 prose-ul:space-y-2 prose-ol:list-decimal prose-ol:pl-6 prose-ol:space-y-2 prose-blockquote:border-primary prose-blockquote:text-muted-foreground">
                         <section>
-                          <h4>GLP-1 and Dual-Incretin Agonists</h4>
-                          <p>Several large trials show dramatic weight loss with this class of medications, which work by mimicking gut hormones to regulate appetite and blood sugar.</p>
-                          
-                          <h5>Tirzepatide (Mounjaro / Zepbound)</h5>
-                          <p>A dual-agonist that acts on both GIP and GLP-1 receptors.</p>
-                          <ul>
-                            <li>In the SURMOUNT-1 trial, people without diabetes taking tirzepatide lost between <strong>15% to 20.9%</strong> of their body weight over 72 weeks, compared to just 3.1% with placebo.<sup>[1]</sup></li>
-                            <li>In the SURMOUNT-2 trial, people with type 2 diabetes lost between <strong>13% to 15%</strong> of their body weight.<sup>[2]</sup></li>
-                             <li>Compared directly to Semaglutide 1mg, Tirzepatide showed greater weight loss in the SURPASS-2 trial (~11.2 kg vs ~5.7 kg).<sup>[3]</sup></li>
-                          </ul>
+                            <h4>GLP-1 and Dual-Incretin Agonists</h4>
+                            <p>Several large trials show dramatic weight loss with this class of medications, which work by mimicking gut hormones to regulate appetite and blood sugar.</p>
 
-                          <h5>Semaglutide (Ozempic / Wegovy / Rybelsus)</h5>
-                          <p>A GLP-1 agonist available as a weekly injection or a daily oral tablet.</p>
-                           <ul>
-                            <li>In the STEP-1 trial, people without diabetes using the 2.4mg injection lost an average of <strong>14.9%</strong> of their body weight over 68 weeks.<sup>[4]</sup></li>
-                            <li>In the STEP-2 trial, people with type 2 diabetes lost around <strong>9.6%</strong> of their body weight.<sup>[5]</sup></li>
-                            <li>When compared directly, the 2.4mg injection of Semaglutide led to more weight loss than daily Liraglutide 3.0mg (15.8% vs 6.4%).<sup>[7]</sup></li>
-                            <li>Oral semaglutide (Rybelsus) has been shown to produce more modest weight loss (~4.3kg) in studies.<sup>[9]</sup></li>
-                          </ul>
+                            <h5>Tirzepatide (Mounjaro / Zepbound)</h5>
+                            <p>A dual-agonist that acts on both GIP and GLP-1 receptors.</p>
+                            <ul>
+                                <li>In the SURMOUNT-1 trial, people without diabetes taking tirzepatide lost between <strong>15% to 20.9%</strong> of their body weight over 72 weeks, compared to just 3.1% with placebo.<sup>[1]</sup></li>
+                                <li>In the SURMOUNT-2 trial, people with type 2 diabetes lost between <strong>13% to 15%</strong> of their body weight.<sup>[2]</sup></li>
+                                <li>Compared directly to Semaglutide 1mg, Tirzepatide showed greater weight loss in the SURPASS-2 trial (~11.2 kg vs ~5.7 kg).<sup>[3]</sup></li>
+                            </ul>
 
-                          <h5>Liraglutide (Saxenda)</h5>
-                          <p>A daily injectable GLP-1 agonist.</p>
-                           <ul>
-                            <li>In the SCALE trial, Liraglutide 3.0mg led to an average weight reduction of <strong>8-9%</strong> (~8.4 kg) over 56 weeks.<sup>[10]</sup></li>
-                          </ul>
+                            <h5>Semaglutide (Ozempic / Wegovy / Rybelsus)</h5>
+                            <p>A GLP-1 agonist available as a weekly injection or a daily oral tablet.</p>
+                            <ul>
+                                <li>In the STEP-1 trial, people without diabetes using the 2.4mg injection lost an average of <strong>14.9%</strong> of their body weight over 68 weeks.<sup>[4]</sup></li>
+                                <li>In the STEP-2 trial, people with type 2 diabetes lost around <strong>9.6%</strong> of their body weight.<sup>[5]</sup></li>
+                                <li>When compared directly, the 2.4mg injection of Semaglutide led to more weight loss than daily Liraglutide 3.0mg (15.8% vs 6.4%).<sup>[7]</sup></li>
+                                <li>Oral semaglutide (Rybelsus) has been shown to produce more modest weight loss (~4.3kg) in studies.<sup>[9]</sup></li>
+                            </ul>
+
+                            <h5>Liraglutide (Saxenda)</h5>
+                            <p>A daily injectable GLP-1 agonist.</p>
+                            <ul>
+                                <li>In the SCALE trial, Liraglutide 3.0mg led to an average weight reduction of <strong>8-9%</strong> (~8.4 kg) over 56 weeks.<sup>[10]</sup></li>
+                            </ul>
                         </section>
 
                         <Separator/>
 
                         <section>
-                          <h4>Other Approved Drugs</h4>
-                           <h5>Phentermine (± topiramate)</h5>
-                           <p>A short-term stimulant that suppresses appetite. Combination therapy with topiramate (Qsymia) can lead to weight loss of <strong>10-12%</strong>. Phentermine alone is FDA-approved only for short-term use (≤12 weeks).<sup>[11, 12]</sup></p>
+                            <h4>Other Approved Drugs</h4>
+                            <h5>Phentermine (± topiramate)</h5>
+                            <p>A short-term stimulant that suppresses appetite. Combination therapy with topiramate (Qsymia) can lead to weight loss of <strong>10-12%</strong>. Phentermine alone is FDA-approved only for short-term use (≤12 weeks).<sup>[11, 12]</sup></p>
 
-                           <h5>Metformin</h5>
-                           <p>Though not an official weight-loss drug, it often causes modest weight reduction (<strong>~2-3%</strong> of body weight) and is frequently used off-label.<sup>[13]</sup></p>
-                           
-                           <h5>Others</h5>
-                           <p>Naltrexone/bupropion (Contrave) can produce ~5-6% weight loss<sup>[14]</sup>, and Orlistat (Xenical) yields ~3% more weight loss than placebo<sup>[15]</sup>.</p>
+                            <h5>Metformin</h5>
+                            <p>Though not an official weight-loss drug, it often causes modest weight reduction (<strong>~2-3%</strong> of body weight) and is frequently used off-label.<sup>[13]</sup></p>
+                            
+                            <h5>Others</h5>
+                            <p>Naltrexone/bupropion (Contrave) can produce ~5-6% weight loss<sup>[14]</sup>, and Orlistat (Xenical) yields ~3% more weight loss than placebo<sup>[15]</sup>.</p>
+                        </section>
+
+                        <Separator/>
+
+                        <section>
+                            <h4>New and Emerging Therapies</h4>
+                            <p>New drugs show even greater promise. <strong>Retatrutide</strong>, a triple-agonist (GLP-1/GIP/glucagon), has shown early results of up to <strong>24.2%</strong> weight loss in a 48-week trial.<sup>[16]</sup> Other oral options like <strong>Danuglipron</strong> are also in development.<sup>[17]</sup></p>
+                        </section>
+                        
+                        <Separator/>
+
+                        <section>
+                            <h4>Efficacy Summary</h4>
+                            <ul>
+                                <li><strong>Tirzepatide (Mounjaro/Zepbound)</strong>: Up to ~21% weight loss.<sup>[1]</sup></li>
+                                <li><strong>Semaglutide (Wegovy)</strong>: ~15% weight loss.<sup>[4]</sup></li>
+                                <li><strong>Liraglutide (Saxenda)</strong>: ~8% weight loss.<sup>[10]</sup></li>
+                                <li><strong>Phentermine/Topiramate (Qsymia)</strong>: ~10-12% weight loss.<sup>[12]</sup></li>
+                                <li><strong>Metformin</strong>: Typically &lt;5% body weight.<sup>[13]</sup></li>
+                            </ul>
+                            <p>These results greatly exceed older drugs and often shift the average weight loss into double digits compared to the ~2-3% seen with lifestyle changes alone.<sup>[1, 4]</sup></p>
                         </section>
 
                         <Separator/>
                         
                         <section>
-                          <h4>New and Emerging Therapies</h4>
-                          <p>New drugs show even greater promise. <strong>Retatrutide</strong>, a triple-agonist (GLP-1/GIP/glucagon), has shown early results of up to <strong>24.2%</strong> weight loss in a 48-week trial.<sup>[16]</sup> Other oral options like **Danuglipron** are also in development.<sup>[17]</sup></p>
-                        </section>
-                        
-                        <Separator/>
-
-                        <section>
-                          <h4>Efficacy Summary</h4>
-                          <ul>
-                            <li><strong>Tirzepatide (Mounjaro/Zepbound)</strong>: Up to ~21% weight loss.<sup>[1]</sup></li>
-                            <li><strong>Semaglutide (Wegovy)</strong>: ~15% weight loss.<sup>[4]</sup></li>
-                            <li><strong>Liraglutide (Saxenda)</strong>: ~8% weight loss.<sup>[10]</sup></li>
-                            <li><strong>Phentermine/Topiramate (Qsymia)</strong>: ~10-12% weight loss.<sup>[12]</sup></li>
-                            <li><strong>Metformin</strong>: Typically &lt;5% body weight.<sup>[13]</sup></li>
-                          </ul>
-                          <p>These results greatly exceed older drugs and often shift the average weight loss into double digits compared to the ~2-3% seen with lifestyle changes alone.<sup>[1, 4]</sup></p>
-                        </section>
-
-                        <Separator/>
-                        
-                        <section>
-                          <h4>Safety &amp; Contraindications</h4>
-                           <p>All medications have side effects and must be prescribed and monitored by a physician.</p>
-                           <ul>
-                            <li><strong>GLP-1 Agonists (Tirzepatide, Semaglutide, Liraglutide)</strong>: Common side effects are gastrointestinal (nausea, vomiting, diarrhea), which usually lessen over time.<sup>[1, 4, 10]</sup> They are contraindicated in patients with a personal or family history of medullary thyroid carcinoma or MEN2 syndrome.</li>
-                            <li><strong>Phentermine</strong>: Can raise heart rate and blood pressure and is contraindicated in those with uncontrolled hypertension, heart disease, or hyperthyroidism.</li>
-                             <li><strong>Metformin</strong>: Generally safe but should be avoided in severe kidney or liver disease.</li>
-                           </ul>
-                           <p>The safety and efficacy of these drugs depend on proper medical supervision, titration, and combination with lifestyle changes.</p>
+                            <h4>Safety &amp; Contraindications</h4>
+                            <p>All medications have side effects and must be prescribed and monitored by a physician.</p>
+                            <ul>
+                                <li><strong>GLP-1 Agonists (Tirzepatide, Semaglutide, Liraglutide)</strong>: Common side effects are gastrointestinal (nausea, vomiting, diarrhea), which usually lessen over time.<sup>[1, 4, 10]</sup> They are contraindicated in patients with a personal or family history of medullary thyroid carcinoma or MEN2 syndrome.</li>
+                                <li><strong>Phentermine</strong>: Can raise heart rate and blood pressure and is contraindicated in those with uncontrolled hypertension, heart disease, or hyperthyroidism.</li>
+                                 <li><strong>Metformin</strong>: Generally safe but should be avoided in severe kidney or liver disease.</li>
+                               </ul>
+                               <p>The safety and efficacy of these drugs depend on proper medical supervision, titration, and combination with lifestyle changes.</p>
                         </section>
 
                         <Separator/>
@@ -341,8 +341,3 @@ export function InfoContent() {
     </div>
   )
 }
-
-    
-
-    
-
