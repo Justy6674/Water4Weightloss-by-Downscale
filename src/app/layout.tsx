@@ -1,10 +1,27 @@
 
 import type {Metadata} from 'next';
+import { Inter, Roboto, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { BookUser } from 'lucide-react';
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-body',
+});
+
+const roboto = Roboto({
+  subsets: ['latin'],
+  display: 'swap',
+  weight: ['400', '700', '900'],
+  variable: '--font-headline',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-code',
+});
 
 export const metadata: Metadata = {
   title: 'Water4Weightloss',
@@ -23,12 +40,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Roboto:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
-      </head>
+    <html lang="en" className={`dark ${inter.variable} ${roboto.variable} ${jetbrainsMono.variable}`}>
+      <head />
       <body className="font-body antialiased flex flex-col min-h-screen">
         <div className="flex-grow">
           {children}
@@ -44,5 +57,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-    
