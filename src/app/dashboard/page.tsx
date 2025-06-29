@@ -444,7 +444,7 @@ const getCreateDbInstructions = () => (
       await auth.signOut()
       toast({ title: "Account Data Deleted", description: "All your data has been successfully removed." })
     } catch (error) {
-      console.error("Failed to delete account:", error)
+      console.warn("Failed to delete account:", error)
       const description = error instanceof Error ? error.message : "Could not delete your account data. Please try again."
       toast({ variant: "destructive", title: "Deletion Error", description })
     } finally {
@@ -485,19 +485,19 @@ const getCreateDbInstructions = () => (
   return (
     <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 lg:p-8 font-body">
       {showConfetti && <Confetti onConfettiComplete={() => setShowConfetti(false)} />}
-      <header className="mb-4 flex justify-between items-center">
+      <header className="mb-8 flex justify-between items-center">
         <div className="flex items-center gap-2 sm:gap-4">
             <Image src="/logo.png" alt="Water4Weightloss Logo" width={40} height={40} className="sm:w-[50px] sm:h-[50px]" data-ai-hint="water droplet" />
             <div>
-              <h1 className="text-xl sm:text-3xl font-headline font-bold text-secondary tracking-tight">Water4Weightloss</h1>
-              <p className="text-muted-foreground text-xs sm:text-base">Welcome, {user.email}</p>
+              <h1 className="text-xl sm:text-2xl font-headline font-bold text-secondary tracking-tight">Water4Weightloss</h1>
+              <p className="text-muted-foreground text-xs sm:text-sm">Welcome, {user.email}</p>
             </div>
         </div>
         
         <Sheet>
             <SheetTrigger asChild>
                 <Button variant="outline" size="icon">
-                    <Settings className="h-6 w-6" />
+                    <Settings className="h-5 w-5" />
                 </Button>
             </SheetTrigger>
             <SheetContent className="w-full sm:max-w-md p-0 flex flex-col">
@@ -590,7 +590,7 @@ const getCreateDbInstructions = () => (
                                         <Flame className="w-5 h-5 text-amber-500" />
                                         <p className="font-medium text-sm sm:text-base">Daily Hydration Streak</p>
                                     </div>
-                                    <p className="font-bold text-lg sm:text-2xl text-primary">{userData.streak} <span className="text-sm sm:text-base font-medium text-muted-foreground">{userData.streak === 1 ? 'day' : 'days'}</span></p>
+                                    <p className="font-bold text-lg sm:text-xl text-primary">{userData.streak} <span className="text-sm font-medium text-muted-foreground">{userData.streak === 1 ? 'day' : 'days'}</span></p>
                                 </div>
                             )}
                             {userData.appSettings.progressMilestones && (
@@ -633,28 +633,11 @@ const getCreateDbInstructions = () => (
                             <CardTitle>Log Your Intake</CardTitle>
                         </CardHeader>
                         <CardContent>
-                             <Tabs defaultValue="quick" className="w-full">
-                                <TabsList className="grid w-full grid-cols-3">
-                                <TabsTrigger value="quick">Quick Add</TabsTrigger>
+                             <Tabs defaultValue="bottles" className="w-full">
+                                <TabsList className="grid w-full grid-cols-2">
                                 <TabsTrigger value="bottles">Bottles</TabsTrigger>
                                 <TabsTrigger value="custom">Custom</TabsTrigger>
                                 </TabsList>
-                                <TabsContent value="quick" className="pt-4">
-                                <div className="grid grid-cols-3 gap-2 w-full">
-                                    <Button variant="secondary" onClick={() => handleAddWater(50)} className="h-auto flex-col py-2 gap-0">
-                                    <span className="font-semibold">Sip</span>
-                                    <span className="text-xs text-muted-foreground">50ml</span>
-                                    </Button>
-                                    <Button variant="secondary" onClick={() => handleAddWater(150)} className="h-auto flex-col py-2 gap-0">
-                                    <span className="font-semibold">Small</span>
-                                    <span className="text-xs text-muted-foreground">150ml</span>
-                                    </Button>
-                                    <Button variant="secondary" onClick={() => handleAddWater(300)} className="h-auto flex-col py-2 gap-0">
-                                    <span className="font-semibold">Large</span>
-                                    <span className="text-xs text-muted-foreground">300ml</span>
-                                    </Button>
-                                </div>
-                                </TabsContent>
                                 <TabsContent value="bottles" className="pt-4">
                                 <div className="grid grid-cols-3 gap-2 w-full">
                                     <Button variant="secondary" onClick={() => handleAddWater(600)} className="h-auto flex-col py-2 gap-0">
@@ -723,10 +706,10 @@ const getCreateDbInstructions = () => (
             </TabsContent>
       </Tabs>
 
-      <footer className="mt-auto p-4 text-muted-foreground text-xs sm:text-sm border-t">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
-           <p className="text-center sm:text-left">&copy; 2024 Water4Weightloss. All rights reserved.</p>
-           <p className="text-center sm:text-right">This is a demo application. Please consult a healthcare professional for medical advice.</p>
+      <footer className="mt-auto pt-8 text-muted-foreground text-xs sm:text-sm border-t">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-center">
+           <p className="flex-1">&copy; 2024 Water4Weightloss. All rights reserved.</p>
+           <p className="flex-1">This is a demo application. Please consult a healthcare professional for medical advice.</p>
         </div>
       </footer>
 
@@ -751,3 +734,5 @@ const getCreateDbInstructions = () => (
 export default function Dashboard() {
   return <DashboardContents />
 }
+
+    
