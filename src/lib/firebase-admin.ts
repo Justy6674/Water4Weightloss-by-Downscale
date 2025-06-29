@@ -21,13 +21,10 @@ const serviceAccount = {
 // This check prevents re-initializing the app on every hot-reload
 if (!admin.apps.length) {
   try {
-    // Correctly initialize the app by mapping snake_case properties to the camelCase properties the cert() function expects.
+    // The `cert` function is designed to accept the entire service account JSON object.
+    // My previous attempts to manually map keys were incorrect and caused the failure.
     admin.initializeApp({
-      credential: admin.credential.cert({
-        projectId: serviceAccount.project_id,
-        clientEmail: serviceAccount.client_email,
-        privateKey: serviceAccount.private_key, // The string already contains newlines, no replacement needed
-      }),
+      credential: admin.credential.cert(serviceAccount as any),
     });
   } catch (error: any) {
     console.error('CRITICAL: Firebase admin initialization failed.', error);
