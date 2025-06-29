@@ -73,7 +73,7 @@ export const WaterGlass = ({ percentage }: { percentage: number }) => {
         </div>
       </div>
        <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 text-center pointer-events-none">
-        <span className="font-headline text-5xl font-black text-white" style={{WebkitTextStroke: '1px hsl(var(--primary))', textShadow: '2px 2px 4px hsl(var(--background))'}}>{Math.round(waterHeight)}%</span>
+        <span className="font-headline text-5xl font-black text-white" style={{textShadow: '2px 2px 4px hsl(var(--background))'}}>{Math.round(waterHeight)}%</span>
         <p className="font-code text-sm text-white/80 font-bold">Hydrated</p>
       </div>
     </div>
