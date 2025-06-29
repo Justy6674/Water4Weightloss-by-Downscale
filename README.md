@@ -71,19 +71,11 @@ Follow these steps to set up the development environment.
     npm install
     ```
 
-3.  **Install backend dependencies:**
-
-    ```bash
-    cd functions
-    npm install
-    cd ..
-    ```
-
 ### 3\. Environment Variables & Service Account
 
 **Step 1: Create `.env.local`**
 
-Create a file named `.env.local` in the root directory and populate it with the necessary keys from your Firebase project and third-party services. These keys are for client-side functionality and server-side APIs like Google AI and Twilio.
+Create a file named `.env.local` in the root directory and populate it with the necessary keys from your Firebase project and third-party services.
 
 ```bash
 # .env.local
@@ -97,25 +89,30 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID=
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
 NEXT_PUBLIC_FIREBASE_APP_ID=
-NEXT_PUBLIC_RECAPTCHA_SITE_KEY= # From your Google Cloud Console -> reCAPTCHA
+NEXT_PUBLIC_RECAPTCHA_SITE_KEY=
+
+# --- Server-Side Service Secrets (for Local Development) ---
+# These are required ONLY for running the server-side code on your local machine.
+# Copy these values from your Firebase service-account.json file.
+# IMPORTANT: The private key must be enclosed in double quotes.
+FIREBASE_PROJECT_ID=""
+FIREBASE_CLIENT_EMAIL=""
+FIREBASE_PRIVATE_KEY=""
 
 # --- Other Services (Server-Side Secrets) ---
-# These are for server-side functions and MUST NOT be prefixed with NEXT_PUBLIC_
 GOOGLE_AI_API_KEY=
 TWILIO_ACCOUNT_SID=
 TWILIO_AUTH_TOKEN=
 TWILIO_PHONE_NUMBER=
 ```
 
-**Step 2: Add `service-account.json`**
+**Step 2: Get Your Service Account Credentials**
 
-For secure server-side operations (like sending push notifications), the application uses a Firebase service account.
-
+For local development, you need the three `FIREBASE_ADMIN_*` values.
 1.  In your Firebase Project Settings, go to the **Service accounts** tab.
 2.  Click **Generate new private key** and download the JSON file.
-3.  Rename the downloaded file to `service-account.json`.
-4.  Place this file in the **root directory** of the project.
-5.  **Important:** This file contains highly sensitive secrets and should **never** be committed to public version control. Ensure it is listed in your `.gitignore` file. **The application reads this file directly for local development.**
+3.  Open the downloaded file and copy the `project_id`, `client_email`, and `private_key` values into the corresponding variables in your `.env.local` file.
+4.  **Important:** For the `FIREBASE_PRIVATE_KEY`, ensure the entire key, including `-----BEGIN PRIVATE KEY-----` and `-----END PRIVATE KEY-----`, is enclosed in double quotes (`"`).
 
 ### 4\. Run the Application
 
@@ -129,19 +126,17 @@ The application will be available at `http://localhost:3000`.
 
 ## 🗂️ Project Structure
 
-The codebase is organized into a clean, modern Next.js and Firebase project structure.
+The codebase is organized into a clean, modern Next.js project structure.
 
 ```
 water4weightloss/
-├── functions/          # All Backend Firebase Functions
-│   └── src/
 ├── public/             # Static assets (images, fonts)
 ├── src/
 │   ├── app/            # Next.js app router pages
 │   ├── components/     # Reusable React components
 │   ├── lib/            # Helper functions, Firebase config
 │   └── types/          # TypeScript type definitions
-├── service-account.json # Server-side credentials (DO NOT COMMIT)
+├── .env.local          # Environment variables (DO NOT COMMIT if public repo)
 └── firebase.json       # Firebase project configuration
 ```
 
@@ -154,22 +149,6 @@ This manifesto governs our development philosophy, including:
   * Thinking full-stack and avoiding tunnel vision.
   * Writing durable, high-quality code instead of quick patches.
   * Prioritizing security and cost-optimization for Firebase services.
-
-## 📈 Project Vision & Roadmap
-
-This section outlines the business and strategic goals for the project.
-
-### Pricing Model (Australia Only)
-
-  * **Standard**: $9.95 AUD/month
-  * **Downscale Patients**: 50% lifetime discount ($4.98 AUD/month)
-
-### Launch Strategy
-
-  * **Phase 1 (Month 1 - MVP)**: Core tracking, basic AI, and authentication.
-  * **Phase 2 (Month 2 - Gamification)**: Streaks, badges, and body metric tracking.
-  * **Phase 3 (Month 3 - Monetization)**: Premium features and SMS integration (2 max a day to keep costs down).
-  * **Phase 4 (Month 4+)**: Scaling, partnerships, and potential expansion.
 
 -----
 

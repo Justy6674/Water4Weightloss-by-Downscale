@@ -1,40 +1,45 @@
 
 'use server';
 
+// The 'dotenv' package is required to load environment variables from .env.local for server-side code.
+// This is crucial for local development and the build process.
+import 'dotenv/config';
 import * as admin from 'firebase-admin';
 
 // This guard ensures the SDK is initialized only once.
 if (!admin.apps.length) {
   try {
-    // This setup is designed to work for both local development and deployment.
-    // It relies on the service-account.json file being present and correct.
-    console.log('Initializing Firebase Admin SDK...');
-    const serviceAccount = require('../../service-account.json');
+    console.log('Attempting to initialize Firebase Admin SDK...');
     
-    // Validate that the required properties exist.
-    if (!serviceAccount.project_id || !serviceAccount.private_key || !serviceAccount.client_email || serviceAccount.project_id.includes('YOUR_PROJECT_ID')) {
-        throw new Error('The service-account.json file is missing, incomplete, or contains placeholder values. Please ensure it is correctly placed in the root directory and contains your project\'s actual credentials.');
+    // This is the correct, robust way to initialize for both local and deployed environments.
+    // It prioritizes environment variables for local development, which is safer and more standard than file I/O.
+    // For deployed environments (like App Hosting), it will fall back to Application Default Credentials.
+    const serviceAccount = {
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'), // IMPORTANT: Fix for PEM key formatting
+    };
+
+    if (serviceAccount.projectId && serviceAccount.clientEmail && serviceAccount.privateKey) {
+        // Use service account from environment variables (for local/build)
+        console.log('Initializing with environment variables.');
+        admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount),
+            projectId: serviceAccount.projectId,
+        });
+    } else {
+        // Use Application Default Credentials (for deployed environment)
+        console.log('Initializing with Application Default Credentials.');
+        admin.initializeApp({
+            projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID, // Use the public project ID as a hint
+        });
     }
 
-    // CRITICAL FIX: The private key from the JSON file is a single string with literal "\\n" sequences.
-    // The Firebase Admin SDK's PEM parser requires actual newline characters.
-    // This replacement is essential for the key to be parsed correctly.
-    const formattedPrivateKey = serviceAccount.private_key.replace(/\\n/g, '\n');
-
-    admin.initializeApp({
-      credential: admin.credential.cert({
-          projectId: serviceAccount.project_id,
-          clientEmail: serviceAccount.client_email,
-          privateKey: formattedPrivateKey, // Use the correctly formatted key
-      }),
-      projectId: serviceAccount.project_id,
-    });
     console.log('Firebase Admin SDK initialized successfully.');
-
   } catch (error: any) {
     console.error('CRITICAL: Firebase Admin SDK initialization failed.', error);
-    // Throw a detailed error to make debugging easier for the user.
-    throw new Error(`Failed to initialize Firebase Admin SDK. Error: ${error.message}. Please check your credentials and environment setup.`);
+    // Provide a clear error message that guides the user.
+    throw new Error(`Failed to initialize Firebase Admin SDK. Error: ${error.message}. Please check your credentials and environment setup as described in the README.`);
   }
 }
 
