@@ -71,48 +71,44 @@ Follow these steps to set up the development environment.
     npm install
     ```
 
-### 3\. Environment Variables & Service Account
+### 3\. Environment & Credentials Setup
 
-**Step 1: Create `.env.local`**
+#### Step 1: Set Up Client-Side Keys (`.env.local`)
 
-Create a file named `.env.local` in the root directory and populate it with the necessary keys from your Firebase project and third-party services.
+These keys are public and are used by the browser to connect to your Firebase project.
 
-```bash
-# .env.local
+1.  Create a file named `.env.local` in the root of your project.
+2.  Copy and paste the following, filling in the values from your Firebase project settings. You can find these under **Project Settings > General > Your apps > SDK setup and configuration**.
 
-# --- Firebase Client SDK (Public Keys) ---
-# These are safe to expose to the browser and are used to identify your app.
-# Find these in your Firebase project settings under "General" -> "Your apps" -> "SDK setup and configuration".
-NEXT_PUBLIC_FIREBASE_API_KEY=
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
-NEXT_PUBLIC_FIREBASE_APP_ID=
-NEXT_PUBLIC_RECAPTCHA_SITE_KEY=
+    ```bash
+    # .env.local
 
-# --- Server-Side Service Secrets (for Local Development) ---
-# These are required ONLY for running the server-side code on your local machine.
-# Copy these values from your Firebase service-account.json file.
-# IMPORTANT: The private key must be enclosed in double quotes.
-FIREBASE_PROJECT_ID=""
-FIREBASE_CLIENT_EMAIL=""
-FIREBASE_PRIVATE_KEY=""
+    # --- Firebase Client SDK (Public Keys) ---
+    NEXT_PUBLIC_FIREBASE_API_KEY=
+    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+    NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+    NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+    NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+    NEXT_PUBLIC_FIREBASE_APP_ID=
+    NEXT_PUBLIC_RECAPTCHA_SITE_KEY=
 
-# --- Other Services (Server-Side Secrets) ---
-GOOGLE_AI_API_KEY=
-TWILIO_ACCOUNT_SID=
-TWILIO_AUTH_TOKEN=
-TWILIO_PHONE_NUMBER=
-```
+    # --- Other Services (Server-Side Secrets) ---
+    GOOGLE_AI_API_KEY=
+    TWILIO_ACCOUNT_SID=
+    TWILIO_AUTH_TOKEN=
+    TWILIO_PHONE_NUMBER=
+    ```
 
-**Step 2: Get Your Service Account Credentials**
+#### Step 2: Set Up Server-Side Credentials (`service-account.json`)
 
-For local development, you need the three `FIREBASE_*` values.
+These are secret credentials used by the server (e.g., for sending push notifications). This is **only required for running the application on your local machine**. The live, deployed application uses a secure, automatic method.
+
 1.  In your Firebase Project Settings, go to the **Service accounts** tab.
-2.  Click **Generate new private key** and download the JSON file.
-3.  Open the downloaded file and copy the `project_id`, `client_email`, and `private_key` values into the corresponding variables in your `.env.local` file.
-4.  **Important:** For the `FIREBASE_PRIVATE_KEY`, ensure the entire key, including `-----BEGIN PRIVATE KEY-----` and `-----END PRIVATE KEY-----`, is enclosed in double quotes (`"`).
+2.  Click **Generate new private key** and a JSON file will be downloaded.
+3.  Rename this file to **`service-account.json`**.
+4.  Place this file in the **root directory** of your project.
+
+The application is configured to automatically detect and use this file when you run `npm run dev`.
 
 ### 4\. Run the Application
 
@@ -137,6 +133,7 @@ water4weightloss/
 │   ├── lib/            # Helper functions, Firebase config
 │   └── types/          # TypeScript type definitions
 ├── .env.local          # Environment variables (DO NOT COMMIT if public repo)
+├── service-account.json # Server credentials for local dev (DO NOT COMMIT)
 ├── firebase.json       # Firebase project configuration
 ```
 
