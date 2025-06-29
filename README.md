@@ -85,24 +85,32 @@ Create a file named `.env.local` in the root directory and populate it with the 
 ```bash
 # .env.local
 
-# Firebase Config (for the client-side app)
+# --- Firebase Client SDK (Public Keys) ---
+# These are safe to expose to the browser and are used to identify your app.
+# Find these in your Firebase project settings under "General" -> "Your apps" -> "SDK setup and configuration".
 NEXT_PUBLIC_FIREBASE_API_KEY=
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
 NEXT_PUBLIC_FIREBASE_APP_ID=
+NEXT_PUBLIC_RECAPTCHA_SITE_KEY= # From your Google Cloud Console -> reCAPTCHA
 
-# Google AI (for Firebase Functions)
+# --- Firebase Admin SDK (Server-Side Secrets) ---
+# These are highly sensitive and should NEVER be exposed to the client.
+# Copy these values directly from your `service-account.json` file.
+# Note: The service-account.json file itself is no longer used.
+FIREBASE_ADMIN_PROJECT_ID=
+FIREBASE_ADMIN_CLIENT_EMAIL=
+# IMPORTANT: For the private key, enclose the entire multi-line key in double quotes.
+FIREBASE_ADMIN_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n ...your very long key... \n-----END PRIVATE KEY-----\n"
+
+# --- Other Services (Server-Side Secrets) ---
 GOOGLE_AI_API_KEY=
-
-# Twilio (for Firebase Functions)
 TWILIO_ACCOUNT_SID=
 TWILIO_AUTH_TOKEN=
 TWILIO_PHONE_NUMBER=
 
-# Note: Firebase Admin credentials should be configured via environment variables
-# in the Google Cloud console for deployed functions, not stored in a file.
 ```
 
 ### 4\. Run the Application
