@@ -32,6 +32,7 @@ import { updateUserData, deleteUserData, addWeightReading, addBloodPressureReadi
 import { type UserData, type Tone, defaultUserData, type WeightReading, type BloodPressureReading } from "@/lib/user-data"
 import { AppSettings } from "@/components/app-settings"
 import { isSameDay, isYesterday, parseISO } from 'date-fns';
+import { Separator } from "@/components/ui/separator"
 
 type MilestoneStatus = MotivationInput['milestoneStatus'];
 type MilestoneInfo = { milestoneStatus: MilestoneStatus, nextMilestoneInfo: string };
@@ -486,10 +487,10 @@ const getCreateDbInstructions = () => (
       {showConfetti && <Confetti onConfettiComplete={() => setShowConfetti(false)} />}
       <header className="mb-4 flex justify-between items-center">
         <div className="flex items-center gap-2 sm:gap-4">
-            <Image src="/logo.png" alt="Water4Weightloss Logo" width={50} height={50} data-ai-hint="water droplet" />
+            <Image src="/logo.png" alt="Water4Weightloss Logo" width={40} height={40} className="sm:w-[50px] sm:h-[50px]" data-ai-hint="water droplet" />
             <div>
-              <h1 className="text-2xl sm:text-3xl font-headline font-bold text-secondary tracking-tight">Water4Weightloss</h1>
-              <p className="text-muted-foreground text-sm sm:text-base">Welcome, {user.email}</p>
+              <h1 className="text-xl sm:text-3xl font-headline font-bold text-secondary tracking-tight">Water4Weightloss</h1>
+              <p className="text-muted-foreground text-xs sm:text-base">Welcome, {user.email}</p>
             </div>
         </div>
         
@@ -531,12 +532,12 @@ const getCreateDbInstructions = () => (
       </header>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="w-full grid grid-cols-2 sm:grid-cols-5 mb-4">
-              <TabsTrigger value="dashboard">Water</TabsTrigger>
-              <TabsTrigger value="body-metrics">Body Metrics</TabsTrigger>
-              <TabsTrigger value="medication">Medication</TabsTrigger>
-              <TabsTrigger value="blood-pressure">Blood Pressure</TabsTrigger>
-              <TabsTrigger value="information">Information</TabsTrigger>
+            <TabsList className="w-full grid grid-cols-2 sm:grid-cols-5 mb-4 h-auto">
+              <TabsTrigger value="dashboard" className="py-2">Water</TabsTrigger>
+              <TabsTrigger value="body-metrics" className="py-2">Body Metrics</TabsTrigger>
+              <TabsTrigger value="medication" className="py-2">Medication</TabsTrigger>
+              <TabsTrigger value="blood-pressure" className="py-2">Blood Pressure</TabsTrigger>
+              <TabsTrigger value="information" className="py-2">Information</TabsTrigger>
             </TabsList>
 
             <TabsContent value="dashboard">
@@ -551,8 +552,26 @@ const getCreateDbInstructions = () => (
                         <CardDescription>{userData.hydration}ml / {userData.dailyGoal}ml</CardDescription>
                         </CardHeader>
                         <CardContent className="flex flex-col items-center gap-4">
-                        <WaterGlass percentage={hydrationPercentage} />
-                        <Progress value={hydrationPercentage} className="w-full h-3" />
+                          <WaterGlass percentage={hydrationPercentage} />
+                          <Progress value={hydrationPercentage} className="w-full h-3" />
+                           <Separator className="my-4" />
+                            <div className="w-full space-y-2">
+                                <p className="text-sm font-medium text-muted-foreground text-center">Quick Add</p>
+                                <div className="grid grid-cols-3 gap-2 w-full">
+                                    <Button variant="secondary" onClick={() => handleAddWater(50)} className="h-auto flex-col py-2 gap-0">
+                                    <span className="font-semibold">Sip</span>
+                                    <span className="text-xs text-muted-foreground">50ml</span>
+                                    </Button>
+                                    <Button variant="secondary" onClick={() => handleAddWater(150)} className="h-auto flex-col py-2 gap-0">
+                                    <span className="font-semibold">Small</span>
+                                    <span className="text-xs text-muted-foreground">150ml</span>
+                                    </Button>
+                                    <Button variant="secondary" onClick={() => handleAddWater(300)} className="h-auto flex-col py-2 gap-0">
+                                    <span className="font-semibold">Large</span>
+                                    <span className="text-xs text-muted-foreground">300ml</span>
+                                    </Button>
+                                </div>
+                            </div>
                         </CardContent>
                     </Card>
 
@@ -569,16 +588,16 @@ const getCreateDbInstructions = () => (
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         <Flame className="w-5 h-5 text-amber-500" />
-                                        <p className="font-medium">Daily Hydration Streak</p>
+                                        <p className="font-medium text-sm sm:text-base">Daily Hydration Streak</p>
                                     </div>
-                                    <p className="font-bold text-xl sm:text-2xl text-primary">{userData.streak} <span className="text-sm sm:text-base font-medium text-muted-foreground">{userData.streak === 1 ? 'day' : 'days'}</span></p>
+                                    <p className="font-bold text-lg sm:text-2xl text-primary">{userData.streak} <span className="text-sm sm:text-base font-medium text-muted-foreground">{userData.streak === 1 ? 'day' : 'days'}</span></p>
                                 </div>
                             )}
                             {userData.appSettings.progressMilestones && (
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         <Star className="w-5 h-5 text-yellow-500" />
-                                        <p className="font-medium">Next Milestone</p>
+                                        <p className="font-medium text-sm sm:text-base">Next Milestone</p>
                                     </div>
                                     <p className="text-xs sm:text-sm text-right text-muted-foreground font-semibold">{milestone.nextMilestoneInfo}</p>
                                 </div>
@@ -704,6 +723,13 @@ const getCreateDbInstructions = () => (
             </TabsContent>
       </Tabs>
 
+      <footer className="mt-auto p-4 text-muted-foreground text-xs sm:text-sm border-t">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+           <p className="text-center sm:text-left">&copy; 2024 Water4Weightloss. All rights reserved.</p>
+           <p className="text-center sm:text-right">This is a demo application. Please consult a healthcare professional for medical advice.</p>
+        </div>
+      </footer>
+
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
             <AlertDialogHeader>
@@ -725,5 +751,3 @@ const getCreateDbInstructions = () => (
 export default function Dashboard() {
   return <DashboardContents />
 }
-
-    

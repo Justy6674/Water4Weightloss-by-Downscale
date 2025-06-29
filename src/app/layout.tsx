@@ -29,7 +29,20 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   icons: {
     icon: '/favicon.ico',
+    shortcut: '/favicon-16x16.png',
     apple: '/apple-touch-icon.png',
+    other: [
+      {
+        rel: 'icon',
+        url: '/favicon-32x32.png',
+        sizes: '32x32',
+      },
+      {
+        rel: 'icon',
+        url: '/android-chrome-192x192.png',
+        sizes: '192x192',
+      },
+    ],
   },
   themeColor: '#334155',
 };
@@ -41,18 +54,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`dark ${inter.variable} ${roboto.variable} ${jetbrainsMono.variable}`}>
-      <head />
       <body className="font-body antialiased flex flex-col min-h-screen">
-        <div className="flex-grow">
+        <main className="flex-grow">
           {children}
-        </div>
+        </main>
         <Toaster />
-        <footer className="bg-card/50 mt-auto p-4 text-muted-foreground text-sm border-t">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
-             <p className="text-center sm:text-left">&copy; 2024 Water4Weightloss. All rights reserved.</p>
-             <p className="text-center sm:text-right">This is a demo application. Please consult a healthcare professional for medical advice.</p>
-          </div>
-        </footer>
       </body>
     </html>
   );
