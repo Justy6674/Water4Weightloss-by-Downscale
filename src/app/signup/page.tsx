@@ -15,6 +15,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { createUserWithEmailAndPassword, onAuthStateChanged, type User } from "firebase/auth"
+import { FirebaseError } from "firebase/app"
 import { auth } from "@/lib/firebase"
 import { Mail, Lock } from "lucide-react"
 
@@ -47,13 +48,18 @@ function SignupPageContents() {
         try {
             await createUserWithEmailAndPassword(auth, email, password);
         } catch (error) {
-            const firebaseError = error as { code?: string; message: string };
-            console.error("Signup failed:", firebaseError);
             let description = "An unexpected error occurred.";
-            if (firebaseError.code === 'auth/email-already-in-use') {
-                description = "This email is already registered. Please log in instead.";
-            } else if (firebaseError.message) {
-                description = firebaseError.message;
+            if (error instanceof FirebaseError) {
+                console.error("Signup failed:", error.code);
+                if (error.code === 'auth/email-already-in-use') {
+                    description = "This email is already registered. Please log in instead.";
+                } else if (error.code === 'auth/weak-password') {
+                    description = "Password is too weak. It should be at least 6 characters.";
+                } else {
+                    description = "An unexpected error occurred during signup. Please check the console.";
+                }
+            } else {
+                 console.error("An unexpected error occurred during signup:", error);
             }
             toast({
               variant: "destructive",
@@ -66,7 +72,7 @@ function SignupPageContents() {
     }
 
     if (checkingAuth || user) {
-        return null; // or a loading spinner
+        return null;
     }
 
   return (

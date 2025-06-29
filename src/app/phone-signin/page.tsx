@@ -16,12 +16,11 @@ import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { RecaptchaVerifier, signInWithPhoneNumber, onAuthStateChanged, type User, type ConfirmationResult } from "firebase/auth"
+import { FirebaseError } from "firebase/app"
 import { auth } from "@/lib/firebase"
 import { Phone, MessageSquare, Terminal } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
-// Firebase requires `window.recaptchaVerifier` to be available.
-// We need to declare it on the window object type.
 declare global {
     interface Window {
         recaptchaVerifier: RecaptchaVerifier;
@@ -54,16 +53,13 @@ function PhoneSignInPageContents() {
       }
     }, [user, router]);
     
-    // Initialize reCAPTCHA
     useEffect(() => {
         if (!recaptchaContainerRef.current) return;
         
         try {
             window.recaptchaVerifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
                 'size': 'invisible',
-                'callback': (response: any) => {
-                    // reCAPTCHA solved, allow signInWithPhoneNumber.
-                }
+                'callback': (response: any) => {},
             });
         } catch(error) {
             console.error("Error initializing reCAPTCHA", error);
@@ -93,8 +89,18 @@ function PhoneSignInPageContents() {
                 description: "Please check your phone for the code.",
             });
         } catch (error) {
-            console.error("SMS send failed:", error);
-            setAuthError("Failed to send verification code. Please check the phone number and try again.");
+            let description = "Failed to send verification code. Please check the phone number and try again.";
+            if (error instanceof FirebaseError) {
+                console.error("SMS send failed:", error.code);
+                if (error.code === 'auth/invalid-phone-number') {
+                    description = "The phone number is not valid. Please ensure it includes the country code (e.g., +1).";
+                } else if (error.code === 'auth/too-many-requests') {
+                    description = "You've requested too many codes. Please try again later.";
+                }
+            } else {
+                console.error("An unexpected error occurred while sending SMS:", error);
+            }
+            setAuthError(description);
         } finally {
             setIsLoading(false);
         }
@@ -110,17 +116,26 @@ function PhoneSignInPageContents() {
         setAuthError(null);
         try {
             await confirmationResult.confirm(otp);
-            // User is signed in. The onAuthStateChanged listener will handle the redirect.
         } catch (error) {
-            console.error("OTP verification failed:", error);
-            setAuthError("Invalid verification code. Please try again.");
+            let description = "Failed to verify code. Please try again.";
+            if (error instanceof FirebaseError) {
+                 console.error("OTP verification failed:", error.code);
+                 if (error.code === 'auth/invalid-verification-code') {
+                    description = "The verification code is invalid. Please check the code and try again.";
+                 } else if (error.code === 'auth/code-expired') {
+                    description = "The verification code has expired. Please request a new one.";
+                 }
+            } else {
+                 console.error("An unexpected error occurred during OTP verification:", error);
+            }
+            setAuthError(description);
         } finally {
             setIsLoading(false);
         }
     }
     
     if (checkingAuth || user) {
-        return null; // or a loading spinner
+        return null;
     }
 
   return (

@@ -22,6 +22,7 @@ import {
   GoogleAuthProvider,
   type User 
 } from "firebase/auth"
+import { FirebaseError } from "firebase/app"
 import { auth } from "@/lib/firebase"
 import { User as UserIcon, Lock, Terminal, Phone } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -48,7 +49,6 @@ function LoginPageContents() {
     const router = useRouter()
     const { toast } = useToast()
     
-    // On component mount, sync the "remember me" state with localStorage
     useEffect(() => {
         const savedPreference = JSON.parse(localStorage.getItem('rememberMe') || 'true');
         setRememberMe(savedPreference);
@@ -78,21 +78,21 @@ function LoginPageContents() {
         setIsLoading(true)
         setAuthError(null);
         try {
-            // Persistence is now set globally in firebase.ts, so we just sign in.
             await signInWithEmailAndPassword(auth, email, password)
         } catch (error) {
-            const firebaseError = error as { code?: string; message: string };
-            console.error("Login failed:", firebaseError);
-            let description = "An unexpected error occurred. Please check your credentials.";
-            
-            if (firebaseError.code === 'auth/invalid-credential') {
-                description = "Invalid email or password. Please try again.";
-            } else if (firebaseError.code === 'auth/requests-to-this-api-identitytoolkit-method-google.cloud.identitytoolkit.v1.authenticationservice.signinwithpassword-are-blocked') {
-                description = "Email/Password sign-in is not enabled for your Firebase project. Please go to the Firebase console, navigate to Authentication > Sign-in method, and enable the Email/Password provider.";
-            } else if (firebaseError.message) {
-                description = firebaseError.message;
+            let description = "An unexpected error occurred. Please try again.";
+            if (error instanceof FirebaseError) {
+                console.error("Login Failed:", error.code);
+                if (error.code === 'auth/invalid-credential') {
+                    description = "Invalid email or password. Please try again.";
+                } else if (error.code.includes('requests-to-this-api-are-blocked')) {
+                    description = "Email/Password sign-in is not enabled for this project. Please enable it in the Firebase console.";
+                } else {
+                    description = "An unexpected error occurred. Please check the console for details.";
+                }
+            } else {
+                console.error("An unexpected error occurred during login:", error);
             }
-            
             setAuthError(description);
         } finally {
             setIsLoading(false)
@@ -105,13 +105,17 @@ function LoginPageContents() {
         try {
             const provider = new GoogleAuthProvider();
             await signInWithPopup(auth, provider);
-            // onAuthStateChanged will handle the redirect
         } catch (error) {
-            const firebaseError = error as { code?: string; message: string };
-            console.error("Google login failed:", firebaseError);
             let description = "Could not sign in with Google. Please try again.";
-            if (firebaseError.code === 'auth/popup-closed-by-user') {
-                description = "Sign-in popup was closed. Please try again.";
+            if (error instanceof FirebaseError) {
+                console.error("Google login failed:", error.code);
+                 if (error.code === 'auth/popup-closed-by-user') {
+                    description = "Sign-in popup was closed. Please try again.";
+                } else if (error.code === 'auth/account-exists-with-different-credential') {
+                    description = "An account already exists with the same email address but different sign-in credentials. Please sign in using the original method."
+                }
+            } else {
+                 console.error("An unexpected error occurred during Google login:", error);
             }
             setAuthError(description);
         } finally {
@@ -120,7 +124,7 @@ function LoginPageContents() {
     };
     
     if (checkingAuth || user) {
-        return null; // or a loading spinner while auth state is being checked or redirecting
+        return null; 
     }
 
   return (
