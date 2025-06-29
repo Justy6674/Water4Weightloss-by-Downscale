@@ -66,7 +66,7 @@ export function InfoContent() {
             <AccordionItem value="item-2">
                 <AccordionTrigger className="text-xl text-left font-headline hover:no-underline">Endocrine Disrupting Chemicals (EDCs)</AccordionTrigger>
                 <AccordionContent>
-                    <div className="space-y-6 pt-2 prose prose-invert prose-p:text-card-foreground/90 prose-headings:text-foreground prose-h3:text-xl prose-h4:text-lg prose-strong:text-foreground prose-ol:list-decimal prose-ol:pl-6 prose-ol:space-y-2 prose-blockquote:border-primary prose-blockquote:text-muted-foreground">
+                    <div className="space-y-6 pt-2 prose prose-invert prose-p:text-card-foreground/90 prose-headings:text-foreground prose-h3:text-xl prose-h4:text-lg prose-strong:text-foreground prose-ol:list-decimal prose-ol:pl-6 prose-ol:space-y-2 prose-ul:list-disc prose-ul:pl-6 prose-ul:space-y-2 prose-blockquote:border-primary prose-blockquote:text-muted-foreground">
                         <section>
                             <h3>What Are EDCs and Why Do They Matter?</h3>
                             <p>
@@ -84,7 +84,7 @@ export function InfoContent() {
                             <p>
                                 EDCs are often called "obesogens" because they can disrupt how our bodies manage fat. When they enter the body, they can reprogram the hormonal signals that control energy, appetite, and fat storage. Essentially, they can hijack your body's metabolic controls, creating a "perfect storm" of problems:
                             </p>
-                            <ul className="list-disc space-y-2 pl-6">
+                            <ul>
                                 <li>They can promote the formation and growth of fat cells.</li>
                                 <li>They can lead to insulin resistance, making it harder for your body to manage blood sugar.</li>
                                 <li>They may reduce the activity of "brown fat," the type of fat that burns calories to produce heat, thus lowering your overall energy expenditure.</li>
@@ -102,7 +102,7 @@ export function InfoContent() {
                             <p>
                                 The great news is that you can significantly reduce your exposure with a few simple, powerful changes. The goal is to minimize contact between your food/water and plastic, especially when it's heated, which can cause chemicals to transfer into your food at a much higher rate.
                             </p>
-                            <ul className="list-disc space-y-2 pl-6">
+                            <ul>
                                 <li>
                                     <strong>Swap Your Water Bottle:</strong> This is the easiest and most impactful first step. Using a <strong>glass or stainless steel</strong> water bottle dramatically cuts down on daily EDC exposure.
                                 </li>
@@ -233,51 +233,81 @@ export function InfoContent() {
             <AccordionItem value="item-4">
                 <AccordionTrigger className="text-xl text-left font-headline hover:no-underline">Medications for Weight Loss</AccordionTrigger>
                 <AccordionContent>
-                     <div className="space-y-6 pt-2 prose prose-invert prose-p:text-card-foreground/90 prose-headings:text-foreground prose-h3:text-xl prose-h4:text-lg prose-strong:text-foreground prose-ul:list-disc prose-ul:pl-6 prose-ul:space-y-2 prose-ol:list-decimal prose-ol:pl-6 prose-ol:space-y-2 prose-blockquote:border-primary prose-blockquote:text-muted-foreground">
+                     <div className="space-y-6 pt-2 prose prose-invert prose-p:text-card-foreground/90 prose-headings:text-foreground prose-h3:text-xl prose-h4:text-lg prose-h5:font-bold prose-strong:text-foreground prose-ul:list-disc prose-ul:pl-6 prose-ul:space-y-2 prose-ol:list-decimal prose-ol:pl-6 prose-ol:space-y-2 prose-blockquote:border-primary prose-blockquote:text-muted-foreground">
                         <section>
                           <h4>GLP-1 and Dual-Incretin Agonists</h4>
-                          <p>Several large trials show dramatic weight loss with GLP‑1 and dual-agonists. In SURMOUNT‑1 (n≈2500, no diabetes), weekly tirzepatide (5–15 mg) plus lifestyle produced mean weight losses of ~15.0%, 19.5% and 20.9% at 72 weeks (5 mg/10 mg/15 mg) vs ~3.1% with placebo. 85–91% of tirzepatide patients lost ≥5% body weight; over half on 10–15 mg lost ≥20%<sup>[1]</sup>. In SURMOUNT‑2 (people with type 2 diabetes), tirzepatide 10 mg/15 mg gave ~13–15% weight loss vs ~3% on placebo (both with lifestyle)<sup>[2]</sup>. In SURPASS trials, tirzepatide (for diabetes) also produced greater weight loss than comparators; for example, SURPASS‑2 showed an approximate 11.2 kg loss with tirzepatide vs 5.7 kg with semaglutide 1 mg<sup>[3]</sup>.</p>
-                          <p><strong>Semaglutide:</strong> The STEP trials showed semaglutide 2.4 mg weekly causes substantial weight loss. In STEP‑1 (no diabetes), semaglutide yielded a –14.9% weight change over 68 weeks vs –2.4% with placebo (mean –15.3 kg vs –2.6 kg)<sup>[4]</sup>. In STEP‑2 (with diabetes) semaglutide 2.4 mg gave approximately –9.6% vs –3.4% on placebo<sup>[5]</sup>. In STEP‑4 (after a 20-week run-in), continuing semaglutide led to a further –7.9% loss, whereas switching to placebo led to a 6.9% regain<sup>[6]</sup>. In STEP‑8 (head-to-head), semaglutide 2.4 mg led to –15.8% vs –6.4% with daily liraglutide 3.0 mg<sup>[7]</sup>. STEP 3 (with intensive behavioral therapy) showed semaglutide 2.4 mg gave –16.0% vs –5.7% for placebo plus IBT<sup>[8]</sup>. Oral semaglutide (Rybelsus) in the PIONEER studies yields smaller weight loss (e.g. ~4.3 kg at the 14 mg dose over 26 weeks)<sup>[9]</sup>.</p>
-                          <p><strong>Liraglutide (3.0 mg daily):</strong> In the SCALE obesity trial, liraglutide (adjunct to diet/exercise) produced an ~8–9% body-weight reduction (~8.4 kg) at 56 weeks vs ~2–3% with placebo. About 63% on liraglutide lost ≥5% of weight vs 27% on placebo. The most common side effects were mild-to-moderate nausea or diarrhea<sup>[10]</sup>.</p>
+                          <p>Several large trials show dramatic weight loss with this class of medications, which work by mimicking gut hormones to regulate appetite and blood sugar.</p>
+                          
+                          <h5>Tirzepatide (Mounjaro / Zepbound)</h5>
+                          <p>A dual-agonist that acts on both GIP and GLP-1 receptors.</p>
+                          <ul>
+                            <li>In the SURMOUNT-1 trial, people without diabetes taking tirzepatide lost between <strong>15% to 20.9%</strong> of their body weight over 72 weeks, compared to just 3.1% with placebo.<sup>[1]</sup></li>
+                            <li>In the SURMOUNT-2 trial, people with type 2 diabetes lost between <strong>13% to 15%</strong> of their body weight.<sup>[2]</sup></li>
+                             <li>Compared directly to Semaglutide 1mg, Tirzepatide showed greater weight loss in the SURPASS-2 trial (~11.2 kg vs ~5.7 kg).<sup>[3]</sup></li>
+                          </ul>
+
+                          <h5>Semaglutide (Ozempic / Wegovy / Rybelsus)</h5>
+                          <p>A GLP-1 agonist available as a weekly injection or a daily oral tablet.</p>
+                           <ul>
+                            <li>In the STEP-1 trial, people without diabetes using the 2.4mg injection lost an average of <strong>14.9%</strong> of their body weight over 68 weeks.<sup>[4]</sup></li>
+                            <li>In the STEP-2 trial, people with type 2 diabetes lost around <strong>9.6%</strong> of their body weight.<sup>[5]</sup></li>
+                            <li>When compared directly, the 2.4mg injection of Semaglutide led to more weight loss than daily Liraglutide 3.0mg (15.8% vs 6.4%).<sup>[7]</sup></li>
+                            <li>Oral semaglutide (Rybelsus) has been shown to produce more modest weight loss (~4.3kg) in studies.<sup>[9]</sup></li>
+                          </ul>
+
+                          <h5>Liraglutide (Saxenda)</h5>
+                          <p>A daily injectable GLP-1 agonist.</p>
+                           <ul>
+                            <li>In the SCALE trial, Liraglutide 3.0mg led to an average weight reduction of <strong>8-9%</strong> (~8.4 kg) over 56 weeks.<sup>[10]</sup></li>
+                          </ul>
                         </section>
 
                         <Separator/>
 
                         <section>
                           <h4>Other Approved Drugs</h4>
-                          <p><strong>Phentermine (± topiramate):</strong> Phentermine is a short‐term stimulant that suppresses appetite. In RCTs, phentermine 37.5 mg daily yielded ~7–8 kg (≈9%) weight loss over ~14 weeks vs 2–3 kg with placebo<sup>[11]</sup>. In one trial, >80% on phentermine lost ≥5% of baseline weight (versus far fewer with placebo). Combination phentermine/topiramate (Qsymia) produces even larger effects (10–12% loss)<sup>[12]</sup>. Phentermine is FDA-approved only for short-term use (up to 12 weeks) due to lack of long-term safety data.</p>
-                          <p><strong>Metformin:</strong> Though not FDA-approved as a weight-loss drug, metformin (often prescribed for prediabetes/diabetes) causes modest weight reduction (typically a few kilograms, ~2–3% of body weight) in many patients as a secondary effect<sup>[13]</sup>. It’s frequently used off-label for weight control.</p>
-                          <p><strong>Others:</strong> Other obesity medications include naltrexone/bupropion (Contrave) and orlistat (Xenical). Contrave (an opioid antagonist + antidepressant) gives modest (~5–6%) weight loss<sup>[14]</sup>. Orlistat (a lipase inhibitor) yields ~3% more loss than placebo<sup>[15]</sup>.</p>
+                           <h5>Phentermine (± topiramate)</h5>
+                           <p>A short-term stimulant that suppresses appetite. Combination therapy with topiramate (Qsymia) can lead to weight loss of <strong>10-12%</strong>. Phentermine alone is FDA-approved only for short-term use (≤12 weeks).<sup>[11, 12]</sup></p>
+
+                           <h5>Metformin</h5>
+                           <p>Though not an official weight-loss drug, it often causes modest weight reduction (<strong>~2-3%</strong> of body weight) and is frequently used off-label.<sup>[13]</sup></p>
+                           
+                           <h5>Others</h5>
+                           <p>Naltrexone/bupropion (Contrave) can produce ~5-6% weight loss<sup>[14]</sup>, and Orlistat (Xenical) yields ~3% more weight loss than placebo<sup>[15]</sup>.</p>
                         </section>
 
                         <Separator/>
                         
                         <section>
                           <h4>New and Emerging Therapies</h4>
-                          <p>New incretin-based therapies show very high efficacy. <strong>Retatrutide</strong> is a novel triple-agonist (GLP-1/GIP/glucagon). In a 48-week phase 2 trial, retatrutide 8 mg and 12 mg caused ~22.8% and 24.2% weight loss, respectively. Early data suggest >20% loss, making it a potential future breakthrough<sup>[16]</sup>. <strong>Danuglipron</strong> is an oral small-molecule GLP-1 agonist from Pfizer; a recent phase 2b trial showed placebo-adjusted weight reductions of ~8–13% at 32 weeks (–6.9% to –11.7% absolute, depending on dose)<sup>[17]</sup>. Other combination agonists (e.g. GLP-1/glucagon co-agonists like cotadutide, or other dual GLP-1/GIP drugs from various companies) are in clinical trials, aiming to expand options.</p>
+                          <p>New drugs show even greater promise. <strong>Retatrutide</strong>, a triple-agonist (GLP-1/GIP/glucagon), has shown early results of up to <strong>24.2%</strong> weight loss in a 48-week trial.<sup>[16]</sup> Other oral options like **Danuglipron** are also in development.<sup>[17]</sup></p>
                         </section>
-
+                        
                         <Separator/>
 
                         <section>
                           <h4>Efficacy Summary</h4>
                           <ul>
-                            <li><strong>Tirzepatide</strong> (dual GIP/GLP-1 agonist): Up to ~20% weight loss at 72 weeks (15 mg dose) in non-diabetic obesity<sup>[1]</sup>; ~14–15% in T2D (SURMOUNT-2)<sup>[2]</sup>.</li>
-                            <li><strong>Semaglutide</strong> (GLP-1): ~15% weight loss at 68 weeks (2.4 mg dose) in non-diabetics<sup>[4]</sup>; ~10% with diabetes (STEP-2)<sup>[5]</sup>.</li>
-                            <li><strong>Liraglutide</strong> (GLP-1): ~8% weight loss at 56 weeks (3.0 mg)<sup>[10]</sup>.</li>
-                            <li><strong>Phentermine</strong>: ~7–9% weight loss in short-term trials<sup>[11]</sup>.</li>
-                            <li><strong>Metformin</strong>: Typically smaller effects (often &lt;5% body weight)<sup>[13]</sup>.</li>
+                            <li><strong>Tirzepatide (Mounjaro/Zepbound)</strong>: Up to ~21% weight loss.<sup>[1]</sup></li>
+                            <li><strong>Semaglutide (Wegovy)</strong>: ~15% weight loss.<sup>[4]</sup></li>
+                            <li><strong>Liraglutide (Saxenda)</strong>: ~8% weight loss.<sup>[10]</sup></li>
+                            <li><strong>Phentermine/Topiramate (Qsymia)</strong>: ~10-12% weight loss.<sup>[12]</sup></li>
+                            <li><strong>Metformin</strong>: Typically &lt;5% body weight.<sup>[13]</sup></li>
                           </ul>
-                          <p>These results greatly exceed older drugs. For example, placebo patients usually lose ~2–3% by lifestyle alone; adding one of these drugs shifts the average loss into double digits<sup>[1, 4]</sup>.</p>
+                          <p>These results greatly exceed older drugs and often shift the average weight loss into double digits compared to the ~2-3% seen with lifestyle changes alone.<sup>[1, 4]</sup></p>
                         </section>
 
                         <Separator/>
                         
                         <section>
                           <h4>Safety &amp; Contraindications</h4>
-                          <p>All these medications have side effects and cannot be used by everyone. Common adverse events with GLP-1 agonists and Tirzepatide are gastrointestinal (nausea, vomiting, diarrhea), which are usually mild-to-moderate and often lessen over time<sup>[1, 4, 10]</sup>. Serious issues are rare but include pancreatitis (a warning for all GLP-1 agonists) and a contraindication in patients with a personal/family history of medullary thyroid carcinoma or MEN2 syndrome (based on rodent thyroid C-cell findings). Semaglutide and liraglutide are also contraindicated in pregnancy.</p>
-                          <p>Phentermine can raise heart rate and blood pressure and is contraindicated in those with uncontrolled hypertension, heart disease, hyperthyroidism, or a history of substance abuse. It is FDA-approved only for short-term (≤12 weeks) use. Metformin is generally safe but should be avoided in severe kidney or liver disease due to the risk of lactic acidosis and may cause transient GI upset.</p>
-                          <p>All therapies should be prescribed and monitored by a physician, with attention to individual health status and possible interactions. In clinical trials, these drugs were added to lifestyle changes (diet/exercise); their safety and efficacy in real-world use depend on proper titration and follow-up.</p>
+                           <p>All medications have side effects and must be prescribed and monitored by a physician.</p>
+                           <ul>
+                            <li><strong>GLP-1 Agonists (Tirzepatide, Semaglutide, Liraglutide)</strong>: Common side effects are gastrointestinal (nausea, vomiting, diarrhea), which usually lessen over time.<sup>[1, 4, 10]</sup> They are contraindicated in patients with a personal or family history of medullary thyroid carcinoma or MEN2 syndrome.</li>
+                            <li><strong>Phentermine</strong>: Can raise heart rate and blood pressure and is contraindicated in those with uncontrolled hypertension, heart disease, or hyperthyroidism.</li>
+                             <li><strong>Metformin</strong>: Generally safe but should be avoided in severe kidney or liver disease.</li>
+                           </ul>
+                           <p>The safety and efficacy of these drugs depend on proper medical supervision, titration, and combination with lifestyle changes.</p>
                         </section>
 
                         <Separator/>
@@ -315,3 +345,4 @@ export function InfoContent() {
     
 
     
+
