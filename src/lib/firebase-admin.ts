@@ -2,36 +2,38 @@
 'use server';
 
 import * as admin from 'firebase-admin';
+import { config } from 'dotenv';
 
-// This file initializes the Firebase Admin SDK for server-side operations.
-// It now exclusively uses environment variables for configuration, which is the
-// secure and standard practice for production applications.
+// Explicitly load environment variables from .env.local for server-side code.
+// This is crucial for local development.
+config();
 
+// This check prevents re-initialization in scenarios like hot-reloading.
 if (!admin.apps.length) {
-  const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID;
-  const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
-  // The private key from an environment variable needs to have its newlines correctly formatted.
-  const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n');
-
-  if (!projectId || !clientEmail || !privateKey) {
-    throw new Error(
-      'Firebase Admin SDK environment variables are not set. Please set FIREBASE_ADMIN_PROJECT_ID, FIREBASE_ADMIN_CLIENT_EMAIL, and FIREBASE_ADMIN_PRIVATE_KEY in your .env.local file for local development, as described in the README.md.'
-    );
-  }
-
   try {
-    admin.initializeApp({
-      credential: admin.credential.cert({
-        projectId,
-        clientEmail,
-        privateKey,
-      }),
-    });
+    const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID;
+    const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
+    // The private key from an environment variable needs to have its newlines correctly formatted.
+    const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n');
+
+    // Primary method: Use environment variables. This is for local development or explicitly configured servers.
+    if (projectId && clientEmail && privateKey) {
+        admin.initializeApp({
+            credential: admin.credential.cert({
+                projectId,
+                clientEmail,
+                privateKey,
+            }),
+        });
+    } else {
+        // Fallback method: Use Application Default Credentials for deployed Google Cloud environments (like App Hosting).
+        // This method automatically finds the correct credentials when running on Google Cloud.
+        admin.initializeApp();
+    }
   } catch (error: any) {
-    // If initialization fails now, it points to a fundamental issue with the
-    // credentials provided in the environment variables.
+    // If initialization fails now, it points to a fundamental issue with the credentials or permissions.
     console.error('CRITICAL: Firebase Admin SDK initialization failed.', error);
-    throw new Error(`Failed to initialize Firebase Admin SDK. Please check the Admin SDK environment variables. Error: ${error.message}`);
+    throw new Error(`Failed to initialize Firebase Admin SDK. For local development, ensure FIREBASE_ADMIN_PROJECT_ID, FIREBASE_ADMIN_CLIENT_EMAIL, and FIREBASE_ADMIN_PRIVATE_KEY are correctly set in your .env.local file. For deployed environments, ensure the service account has the necessary permissions. Error: ${error.message}`);
   }
 }
 
