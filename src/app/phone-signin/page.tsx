@@ -91,7 +91,7 @@ function PhoneSignInPageContents() {
         } catch (error) {
             let description = "Failed to send verification code. Please check the phone number and try again.";
             if (error instanceof FirebaseError) {
-                console.error("SMS send failed:", error.code);
+                console.warn("SMS send failed:", error.code);
                 if (error.code === 'auth/invalid-phone-number') {
                     description = "The phone number is not valid. Please ensure it includes the country code (e.g., +1).";
                 } else if (error.code === 'auth/too-many-requests') {
@@ -119,7 +119,7 @@ function PhoneSignInPageContents() {
         } catch (error) {
             let description = "Failed to verify code. Please try again.";
             if (error instanceof FirebaseError) {
-                 console.error("OTP verification failed:", error.code);
+                 console.warn("OTP verification failed:", error.code);
                  if (error.code === 'auth/invalid-verification-code') {
                     description = "The verification code is invalid. Please check the code and try again.";
                  } else if (error.code === 'auth/code-expired') {

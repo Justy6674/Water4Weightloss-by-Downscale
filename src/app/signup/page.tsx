@@ -50,7 +50,7 @@ function SignupPageContents() {
         } catch (error) {
             let description = "An unexpected error occurred.";
             if (error instanceof FirebaseError) {
-                console.error("Signup failed:", error.code);
+                console.warn("Signup failed:", error.code);
                 if (error.code === 'auth/email-already-in-use') {
                     description = "This email is already registered. Please log in instead.";
                 } else if (error.code === 'auth/weak-password') {

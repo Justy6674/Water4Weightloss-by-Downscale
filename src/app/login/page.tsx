@@ -50,6 +50,7 @@ function LoginPageContents() {
     const { toast } = useToast()
     
     useEffect(() => {
+        // This effect runs once on component mount
         const savedPreference = JSON.parse(localStorage.getItem('rememberMe') || 'true');
         setRememberMe(savedPreference);
     }, []);
@@ -78,11 +79,12 @@ function LoginPageContents() {
         setIsLoading(true)
         setAuthError(null);
         try {
+            // Persistence is now set globally in firebase.ts, so we just sign in.
             await signInWithEmailAndPassword(auth, email, password)
         } catch (error) {
             let description = "An unexpected error occurred. Please try again.";
             if (error instanceof FirebaseError) {
-                console.error("Login Failed:", error.code);
+                console.warn("Login Failed:", error.code);
                 if (error.code === 'auth/invalid-credential') {
                     description = "Invalid email or password. Please try again.";
                 } else if (error.code.includes('requests-to-this-api-are-blocked')) {
@@ -108,7 +110,7 @@ function LoginPageContents() {
         } catch (error) {
             let description = "Could not sign in with Google. Please try again.";
             if (error instanceof FirebaseError) {
-                console.error("Google login failed:", error.code);
+                console.warn("Google login failed:", error.code);
                  if (error.code === 'auth/popup-closed-by-user') {
                     description = "Sign-in popup was closed. Please try again.";
                 } else if (error.code === 'auth/account-exists-with-different-credential') {
