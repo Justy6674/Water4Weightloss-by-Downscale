@@ -64,26 +64,32 @@ export function InfoContent() {
             <AccordionItem value="item-2">
                 <AccordionTrigger className="text-xl text-left font-headline hover:no-underline">Endocrine Disrupting Chemicals (EDCs)</AccordionTrigger>
                 <AccordionContent>
-                    <div className="space-y-6 pt-2 prose prose-invert prose-p:text-card-foreground/90 prose-headings:text-foreground prose-h3:text-xl prose-strong:text-foreground">
+                    <div className="space-y-6 pt-2 prose prose-invert prose-p:text-card-foreground/90 prose-headings:text-foreground prose-h3:text-xl prose-h4:text-lg prose-strong:text-foreground prose-ol:list-decimal prose-ol:pl-6 prose-ol:space-y-2">
                         <section>
                             <h3>What Are EDCs and Why Do They Matter?</h3>
                             <p>
-                                Plastics are everywhere, but many contain <strong>Endocrine-Disrupting Chemicals (EDCs)</strong> like BPA and phthalates. These can interfere with your body's hormones, which regulate metabolism, appetite, and fat storage.
+                                Plastics are everywhere in modern life, but many contain chemicals that can interfere with the body's delicate hormonal systems. These are known as <strong>Endocrine-Disrupting Chemicals (EDCs)</strong>. There is a growing fear and scientific consensus that long-term exposure to these chemicals is linked to challenges with weight management and metabolic health.
                             </p>
                             <p>
-                                These chemicals are sometimes called "obesogens" because they can disrupt how your body handles fat. Growing evidence shows a link between long-term exposure to these chemicals and challenges with weight management, insulin resistance, and other metabolic issues.
+                                Common examples include <strong>BPA</strong> (used in hard polycarbonate plastics like water bottles and food containers) and <strong>phthalates</strong> (used to make plastics flexible). These chemicals can mimic or block our natural hormones. The emerging concern of <strong>microplastics</strong>—tiny plastic fragments found in our water, food, and even our bodies—is that they can act as vehicles, carrying and leaching these EDCs directly into our tissues.
                             </p>
                         </section>
 
                         <Separator />
 
                         <section>
-                            <h3>How Plastic EDCs Can Affect Weight</h3>
+                            <h3>How Plastic EDCs Can Affect Weight & Metabolism</h3>
                             <p>
-                                EDCs can hijack the body's metabolic controls. For example, BPA can alter gene expression in fat cells, the pancreas, and the liver. Phthalates can stimulate the formation of fat cells and may also reduce the activity of "brown fat," which is the type of fat that burns calories to produce heat.
+                                EDCs are often called "obesogens" because they can disrupt how our bodies manage fat. When they enter the body, they can reprogram the hormonal signals that control energy, appetite, and fat storage. Essentially, they can hijack your body's metabolic controls, creating a "perfect storm" of problems:
                             </p>
+                            <ul className="list-disc space-y-2 pl-6">
+                                <li>They can promote the formation and growth of fat cells.</li>
+                                <li>They can lead to insulin resistance, making it harder for your body to manage blood sugar.</li>
+                                <li>They may reduce the activity of "brown fat," the type of fat that burns calories to produce heat, thus lowering your overall energy expenditure.</li>
+                                <li>They can interfere with hormones that regulate appetite, like leptin and ghrelin.</li>
+                            </ul>
                             <p>
-                                Essentially, these chemicals can create a "perfect storm" of metabolic problems: increasing fat storage, reducing your body's energy-burning rate, promoting insulin resistance, and confusing the hormones that control appetite.
+                                The Endocrine Society notes that these chemicals can predispose a person to gain weight even without eating more calories. The evidence links EDC exposure not just to obesity, but also to metabolic syndrome and a higher risk of developing type 2 diabetes.
                             </p>
                         </section>
 
@@ -92,7 +98,7 @@ export function InfoContent() {
                         <section>
                             <h3>Reducing Your Exposure: The Power of Glass and Steel</h3>
                             <p>
-                                The great news is that you can significantly reduce your exposure with a few simple, powerful changes. The goal is to minimize contact between your food/water and plastic, especially when it's heated.
+                                The great news is that you can significantly reduce your exposure with a few simple, powerful changes. The goal is to minimize contact between your food/water and plastic, especially when it's heated, which can cause chemicals to transfer into your food at a much higher rate.
                             </p>
                             <ul className="list-disc space-y-2 pl-6">
                                 <li>
@@ -102,7 +108,7 @@ export function InfoContent() {
                                     <strong>Use Glass for Storage:</strong> Store leftovers in glass containers instead of plastic, especially for hot, fatty, or acidic foods.
                                 </li>
                                 <li>
-                                    <strong>Never Heat Food in Plastic:</strong> Microwaving in plastic can cause chemicals to transfer into your food at a much higher rate. Transfer food to a glass or ceramic dish first.
+                                    <strong>Never Heat Food in Plastic:</strong> Always transfer food to a glass or ceramic dish before microwaving.
                                 </li>
                             </ul>
                              <blockquote className="border-l-4 border-primary pl-4 italic my-4 text-muted-foreground">
@@ -117,6 +123,22 @@ export function InfoContent() {
                             <p>
                                 Thinking about your environmental exposures is another tool in your wellness toolkit, just like balanced nutrition, regular movement, and consistent hydration. By making these simple swaps, you are helping create a better internal environment for your body to thrive and reach your health goals.
                             </p>
+                        </section>
+
+                        <Separator />
+                        
+                        <section>
+                            <h4>Sources & Further Reading</h4>
+                            <ol>
+                                <li>La Merrill MA, et al. Nature Rev Endocrinol. 2025 – Consensus statement on key characteristics of metabolism-disrupting chemicals.</li>
+                                <li>Pérez-Díaz C, et al. Environ Pollut. 2024 – Systematic review of phthalate exposure and metabolic syndrome.</li>
+                                <li>Minderoo-Monaco Commission on Plastics and Health. Ann Glob Health. 2023 – Review of plastics’ impacts on human health (EDC content in plastics).</li>
+                                <li>Endocrine Society – EDCs and metabolism overview (2019–2023 updates).</li>
+                                <li>AAP Clinical Report. Pediatrics. 2018 & AAP Fact Sheet 2024 – Food additives, plastics and child health (recommendations to use glass/stainless).</li>
+                                <li>Hong X, et al. Environ Int. 2023 – Experimental study linking BPA, IL-17A and obesity.</li>
+                                <li>Ullah S, et al. Front Endocrinol. 2023 – Review of micro- and nano-plastics as endocrine disruptors in mammals.</li>
+                                <li>Mayo Clinic Expert Answer (2023) – “What is BPA? Should I be worried?” (practical tips for reducing exposure).</li>
+                            </ol>
                         </section>
                     </div>
                 </AccordionContent>
