@@ -22,21 +22,34 @@ interface AppSettingsProps {
 export function AppSettings({ userData, onUpdate }: AppSettingsProps) {
   const { toast } = useToast()
   const user = useAuth();
+  const [dailyGoal, setDailyGoal] = React.useState(userData.dailyGoal.toString());
   const [phone, setPhone] = React.useState(userData.bodyMetrics.phone || "");
   const [isSavingPhone, setIsSavingPhone] = React.useState(false);
+  
+  React.useEffect(() => {
+    const handler = setTimeout(() => {
+        const goalNumber = Number(dailyGoal);
+        if (!isNaN(goalNumber) && goalNumber > 0 && goalNumber !== userData.dailyGoal) {
+            onUpdate({ dailyGoal: goalNumber });
+            toast({
+                title: "Daily Goal Updated",
+                description: `Your new daily hydration goal is ${goalNumber}ml.`,
+            });
+        }
+    }, 1000); // 1-second debounce
 
-  const handleSettingChange = (key: keyof UserData['appSettings'] | 'motivationTone' | 'dailyGoal', value: any) => {
+    return () => {
+        clearTimeout(handler);
+    };
+  }, [dailyGoal, userData.dailyGoal, onUpdate, toast]);
+
+  const handleSettingChange = (key: keyof UserData['appSettings'] | 'motivationTone', value: any) => {
     if (key === 'motivationTone') {
       onUpdate({ [key]: value });
       toast({
         title: "AI Tone Updated",
         description: `Your motivational messages will now have a ${value} tone.`,
       });
-      return;
-    }
-
-    if (key === 'dailyGoal') {
-      onUpdate({ [key]: value });
       return;
     }
 
@@ -89,8 +102,8 @@ export function AppSettings({ userData, onUpdate }: AppSettingsProps) {
             <Label>Daily Hydration Goal (ml)</Label>
             <Input 
               type="number" 
-              value={userData.dailyGoal} 
-              onChange={(e) => handleSettingChange('dailyGoal', Number(e.target.value))}
+              value={dailyGoal} 
+              onChange={(e) => setDailyGoal(e.target.value)}
               className="font-code"
             />
           </div>
