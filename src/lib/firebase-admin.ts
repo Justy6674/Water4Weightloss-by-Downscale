@@ -2,7 +2,6 @@
 'use server';
 
 import * as admin from 'firebase-admin';
-import serviceAccount from '../../service-account.json';
 
 // This file initializes the Firebase Admin SDK for server-side operations.
 // It checks if the app is already initialized to prevent re-initialization,
@@ -10,17 +9,19 @@ import serviceAccount from '../../service-account.json';
 
 if (!admin.apps.length) {
   try {
-    // Initialize the Admin SDK using the service account credentials.
-    // The `admin.credential.cert()` method correctly processes the service account JSON object.
-    admin.initializeApp({
-      // We cast the imported JSON to the type the SDK expects.
-      credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
-    });
+    // In a managed Google Cloud environment like App Hosting or Cloud Run,
+    // calling initializeApp() without arguments automatically uses
+    // Application Default Credentials (ADC). The service account is
+    // provisioned by the environment, making this the most secure and
+    // robust method. It removes the need to handle credential files
+    // or environment variables directly in the code.
+    admin.initializeApp();
   } catch (error: any) {
-    // If initialization fails, log the error and throw a new, more descriptive error
-    // to halt the server and make the issue immediately visible. This is crucial for debugging.
-    console.error('CRITICAL: Firebase Admin SDK initialization failed.', error);
-    throw new Error(`Failed to initialize Firebase Admin SDK. Check the service-account.json file and server logs. Error: ${error.message}`);
+    // If initialization fails even with ADC, it points to a fundamental
+    // environment configuration issue.
+    console.error('CRITICAL: Firebase Admin SDK initialization failed with ADC.', error);
+    // We throw an error to halt server startup and make the problem visible immediately.
+    throw new Error(`Failed to initialize Firebase Admin SDK. This is likely an issue with the hosting environment's service account permissions. Error: ${error.message}`);
   }
 }
 
