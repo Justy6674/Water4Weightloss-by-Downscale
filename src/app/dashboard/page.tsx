@@ -579,7 +579,7 @@ const getCreateDbInstructions = () => (
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <Trophy className="text-primary" />
-                                <span>Gamification</span>
+                                <span>Achievements</span>
                             </CardTitle>
                             <CardDescription>Your progress and milestones.</CardDescription>
                         </CardHeader>
@@ -735,4 +735,5 @@ export default function Dashboard() {
   return <DashboardContents />
 }
 
+    
     
