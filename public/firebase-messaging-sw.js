@@ -1,13 +1,14 @@
-// DO NOT USE import/export syntax, this file is a service worker
-// and is not part of the normal Next.js build pipeline.
 
-// Import the functions you need from the SDKs you need
-self.importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
-self.importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');
+// This file must be in the public folder.
+// It needs to be a vanilla JavaScript file, not TypeScript.
 
-// Your web app's Firebase configuration
-// This is public and safe to be here. It's required for the background
-// service to identify your project to Google's push service.
+// Import the Firebase app and messaging services
+import { initializeApp } from "firebase/app";
+import { getMessaging, onBackgroundMessage } from "firebase/messaging/sw";
+
+// Your web app's Firebase configuration.
+// This is public data and it's safe to be here.
+// It's REQUIRED for the service worker to know which Firebase project to connect to.
 const firebaseConfig = {
   apiKey: "AIzaSyAvomIk-8jXk_NJP4NJBNZ50KBRQ6M3Des",
   authDomain: "water4weightloss-by-downscale.firebaseapp.com",
@@ -17,22 +18,18 @@ const firebaseConfig = {
   appId: "1:820622158878:web:4dba334d369bbb708a520f"
 };
 
-// Initialize Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const messaging = firebase.messaging();
+// Initialize the Firebase app in the service worker
+const app = initializeApp(firebaseConfig);
+const messaging = getMessaging(app);
 
-// Handle incoming messages when the app is in the background
-messaging.onBackgroundMessage((payload) => {
-  console.log(
-    '[firebase-messaging-sw.js] Received background message ',
-    payload
-  );
+// This handler will be triggered when the app is in the background or closed.
+onBackgroundMessage(messaging, (payload) => {
+  console.log('[firebase-messaging-sw.js] Received background message ', payload);
 
-  // Customize the notification here
   const notificationTitle = payload.notification.title;
   const notificationOptions = {
     body: payload.notification.body,
-    icon: '/logo.png', // Or your preferred icon
+    icon: '/logo.png' // Or your preferred icon
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);

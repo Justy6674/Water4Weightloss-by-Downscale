@@ -1,8 +1,12 @@
 
 {
   "name": "Water4Weightloss",
-  "short_name": "Water4Weightloss",
-  "description": "Track your hydration and achieve your weight loss goals.",
+  "short_name": "W4W",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#334155",
+  "theme_color": "#334155",
+  "description": "Gamified Hydration Coach for Weight Loss",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",
@@ -15,8 +19,5 @@
       "type": "image/png"
     }
   ],
-  "theme_color": "#334155",
-  "background_color": "#334155",
-  "start_url": "/dashboard",
-  "display": "standalone"
+  "gcm_sender_id": "103953800507"
 }
