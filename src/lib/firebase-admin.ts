@@ -7,8 +7,9 @@ import * as admin from 'firebase-admin';
 if (!admin.apps.length) {
   try {
     // When running on Google Cloud (App Hosting, Cloud Functions, etc.),
-    // GOOGLE_APPLICATION_CREDENTIALS is set automatically.
-    // The SDK will use the associated service account permissions.
+    // the GOOGLE_APPLICATION_CREDENTIALS environment variable is set automatically.
+    // The SDK will use the associated service account permissions. This is the
+    // standard for production environments.
     if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
       console.log('Initializing Firebase Admin SDK for Production (Application Default Credentials)...');
       admin.initializeApp({
@@ -21,12 +22,20 @@ if (!admin.apps.length) {
       console.log('Initializing Firebase Admin SDK for Local Development (service-account.json)...');
       const serviceAccount = require('../../service-account.json');
       
-      if (!serviceAccount.project_id) {
-          throw new Error('The service-account.json file is missing or invalid. Please ensure it is correctly placed in the root directory.');
+      if (!serviceAccount.project_id || !serviceAccount.private_key) {
+          throw new Error('The service-account.json file is missing, incomplete, or invalid. Please ensure it is correctly placed in the root directory and contains your project credentials.');
       }
 
+      // CRITICAL FIX: The private key from the JSON file has literal "\\n" which must be
+      // replaced with actual newline characters for the PEM parser to work.
+      const formattedPrivateKey = serviceAccount.private_key.replace(/\\n/g, '\n');
+
       admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
+        credential: admin.credential.cert({
+            projectId: serviceAccount.project_id,
+            clientEmail: serviceAccount.client_email,
+            privateKey: formattedPrivateKey, // Use the correctly formatted key
+        }),
         projectId: serviceAccount.project_id,
       });
       console.log('Firebase Admin SDK initialized successfully for local development.');
