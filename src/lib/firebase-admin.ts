@@ -2,6 +2,7 @@
 'use server';
 
 import * as admin from 'firebase-admin';
+import serviceAccount from '@/../service-account.json';
 
 // This file initializes the Firebase Admin SDK for server-side operations.
 // It checks if the app is already initialized to prevent re-initialization,
@@ -9,19 +10,17 @@ import * as admin from 'firebase-admin';
 
 if (!admin.apps.length) {
   try {
-    // In a managed Google Cloud environment like App Hosting or Cloud Run,
-    // calling initializeApp() without arguments automatically uses
-    // Application Default Credentials (ADC). The service account is
-    // provisioned by the environment, making this the most secure and
-    // robust method. It removes the need to handle credential files
-    // or environment variables directly in the code.
-    admin.initializeApp();
+    // This is the most direct and reliable way to initialize the Admin SDK
+    // when a service account file is present in the project. It avoids
+    // issues with environment variables or Application Default Credentials.
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
+    });
   } catch (error: any) {
-    // If initialization fails even with ADC, it points to a fundamental
-    // environment configuration issue.
-    console.error('CRITICAL: Firebase Admin SDK initialization failed with ADC.', error);
-    // We throw an error to halt server startup and make the problem visible immediately.
-    throw new Error(`Failed to initialize Firebase Admin SDK. This is likely an issue with the hosting environment's service account permissions. Error: ${error.message}`);
+    // If initialization fails now, it points to a fundamental issue with the
+    // service account file itself or the Firebase Admin SDK.
+    console.error('CRITICAL: Firebase Admin SDK initialization failed.', error);
+    throw new Error(`Failed to initialize Firebase Admin SDK. Please check the validity of your service-account.json file. Error: ${error.message}`);
   }
 }
 
