@@ -46,17 +46,14 @@ function LoginPageContents() {
     const [isGoogleLoading, setIsGoogleLoading] = useState(false)
     const [user, setUser] = useState<User | null>(null)
     const [checkingAuth, setCheckingAuth] = useState(true);
-    const [authError, setAuthError] = useState<string | null>(null);
+    const [authError, setAuthError] = useState<React.ReactNode | null>(null);
     const router = useRouter()
     const { toast } = useToast()
     
     useEffect(() => {
-        // This effect runs once on component mount
         const savedPreference = JSON.parse(localStorage.getItem('rememberMe') || 'true');
         setRememberMe(savedPreference);
-    }, []);
-
-    useEffect(() => {
+        
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
           setUser(currentUser);
           setCheckingAuth(false);
@@ -82,11 +79,19 @@ function LoginPageContents() {
         try {
             await signInWithEmailAndPassword(auth, email, password)
         } catch (error) {
-            let description = "An unexpected error occurred. Please try again.";
+            let description: React.ReactNode = "An unexpected error occurred. Please try again.";
             if (error instanceof FirebaseError) {
                 console.warn("Login Failed:", error.code);
                 if (error.code === 'auth/invalid-credential') {
-                    description = "Invalid email or password. Please try again.";
+                    description = (
+                        <span>
+                            Invalid email or password. Did you{" "}
+                            <button type="button" onClick={handlePasswordReset} className="underline font-bold hover:text-white">
+                                forget your password
+                            </button>
+                            ?
+                        </span>
+                    );
                 } else if (error.code.includes('requests-to-this-api-are-blocked')) {
                     description = "Email/Password sign-in is not enabled for this project. Please enable it in the Firebase console.";
                 } else {
