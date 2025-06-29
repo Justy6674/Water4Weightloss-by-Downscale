@@ -40,7 +40,7 @@ function DashboardContents() {
   const [user, setUser] = useState<User | null>(null)
   const [loadingUser, setLoadingUser] = useState(true)
   const [userData, setUserData] = useState<UserData | null>(null)
-  const [loadingError, setLoadingError] = useState<string | null>(null)
+  const [loadingError, setLoadingError] = useState<{title: string, description: React.ReactNode} | null>(null);
   const [manualAmount, setManualAmount] = useState("")
   const [showConfetti, setShowConfetti] = useState(false)
   const [motivation, setMotivation] = useState("Let's get hydrated!")
@@ -48,6 +48,55 @@ function DashboardContents() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [activeTab, setActiveTab] = useState("dashboard");
   const initialMotivationFetched = useRef(false);
+
+  const getSecurityRuleInstructions = () => (
+    <>
+      <div className="bg-background/80 p-4 rounded-md text-foreground">
+        <h3 className="font-bold">How to Fix This:</h3>
+        <ol className="list-decimal list-inside space-y-2 mt-2">
+          <li>Go to the <strong>Firestore Database</strong> section in your Firebase Console.</li>
+          <li>Make sure you are in the correct project. The project ID this app is using is: <strong className="font-mono bg-muted p-1 rounded">{process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "Not Set"}</strong></li>
+          <li>Click the <strong>Rules</strong> tab at the top.</li>
+          <li>Delete all the existing text in the editor.</li>
+          <li>Paste in this complete, secure ruleset:
+            <pre className="mt-2 p-2 bg-muted/50 rounded-md text-xs whitespace-pre-wrap font-code">
+              {`rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}`}
+            </pre>
+          </li>
+          <li>Click the <strong>Publish</strong> button.</li>
+        </ol>
+      </div>
+      <p className="text-sm text-destructive-foreground/80">
+        This new rule allows any logged-in user to access their own data, which is a standard and secure setup for this type of application. After publishing the rule, please refresh this page.
+      </p>
+    </>
+);
+
+const getCreateDbInstructions = () => (
+     <>
+      <div className="bg-background/80 p-4 rounded-md text-foreground">
+        <h3 className="font-bold">How to Fix This:</h3>
+        <ol className="list-decimal list-inside space-y-2 mt-2">
+          <li>Go to the <strong>Firestore Database</strong> section in your Firebase Console.</li>
+           <li>Make sure you are in the correct project: <strong className="font-mono bg-muted p-1 rounded">{process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "Not Set"}</strong></li>
+          <li>Click the <strong>Create database</strong> button.</li>
+          <li>Choose <strong>Start in production mode</strong>, then click Next.</li>
+          <li>Select a Cloud Firestore location (choose one close to your users), then click <strong>Enable</strong>.</li>
+        </ol>
+      </div>
+      <p className="text-sm text-destructive-foreground/80">
+        After the database is created, please refresh this page.
+      </p>
+    </>
+);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -85,7 +134,6 @@ function DashboardContents() {
         }
 
         const firestoreData = userDocSnap.data() || {};
-        // Ensure all properties from defaultUserData are present, especially for older user documents
         const data: UserData = {
             ...(defaultUserData as UserData),
             ...firestoreData,
@@ -97,7 +145,6 @@ function DashboardContents() {
                 ...defaultUserData.bodyMetrics,
                 ...(firestoreData.bodyMetrics || {}),
             },
-            // Explicitly handle logs to prevent default data from overwriting an intentionally empty log
             weightLog: firestoreData.weightLog || [],
             bloodPressureLog: firestoreData.bloodPressureLog || [],
         };
@@ -122,24 +169,40 @@ function DashboardContents() {
       } catch (error) {
         console.error("Failed to load user data:", error);
         
-        let errorMessage = "An unexpected error occurred while loading your data.";
+        let errorDetails: {title: string, description: React.ReactNode} = {
+            title: "An Unexpected Error Occurred",
+            description: "An unexpected error occurred while loading your data. Check the browser console for more details."
+        };
+
         if (error instanceof Error) {
             if (error.message.includes('DATABASE ACCESS DENIED')) {
-                 errorMessage = error.message;
+                 errorDetails = {
+                    title: "Action Required: Database Security Rules",
+                    description: getSecurityRuleInstructions()
+                 };
             } else if ('code' in error) {
                 const firebaseError = error as { code: string; message: string };
                 if (firebaseError.code === 'permission-denied' || firebaseError.code === 'unauthenticated') {
-                    errorMessage = `DATABASE ACCESS DENIED. Could not read or create user profile. Please check your Firestore security rules.`;
+                    errorDetails = {
+                        title: "Action Required: Database Security Rules",
+                        description: getSecurityRuleInstructions()
+                    };
                 } else if (firebaseError.code === 'failed-precondition') {
-                    errorMessage = "Firestore database has not been created or is misconfigured. Please go to the Firestore Database section of your Firebase Console and ensure a database exists by clicking 'Create database'.";
+                    errorDetails = {
+                        title: "Action Required: Create Firestore Database",
+                        description: getCreateDbInstructions()
+                    };
                 } else {
-                    errorMessage = `A Firebase error occurred: ${firebaseError.message} (Code: ${firebaseError.code}). Please check your Firebase setup.`;
+                    errorDetails = {
+                        title: "A Firebase Error Occurred",
+                        description: `Error: ${firebaseError.message} (Code: ${firebaseError.code}). Please check your Firebase setup and console for more details.`
+                    };
                 }
             } else {
-                 errorMessage = error.message;
+                 errorDetails.description = error.message;
             }
         }
-        setLoadingError(errorMessage);
+        setLoadingError(errorDetails);
       }
     };
 
@@ -261,7 +324,6 @@ function DashboardContents() {
   const handleMetricsSave = async (metrics: Partial<UserData['bodyMetrics']>, newWeightReading?: Omit<WeightReading, 'timestamp'>) => {
     if (!userData || !user) return;
     
-    // Optimistic UI update for body metrics
     const updatedBodyMetrics = { ...userData.bodyMetrics, ...metrics };
     const newUserData = { ...userData, bodyMetrics: updatedBodyMetrics };
     
@@ -275,17 +337,14 @@ function DashboardContents() {
     setUserData(newUserData);
 
     try {
-      // Persist to DB
       if (newWeightReading) {
         await addWeightReading(user.uid, newWeightReading);
       }
-      // Update other metrics that are not part of a log
       const otherMetrics = { waist: metrics.waist, height: metrics.height, gender: metrics.gender };
       await updateUserData(user.uid, { bodyMetrics: otherMetrics });
 
       toast({ title: "Metrics Saved", description: "Your body metrics have been updated." });
     } catch(error) {
-      // Revert optimistic update on failure
       setUserData({ ...userData });
       console.error("Failed to save metrics:", error);
       toast({ variant: "destructive", title: "Save Failed", description: "Could not save your metrics." });
@@ -344,38 +403,13 @@ function DashboardContents() {
       <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 lg:p-8 font-body flex items-center justify-center">
         <Card className="max-w-2xl bg-destructive/10 border-destructive">
           <CardHeader>
-            <CardTitle className="text-destructive-foreground">Action Required: Database Configuration Error</CardTitle>
+            <CardTitle className="text-destructive-foreground">{loadingError.title}</CardTitle>
             <CardDescription className="text-destructive-foreground/80">
-             The application is being blocked by your database security rules.
+             There is a configuration issue with your Firebase project.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="bg-background/80 p-4 rounded-md text-foreground">
-              <h3 className="font-bold">How to Fix This:</h3>
-              <ol className="list-decimal list-inside space-y-2 mt-2">
-                <li>Go to the <strong>Firestore Database</strong> section in your Firebase Console.</li>
-                <li>Make sure you are in the correct project. The project ID this app is using is: <strong className="font-mono bg-muted p-1 rounded">{process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "Not Set"}</strong></li>
-                <li>Click the <strong>Rules</strong> tab at the top.</li>
-                <li>Delete all the existing text in the editor.</li>
-                <li>Paste in this complete, secure ruleset:
-                  <pre className="mt-2 p-2 bg-muted/50 rounded-md text-xs whitespace-pre-wrap font-code">
-                    {`rules_version = '2';
-
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-  }
-}`}
-                  </pre>
-                </li>
-                <li>Click the <strong>Publish</strong> button.</li>
-              </ol>
-            </div>
-            <p className="text-sm text-destructive-foreground/80">
-              This new rule allows any logged-in user to access their own data, which is a standard and secure setup for this type of application. After publishing the rule, please refresh this page.
-            </p>
+            {loadingError.description}
           </CardContent>
         </Card>
       </div>
