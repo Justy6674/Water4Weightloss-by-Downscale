@@ -3,6 +3,8 @@
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Separator } from "@/components/ui/separator"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 export function InfoContent() {
   return (
@@ -64,11 +66,11 @@ export function InfoContent() {
             <AccordionItem value="item-2">
                 <AccordionTrigger className="text-xl text-left font-headline hover:no-underline">Endocrine Disrupting Chemicals (EDCs)</AccordionTrigger>
                 <AccordionContent>
-                    <div className="space-y-6 pt-2 prose prose-invert prose-p:text-card-foreground/90 prose-headings:text-foreground prose-h3:text-xl prose-h4:text-lg prose-strong:text-foreground prose-ol:list-decimal prose-ol:pl-6 prose-ol:space-y-2">
+                    <div className="space-y-6 pt-2 prose prose-invert prose-p:text-card-foreground/90 prose-headings:text-foreground prose-h3:text-xl prose-h4:text-lg prose-strong:text-foreground prose-ol:list-decimal prose-ol:pl-6 prose-ol:space-y-2 prose-blockquote:border-primary prose-blockquote:text-muted-foreground">
                         <section>
                             <h3>What Are EDCs and Why Do They Matter?</h3>
                             <p>
-                                Plastics are everywhere in modern life, but many contain chemicals that can interfere with the body's delicate hormonal systems. These are known as <strong>Endocrine-Disrupting Chemicals (EDCs)</strong>. There is a growing fear and scientific consensus that long-term exposure to these chemicals is linked to challenges with weight management and metabolic health.
+                                Plastics are everywhere in modern life, but there is a growing fear and scientific consensus that many contain chemicals that can interfere with the body's delicate hormonal systems. These are known as <strong>Endocrine-Disrupting Chemicals (EDCs)</strong>. Long-term exposure to these chemicals is linked to challenges with weight management and metabolic health.
                             </p>
                             <p>
                                 Common examples include <strong>BPA</strong> (used in hard polycarbonate plastics like water bottles and food containers) and <strong>phthalates</strong> (used to make plastics flexible). These chemicals can mimic or block our natural hormones. The emerging concern of <strong>microplastics</strong>—tiny plastic fragments found in our water, food, and even our bodies—is that they can act as vehicles, carrying and leaching these EDCs directly into our tissues.
@@ -111,7 +113,7 @@ export function InfoContent() {
                                     <strong>Never Heat Food in Plastic:</strong> Always transfer food to a glass or ceramic dish before microwaving.
                                 </li>
                             </ul>
-                             <blockquote className="border-l-4 border-primary pl-4 italic my-4 text-muted-foreground">
+                             <blockquote>
                                 <strong>A Word on "BPA-Free" Plastics:</strong> While it sounds safer, manufacturers often replace BPA with other chemicals (like BPS or BPF) that can have similar hormone-disrupting effects. For this reason, choosing inert materials like glass or stainless steel is always the most reliable and safest choice.
                              </blockquote>
                         </section>
@@ -147,9 +149,70 @@ export function InfoContent() {
             <AccordionItem value="item-3">
                 <AccordionTrigger className="text-xl text-left font-headline hover:no-underline">Understanding BMI &amp; Waist Measurements</AccordionTrigger>
                 <AccordionContent>
-                    <div className="space-y-4 pt-2 prose prose-invert prose-p:text-card-foreground/90">
-                        <p>This section will provide a kind, patient-first analysis of body metrics like BMI and waist circumference, drawing from best practices to understand them as part of a bigger health picture, not just as numbers on a scale.</p>
-                        <p className="text-muted-foreground">Content based on guidance from sources like the World Obesity Federation will be added here.</p>
+                     <div className="space-y-6 pt-2 prose prose-invert prose-p:text-card-foreground/90 prose-headings:text-foreground prose-h3:text-xl prose-h4:text-lg prose-strong:text-foreground prose-ol:list-decimal prose-ol:pl-6 prose-ol:space-y-2 prose-blockquote:border-primary prose-blockquote:text-muted-foreground">
+                        <section>
+                            <h3>A Patient-First Approach to Health</h3>
+                            <p>
+                                It's important to remember that health is a personal journey, and numbers like BMI are just one of many tools to help guide it. They don't define your worth or tell the whole story of your well-being. The information here, based on guidelines from the Obesity Medicine Association, is designed to empower you with knowledge.
+                            </p>
+                            <blockquote>
+                                <strong>The most important principle:</strong> Obesity is a chronic, progressive, and treatable medical condition. It is not a choice or a failure of willpower. It involves complex factors including genetics, environment, and neurobehavioral responses.
+                            </blockquote>
+                        </section>
+                        <Separator />
+                        <section>
+                            <h3>What Are We Measuring?</h3>
+                            <h4>Body Mass Index (BMI)</h4>
+                            <p>
+                                BMI is a simple screening tool that uses your height and weight to estimate body fat. It's widely used, but it's important to understand its limitations. BMI does not account for muscle mass, bone density, or differences in body composition between genders and ethnicities. It is best used as a starting point for a conversation about health, not a final verdict.
+                            </p>
+                            <h4 className="mt-4">Waist Circumference</h4>
+                            <p>
+                                Measuring your waist is another helpful tool because it gives an idea of abdominal fat. An increase in waist size is linked to a higher risk of metabolic conditions like type 2 diabetes and heart disease. For most men, a goal is often under 102 cm (40 inches), and for women, under 88 cm (35 inches), though these can vary by ethnicity.
+                            </p>
+                        </section>
+                        <Separator />
+                        <section>
+                            <h3>Understanding the Health Risks of Obesity</h3>
+                            <p>
+                                When body fat increases to a point where it affects health, the challenges can be thought of in two main ways:
+                            </p>
+                            <ul className="list-disc space-y-2 pl-6">
+                                <li>
+                                    <strong>Fat Mass Disease:</strong> This refers to the physical and mechanical stress that excess weight can place on the body. This can lead to issues like osteoarthritis in the knees and hips, sleep apnea, or acid reflux.
+                                </li>
+                                <li>
+                                    <strong>"Sick Fat" Disease (Adiposopathy):</strong> This is when fat tissue itself becomes dysfunctional and releases substances that disrupt the body's normal hormonal and immune balance. This is a primary driver of metabolic conditions like high blood pressure, unhealthy cholesterol levels, and insulin resistance (which leads to type 2 diabetes).
+                                </li>
+                            </ul>
+                        </section>
+                         <Separator />
+                        <section>
+                            <h3>Focusing on the Benefits of Management</h3>
+                            <p>
+                                Managing obesity is about much more than just the number on the scale; it's about improving your overall health and quality of life. Even a modest weight loss of 5-10% can lead to significant health improvements:
+                            </p>
+                             <ul className="list-disc space-y-2 pl-6">
+                                <li>Improved blood sugar, blood pressure, and cholesterol levels.</li>
+                                <li>Reduced stress on joints and improved mobility.</li>
+                                <li>Better sleep and reduced risk of sleep apnea.</li>
+                                <li>Improved mood and overall well-being.</li>
+                            </ul>
+                            <p className="mt-4">
+                                Your health journey is unique. Using tools like hydration tracking, understanding your metrics, and focusing on healthy habits are powerful steps toward a healthier life.
+                            </p>
+                        </section>
+                        <Separator />
+                        <section>
+                           <h3>Ready to Take the Next Step?</h3>
+                           <p>If you are in Australia and would like to discuss a comprehensive, medically-supervised approach to your health, our team at Downscale Weight Loss Clinic is here to help.</p>
+                           <Button asChild className="mt-2">
+                               <Link href="https://www.downscale.com.au" target="_blank" rel="noopener noreferrer">
+                                   Book a Consultation with Downscale Clinic (Australia)
+                               </Link>
+                           </Button>
+                        </section>
+
                     </div>
                 </AccordionContent>
             </AccordionItem>
@@ -157,7 +220,7 @@ export function InfoContent() {
             <AccordionItem value="item-4">
                 <AccordionTrigger className="text-xl text-left font-headline hover:no-underline">Hydration &amp; Weight Loss Medications</AccordionTrigger>
                 <AccordionContent>
-                     <div className="space-y-6 pt-2 prose prose-invert prose-p:text-card-foreground/90 prose-headings:text-foreground prose-strong:text-foreground">
+                     <div className="space-y-6 pt-2 prose prose-invert prose-p:text-card-foreground/90 prose-headings:text-foreground prose-strong:text-foreground prose-blockquote:border-primary prose-blockquote:text-muted-foreground">
                         <section>
                            <p>
                             If you are using weight loss medications (like GLP-1 agonists), staying hydrated is even more crucial. These medications can diminish your thirst drive, and side effects like nausea can deplete fluids.
@@ -165,7 +228,7 @@ export function InfoContent() {
                             <p>
                             Crucially, many side effects of these medications are preventable or eased by hydration. Constipation, dry mouth, headaches, and fatigue can all be symptoms of mild dehydration. Drinking enough water can lessen these symptoms and make your treatment more comfortable.
                             </p>
-                             <blockquote className="border-l-4 border-primary pl-4 italic my-4 text-muted-foreground">
+                             <blockquote>
                                 <strong>Key takeaway:</strong> Hydration helps maximize your medication’s effectiveness and reduces side effects.
                              </blockquote>
                         </section>
@@ -176,3 +239,5 @@ export function InfoContent() {
     </div>
   )
 }
+
+    
