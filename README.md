@@ -71,25 +71,17 @@ Follow these steps to set up the development environment.
 
 ### 3. Credentials Setup
 
-The application requires credentials for Firebase, Google AI, and Twilio. This is a two-part process.
+The application requires credentials for Firebase, Google AI, and Twilio. This is handled via an environment file.
 
-#### Step 1: Backend Credentials (for Local Server)
+1.  Create a file named `.env.local` in the root of your project.
+2.  Copy the contents of the `.env` template file into your new `.env.local` file.
+3.  Fill in all the required variables.
 
-For local development, the server needs secret credentials to perform actions like sending push notifications.
+#### Step 1: Frontend & Service Credentials (`.env.local`)
 
-1.  In your Firebase Project Settings, go to the **Service accounts** tab.
-2.  Click **Generate new private key** and a JSON file will be downloaded.
-3.  **Rename this file to `service-account.json`**.
-4.  Place the `service-account.json` file in the **root directory** of the project. This file is listed in `.gitignore` and will not be committed.
-5.  **Important**: Open the file and ensure it contains your actual project credentials, not placeholder text.
-
-#### Step 2: Frontend & Services Credentials
-
-Create a file named `.env.local` in the root of your project. Copy the template below and fill it with your credentials. **This is for local development only.** Your deployed application uses a more secure method to access these secrets.
+Fill in these values in your `.env.local` file:
 
 ```bash
-# .env.local
-
 # --- Firebase Client SDK (Public Keys) ---
 # Find these in Firebase Console > Project Settings > General > Your apps > SDK setup and configuration
 NEXT_PUBLIC_FIREBASE_API_KEY=
@@ -111,8 +103,23 @@ TWILIO_AUTH_TOKEN=
 TWILIO_PHONE_NUMBER=
 ```
 
-*   Fill in the `NEXT_PUBLIC_*` variables from your Firebase project settings.
-*   Fill in your API keys for Google AI and Twilio.
+#### Step 2: Backend Credentials (`.env.local`)
+
+For the backend (Server Actions, Push Notifications) to work locally, it needs your Firebase Admin service account credentials.
+
+1.  In your Firebase Project Settings, go to the **Service accounts** tab.
+2.  Click **Generate new private key** and a JSON file will be downloaded.
+3.  Open this file in a text editor.
+4.  **Important**: You need to convert the multi-line JSON into a single line. You can use an online tool for this, or carefully do it by hand by replacing all newlines with `\n`.
+5.  In your `.env.local` file, add the following variable and paste the **entire single-line JSON content** as its value:
+
+    ```bash
+    # --- Firebase Admin SDK (Local Backend Secret) ---
+    FIREBASE_SERVICE_ACCOUNT_KEY=PASTE_YOUR_SINGLE_LINE_JSON_HERE
+    ```
+
+    It should look something like this (this is an example, do not use it):
+    `FIREBASE_SERVICE_ACCOUNT_KEY={"type": "service_account", "project_id": "...", ...}`
 
 ### 4. Run the Application
 
@@ -152,7 +159,7 @@ water4weightloss/
 │   ├── ai/             # Genkit AI flows
 │   └── services/       # Third-party service clients (e.g., Twilio)
 ├── .env.local          # Environment variables (DO NOT COMMIT)
-├── service-account.json # Server credentials for local dev (DO NOT COMMIT)
+├── service-account.json # Source for credentials, not used directly by app
 ├── firebase.json       # Firebase project configuration
 ```
 -----

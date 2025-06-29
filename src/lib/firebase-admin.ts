@@ -1,18 +1,32 @@
 
 'use server';
 
-import { initializeApp, cert, getApps, getApp } from 'firebase-admin/app';
+import { initializeApp, cert, getApps, getApp, App } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getMessaging } from 'firebase-admin/messaging';
-import serviceAccount from '../../service-account.json';
 
-// This ensures we only initialize the app once, making it safe to import this file
-// across multiple server-side modules.
-const adminApp = !getApps().length
-  ? initializeApp({
-      credential: cert(serviceAccount as any),
-    })
-  : getApp();
+let adminApp: App;
+
+try {
+    const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+    if (!serviceAccountKey) {
+        throw new Error('The FIREBASE_SERVICE_ACCOUNT_KEY environment variable is not set. Please see the README.md for instructions.');
+    }
+
+    const serviceAccount = JSON.parse(serviceAccountKey);
+
+    if (getApps().length === 0) {
+        adminApp = initializeApp({
+            credential: cert(serviceAccount),
+        });
+    } else {
+        adminApp = getApp();
+    }
+} catch (error: any) {
+    console.error('CRITICAL: Firebase Admin SDK initialization failed.', error);
+    // Provide a clear error message that guides the user.
+    throw new Error(`Failed to initialize Firebase Admin SDK. Error: ${error.message}. Please check your credentials and environment setup as described in the README.`);
+}
 
 const adminDb = getFirestore(adminApp);
 const adminMessaging = getMessaging(adminApp);
