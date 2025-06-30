@@ -222,7 +222,7 @@ export async function saveFcmToken(userId: string, token: string): Promise<void>
             fcmTokens: admin.firestore.FieldValue.arrayUnion(token),
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
-    } catch (error)
+    } catch (error) {
         console.error("Firebase Error: Failed to save FCM token:", error);
         throw new Error("Could not save notification token to the database.");
     }
