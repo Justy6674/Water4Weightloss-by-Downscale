@@ -126,12 +126,23 @@ const personalizedMotivationFlow = ai.defineFlow(
     outputSchema: MotivationOutputSchema,
   },
   async input => {
-    console.log('PROOF: Generating motivation with input:', JSON.stringify(input));
-    
-    const {output} = await prompt(input);
+    try {
+      console.log('AI FLOW: Generating motivation with input:', JSON.stringify(input, null, 2));
+      
+      const {output} = await prompt(input);
 
-    console.log('PROOF: Received motivation from Gemini:', JSON.stringify(output));
-    
-    return output!;
+      if (!output) {
+        console.error('AI FLOW ERROR: Gemini returned a null or undefined output.');
+        throw new Error('The AI model returned no output.');
+      }
+      
+      console.log('AI FLOW SUCCESS: Received motivation from Gemini:', JSON.stringify(output, null, 2));
+      return output;
+
+    } catch (e) {
+      console.error("AI FLOW CRITICAL FAILURE in personalizedMotivationFlow:", e);
+      // Re-throw the error to ensure the client-side catch block is triggered
+      throw e;
+    }
   }
 );

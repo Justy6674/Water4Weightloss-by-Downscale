@@ -59,12 +59,24 @@ const reminderFlow = ai.defineFlow(
     outputSchema: ReminderOutputSchema,
   },
   async input => {
-    console.log('PROOF: Generating reminder with input:', JSON.stringify(input));
+    try {
+      console.log('AI FLOW: Generating reminder with input:', JSON.stringify(input, null, 2));
 
-    const {output} = await prompt(input);
+      const {output} = await prompt(input);
 
-    console.log('PROOF: Received reminder from Gemini:', JSON.stringify(output));
+      if (!output) {
+        console.error('AI FLOW ERROR: Gemini returned a null or undefined output for reminder.');
+        throw new Error('The AI model returned no output for the reminder message.');
+      }
 
-    return output!;
+      console.log('AI FLOW SUCCESS: Received reminder from Gemini:', JSON.stringify(output, null, 2));
+
+      return output;
+
+    } catch(e) {
+      console.error("AI FLOW CRITICAL FAILURE in reminderFlow:", e);
+      throw e;
+    }
   }
 );
+
