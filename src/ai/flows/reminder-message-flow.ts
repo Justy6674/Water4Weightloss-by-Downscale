@@ -2,15 +2,16 @@
 'use server';
 
 /**
- * @fileOverview AI flow for generating hydration reminder messages.
+ * @fileOverview AI flow for generating hydration reminder messages using the direct Google AI SDK.
  *
  * - generateReminder - Generates a context-aware reminder message.
  * - ReminderInput - The input type for the generateReminder function.
  * - ReminderOutput - The return type for the generateReminder function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { model } from '@/server/google-ai';
+import { z } from 'zod';
+
 
 const ReminderInputSchema = z.object({
   userName: z.string().optional().describe("The user's name, if available."),
@@ -27,56 +28,50 @@ const ReminderOutputSchema = z.object({
 export type ReminderOutput = z.infer<typeof ReminderOutputSchema>;
 
 
-export async function generateReminder(input: ReminderInput): Promise<ReminderOutput> {
-  return reminderFlow(input);
-}
-
-const prompt = ai.definePrompt({
-  name: 'reminderMessagePrompt',
-  model: 'googleai/gemini-1.5-flash',
-  input: {schema: ReminderInputSchema},
-  output: {schema: ReminderOutputSchema},
-  prompt: `You are an AI assistant that sends brief, effective hydration reminders.
+const promptTemplate = `You are an AI assistant that sends brief, effective hydration reminders.
   Your goal is to gently nudge the user to drink some water.
   Keep the message very short (1-2 sentences).
+  Return a JSON object matching this schema: { "message": "The concise, personalized reminder message." }
 
   Use the following information to craft the reminder:
-  - User's Name: {{userName}}
-  - Current Hydration: {{hydrationPercentage}}% of daily goal
-  - Time Since Last Drink: {{timeSinceLastDrink}}
-  - Preferred Tone: {{preferredTone}}
-  - Time of Day: {{timeOfDay}}
+  - User's Name: ${'input.userName'}
+  - Current Hydration: ${'input.hydrationPercentage'}% of daily goal
+  - Time Since Last Drink: ${'input.timeSinceLastDrink'}
+  - Preferred Tone: ${'input.preferredTone'}
+  - Time of Day: ${'input.timeOfDay'}
 
-  TASK: Generate a reminder message with the specified tone. For example, a funny reminder could be "Are you a camel? It's been {{timeSinceLastDrink}} since your last drink!". A supportive one could be "Hey {{userName}}, just a gentle reminder to take a sip of water and keep up the great work!".
-  `,
-});
+  TASK: Generate a reminder message with the specified tone. For example, a funny reminder could be "Are you a camel? It's been ${'input.timeSinceLastDrink'} since your last drink!". A supportive one could be "Hey ${'input.userName'}, just a gentle reminder to take a sip of water and keep up the great work!".
+  `;
 
+export async function generateReminder(input: ReminderInput): Promise<ReminderOutput> {
+  console.log('DIRECT AI SDK: Generating reminder with input:', JSON.stringify(input, null, 2));
 
-const reminderFlow = ai.defineFlow(
-  {
-    name: 'reminderFlow',
-    inputSchema: ReminderInputSchema,
-    outputSchema: ReminderOutputSchema,
-  },
-  async input => {
-    try {
-      console.log('AI FLOW: Generating reminder with input:', JSON.stringify(input, null, 2));
+  const prompt = promptTemplate
+    .replace('${"input.userName"}', input.userName || 'there')
+    .replace('${"input.hydrationPercentage"}', String(input.hydrationPercentage))
+    .replace('${"input.timeSinceLastDrink"}', input.timeSinceLastDrink)
+    .replace('${"input.preferredTone"}', input.preferredTone)
+    .replace('${"input.timeOfDay"}', input.timeOfDay)
+    .replace('${"input.timeSinceLastDrink"}', input.timeSinceLastDrink)
+    .replace('${"input.userName"}', input.userName || 'there');
 
-      const {output} = await prompt(input);
+  try {
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const jsonString = response.text();
 
-      if (!output) {
-        console.error('AI FLOW ERROR: Gemini returned a null or undefined output for reminder.');
-        throw new Error('The AI model returned no output for the reminder message.');
-      }
+    console.log('DIRECT AI SDK SUCCESS: Received raw response from Gemini:', jsonString);
 
-      console.log('AI FLOW SUCCESS: Received reminder from Gemini:', JSON.stringify(output, null, 2));
+    const parsedOutput = ReminderOutputSchema.parse(JSON.parse(jsonString));
+    
+    console.log('DIRECT AI SDK SUCCESS: Parsed and validated output:', parsedOutput);
+    return parsedOutput;
 
-      return output;
-
-    } catch(e) {
-      console.error("AI FLOW CRITICAL FAILURE in reminderFlow:", e);
-      throw e;
+  } catch (e) {
+    console.error("DIRECT AI SDK CRITICAL FAILURE in generateReminder:", e);
+    if (e instanceof Error) {
+      throw new Error(`Gemini API call failed for reminder: ${e.message}`);
     }
+    throw new Error('An unknown error occurred while calling the Gemini API for a reminder.');
   }
-);
-
+}

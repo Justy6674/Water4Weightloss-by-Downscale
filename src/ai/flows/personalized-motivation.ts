@@ -2,15 +2,15 @@
 'use server';
 
 /**
- * @fileOverview AI-powered personalized motivation flow.
+ * @fileOverview AI-powered personalized motivation flow using the direct Google AI SDK.
  *
  * - generateMotivation - A function that generates personalized motivational messages based on user's hydration habits and progress.
  * - MotivationInput - The input type for the generateMotivation function.
  * - MotivationOutput - The return type for the generateMotivation function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { model } from '@/server/google-ai';
+import { z } from 'zod';
 
 const MotivationInputSchema = z.object({
   hydrationPercentage: z
@@ -37,16 +37,7 @@ const MotivationOutputSchema = z.object({
 });
 export type MotivationOutput = z.infer<typeof MotivationOutputSchema>;
 
-export async function generateMotivation(input: MotivationInput): Promise<MotivationOutput> {
-  return personalizedMotivationFlow(input);
-}
-
-const prompt = ai.definePrompt({
-  name: 'personalizedMotivationPrompt',
-  model: 'googleai/gemini-1.5-flash',
-  input: {schema: MotivationInputSchema},
-  output: {schema: MotivationOutputSchema},
-  prompt: `You are an AI assistant designed to provide personalized motivational messages to users who are tracking their water intake for weight loss.
+const promptTemplate = `You are an AI assistant designed to provide personalized motivational messages to users who are tracking their water intake for weight loss.
 
   Use the following scientific context to inform your messages. This information is crucial for generating accurate, helpful, and motivating content, especially for users on weight loss medications.
 
@@ -91,58 +82,63 @@ const prompt = ai.definePrompt({
 
   **TASK**
   The goal is to keep the user motivated to stay hydrated and achieve their daily hydration goals. The message should be personalized based on the user's current data. Subtly weave in facts from the context above where relevant. For example, if they are on track, you could mention how their consistency is helping their metabolism.
+  Return a JSON object matching this schema: { "message": "The personalized motivational message." }
 
   **USER DATA:**
-  Hydration Percentage: {{{hydrationPercentage}}}%
-  Streak: {{{streak}}} days
-  Last Drink Size: {{{lastDrinkSizeMl}}} ml
-  Time of Day: {{{timeOfDay}}}
-  Preferred Tone: {{{preferredTone}}}
-  On Medication: {{{isOnMedication}}}
-
-  Milestone Status: {{{milestoneStatus}}}
-  {{#if nextMilestoneInfo}}
-  Next Milestone: {{{nextMilestoneInfo}}}
-  {{/if}}
+  Hydration Percentage: ${input.hydrationPercentage}%
+  Streak: ${input.streak} days
+  Last Drink Size: ${input.lastDrinkSizeMl} ml
+  Time of Day: ${input.timeOfDay}
+  Preferred Tone: ${input.preferredTone}
+  On Medication: ${input.isOnMedication}
+  Milestone Status: ${input.milestoneStatus}
+  ${input.nextMilestoneInfo ? `Next Milestone: ${input.nextMilestoneInfo}` : ''}
 
   **INSTRUCTIONS**
   Generate a motivational message with the specified tone. Keep the message concise (around 1-3 sentences).
   
-  {{#if isOnMedication}}
-  The user is taking weight loss medication. It is critical that you tailor your message to this fact, using the provided context about hydration's role in managing side effects and maximizing medication efficacy. Your tone should be extra supportive and informative in this case.
-  {{/if}}
+  ${input.isOnMedication ? "The user is taking weight loss medication. It is critical that you tailor your message to this fact, using the provided context about hydration's role in managing side effects and maximizing medication efficacy. Your tone should be extra supportive and informative in this case." : ""}
 
   - If milestoneStatus is 'ahead', congratulate them for being ahead of schedule.
   - If milestoneStatus is 'onTrack', encourage them to keep going to hit their next milestone.
   - If milestoneStatus is 'goalMet', give them a big congratulation for hitting their daily goal.
-  - If milestoneStatus is 'none', tell them they did a great job today and to remember to hydrate tomorrow.
-  `,
-});
+  - If milestoneStatus is 'none', tell them they did a great job today and to remember to hydrate tomorrow.`;
 
-const personalizedMotivationFlow = ai.defineFlow(
-  {
-    name: 'personalizedMotivationFlow',
-    inputSchema: MotivationInputSchema,
-    outputSchema: MotivationOutputSchema,
-  },
-  async input => {
-    try {
-      console.log('AI FLOW: Generating motivation with input:', JSON.stringify(input, null, 2));
-      
-      const {output} = await prompt(input);
+export async function generateMotivation(input: MotivationInput): Promise<MotivationOutput> {
+  console.log('DIRECT AI SDK: Generating motivation with input:', JSON.stringify(input, null, 2));
 
-      if (!output) {
-        console.error('AI FLOW ERROR: Gemini returned a null or undefined output.');
-        throw new Error('The AI model returned no output.');
-      }
-      
-      console.log('AI FLOW SUCCESS: Received motivation from Gemini:', JSON.stringify(output, null, 2));
-      return output;
+  // Construct the full prompt string
+  const prompt = promptTemplate
+    .replace('${input.hydrationPercentage}', String(input.hydrationPercentage))
+    .replace('${input.streak}', String(input.streak))
+    .replace('${input.lastDrinkSizeMl}', String(input.lastDrinkSizeMl))
+    .replace('${input.timeOfDay}', input.timeOfDay)
+    .replace('${input.preferredTone}', input.preferredTone)
+    .replace('${input.isOnMedication}', String(input.isOnMedication))
+    .replace('${input.milestoneStatus}', input.milestoneStatus)
+    .replace('${input.nextMilestoneInfo ? `Next Milestone: ${input.nextMilestoneInfo}` : \'\'}', input.nextMilestoneInfo ? `Next Milestone: ${input.nextMilestoneInfo}` : '')
+    .replace('${input.isOnMedication ? "The user is taking weight loss medication. It is critical that you tailor your message to this fact, using the provided context about hydration\'s role in managing side effects and maximizing medication efficacy. Your tone should be extra supportive and informative in this case." : ""}', input.isOnMedication ? "The user is taking weight loss medication. It is critical that you tailor your message to this fact, using the provided context about hydration\'s role in managing side effects and maximizing medication efficacy. Your tone should be extra supportive and informative in this case." : "");
 
-    } catch (e) {
-      console.error("AI FLOW CRITICAL FAILURE in personalizedMotivationFlow:", e);
-      // Re-throw the error to ensure the client-side catch block is triggered
-      throw e;
+  try {
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const jsonString = response.text();
+
+    console.log('DIRECT AI SDK SUCCESS: Received raw response from Gemini:', jsonString);
+
+    // Parse the JSON string and validate with Zod
+    const parsedOutput = MotivationOutputSchema.parse(JSON.parse(jsonString));
+    
+    console.log('DIRECT AI SDK SUCCESS: Parsed and validated output:', parsedOutput);
+    return parsedOutput;
+
+  } catch (e) {
+    console.error("DIRECT AI SDK CRITICAL FAILURE in generateMotivation:", e);
+    // Re-throw the error to ensure the client-side catch block is triggered
+    // and we can see the exact failure reason.
+    if (e instanceof Error) {
+        throw new Error(`Gemini API call failed: ${e.message}`);
     }
+    throw new Error('An unknown error occurred while calling the Gemini API.');
   }
-);
+}
