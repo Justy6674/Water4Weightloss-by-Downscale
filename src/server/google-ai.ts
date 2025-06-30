@@ -1,6 +1,4 @@
 
-'use server';
-
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // This is the single, centralized point for initializing the Google AI SDK.
