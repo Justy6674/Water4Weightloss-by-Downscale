@@ -1,8 +1,8 @@
-import {config} from 'dotenv';
-config(); // Ensures .env.local is loaded for local development
-
 import {genkit} from 'genkit';
 import {googleAI} from '@genkit-ai/googleai';
+
+// Next.js handles .env.local loading automatically.
+// Explicitly calling dotenv/config can interfere with this process.
 
 const apiKey = process.env.GOOGLE_AI_API_KEY || process.env.GEMINI_API_KEY;
 

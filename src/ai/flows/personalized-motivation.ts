@@ -126,7 +126,12 @@ const personalizedMotivationFlow = ai.defineFlow(
     outputSchema: MotivationOutputSchema,
   },
   async input => {
+    console.log('PROOF: Generating motivation with input:', JSON.stringify(input));
+    
     const {output} = await prompt(input);
+
+    console.log('PROOF: Received motivation from Gemini:', JSON.stringify(output));
+    
     return output!;
   }
 );

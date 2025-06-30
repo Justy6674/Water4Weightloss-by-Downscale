@@ -59,7 +59,12 @@ const reminderFlow = ai.defineFlow(
     outputSchema: ReminderOutputSchema,
   },
   async input => {
+    console.log('PROOF: Generating reminder with input:', JSON.stringify(input));
+
     const {output} = await prompt(input);
+
+    console.log('PROOF: Received reminder from Gemini:', JSON.stringify(output));
+
     return output!;
   }
 );
