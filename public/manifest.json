@@ -1,17 +1,22 @@
-
 {
   "name": "Water4Weightloss",
-  "short_name": "W4W",
-  "start_url": "/",
+  "short_name": "Water4Weightloss",
+  "description": "The AI-powered hydration coach for your weight loss journey.",
+  "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#334155",
   "theme_color": "#334155",
-  "description": "Track your hydration and achieve your weight loss goals.",
   "icons": [
     {
       "src": "/favicon 192x192.png",
       "sizes": "192x192",
       "type": "image/png"
+    },
+    {
+      "src": "/favicon 192x192.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
