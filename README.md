@@ -115,11 +115,11 @@ For the backend (Server Actions, Push Notifications) to work locally, it needs y
 
     ```bash
     # --- Firebase Admin SDK (Local Backend Secret) ---
-    FIREBASE_SERVICE_ACCOUNT_KEY=PASTE_YOUR_SINGLE_LINE_JSON_HERE
+    SERVICE_ACCOUNT_JSON=PASTE_YOUR_SINGLE_LINE_JSON_HERE
     ```
 
     It should look something like this (this is an example, do not use it):
-    `FIREBASE_SERVICE_ACCOUNT_KEY={"type": "service_account", "project_id": "...", ...}`
+    `SERVICE_ACCOUNT_JSON={"type": "service_account", "project_id": "...", ...}`
 
 ### 4. Run the Application
 

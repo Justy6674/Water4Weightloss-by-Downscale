@@ -8,9 +8,9 @@ import { getMessaging } from 'firebase-admin/messaging';
 let adminApp: App;
 
 try {
-    const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+    const serviceAccountKey = process.env.SERVICE_ACCOUNT_JSON;
     if (!serviceAccountKey) {
-        throw new Error('The FIREBASE_SERVICE_ACCOUNT_KEY environment variable is not set. Please see the README.md for instructions.');
+        throw new Error('The SERVICE_ACCOUNT_JSON environment variable is not set. Please see the README.md for instructions.');
     }
 
     const serviceAccount = JSON.parse(serviceAccountKey);

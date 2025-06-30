@@ -1,4 +1,3 @@
-
 runConfig:
   minInstances: 2
   maxInstances: 100
@@ -51,6 +50,6 @@ env:
 
   - variable: TWILIO_MESSAGING_SID
     secret: twilioMessagingSid
-  
-  - variable: FIREBASE_SERVICE_ACCOUNT_KEY
+
+  - variable: SERVICE_ACCOUNT_JSON
     secret: firebaseServiceAccountKey
