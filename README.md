@@ -52,7 +52,7 @@ Follow these steps to set up the development environment.
 
   * Node.js (v18 or later)
   * NPM (or Yarn)
-  * Firebase CLI
+  * Firebase CLI (version 13.11.2 or later is recommended)
 
 ### 2. Installation
 
@@ -71,15 +71,17 @@ Follow these steps to set up the development environment.
 
 ### 3. Credentials Setup
 
-The application requires credentials for Firebase, Google AI, and Twilio. This is handled via an environment file.
+The application requires credentials for Firebase (Client and Admin SDKs), Google AI, and Twilio. This is handled via an environment file for local development.
 
-1.  Create a file named `.env.local` in the root of your project.
-2.  Copy the contents of the `.env` template file into your new `.env.local` file.
-3.  Fill in all the required variables.
+1.  Create a file named `.env.local` in the root of your project. You can copy the example file:
+    ```bash
+    cp .env.local.example .env.local
+    ```
+2.  Fill in all the required variables in your new `.env.local` file.
 
-#### Step 1: Frontend & Service Credentials (`.env.local`)
+#### Step 1: Frontend & Public Credentials
 
-Fill in these values in your `.env.local` file:
+Fill in these values in your `.env.local` file. These are safe for the browser.
 
 ```bash
 # --- Firebase Client SDK (Public Keys) ---
@@ -91,37 +93,46 @@ NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
 NEXT_PUBLIC_FIREBASE_APP_ID=
 NEXT_PUBLIC_RECAPTCHA_SITE_KEY=
+```
 
+#### Step 2: Backend & Server-Side Secrets
+
+Fill in these values in your `.env.local` file. These are for your server and must be kept secret.
+
+```bash
 # --- Google AI (Server-Side Secret) ---
-# This is used by Genkit AI flows
 GOOGLE_AI_API_KEY=
 
 # --- Twilio for SMS Reminders (Server-Side Secrets) ---
-# Required if you want to test SMS notifications locally
 TWILIO_ACCOUNT_SID=
 TWILIO_AUTH_TOKEN=
 TWILIO_PHONE_NUMBER=
+
+# --- Firebase Admin SDK (Local Backend Secret) ---
+# This is required for server actions to work locally.
+# 1. Go to your Firebase Project Settings > Service accounts.
+# 2. Click "Generate new private key" to download your service-account.json file.
+# 3. Open the downloaded file in a text editor.
+# 4. VERY IMPORTANT: Convert the multi-line JSON into a SINGLE LINE.
+#    You can use an online tool for this, or carefully do it by hand.
+# 5. Paste the entire single-line JSON content as the value for this variable:
+SERVICE_ACCOUNT_JSON=
 ```
+It should look something like this (this is an example, do not use it):
+`SERVICE_ACCOUNT_JSON={"type": "service_account", "project_id": "...", "private_key": "-----BEGIN PRIVATE KEY-----\\nMIIE...\\n-----END PRIVATE KEY-----\\n", ...}`
 
-#### Step 2: Backend Credentials (`.env.local`)
+### 4. Setting Secrets for Deployment
 
-For the backend (Server Actions, Push Notifications) to work locally, it needs your Firebase Admin service account credentials.
+For the deployed application on App Hosting, you must securely provide the secrets.
 
-1.  In your Firebase Project Settings, go to the **Service accounts** tab.
-2.  Click **Generate new private key** and a JSON file will be downloaded.
-3.  Open this file in a text editor.
-4.  **Important**: You need to convert the multi-line JSON into a single line. You can use an online tool for this, or carefully do it by hand by replacing all newlines with `\n`.
-5.  In your `.env.local` file, add the following variable and paste the **entire single-line JSON content** as its value:
-
+1.  Ensure you are logged into the Firebase CLI (`firebase login`).
+2.  Set the secret for your Firebase Service Account credentials. Run this command from your project root, replacing the path to your downloaded file if necessary:
     ```bash
-    # --- Firebase Admin SDK (Local Backend Secret) ---
-    SERVICE_ACCOUNT_JSON=PASTE_YOUR_SINGLE_LINE_JSON_HERE
+    firebase apphosting:secrets:set firebaseServiceAccountKey --file=service-account.json
     ```
+3. You will also need to set secrets for `googleAiApiKey`, `twilioSid`, `twilioToken`, and `twilioPhone`, etc. as defined in `apphosting.yaml`.
 
-    It should look something like this (this is an example, do not use it):
-    `SERVICE_ACCOUNT_JSON={"type": "service_account", "project_id": "...", ...}`
-
-### 4. Run the Application
+### 5. Run the Application
 
 Start the local development server:
 
@@ -130,20 +141,6 @@ npm run dev
 ```
 
 The application will be available at `http://localhost:3002` or another specified port.
-
-## ⏰ Setting Up Scheduled Reminders
-
-The application includes a `sendReminder` server action that can send Push and SMS notifications. To make this run automatically, you need to trigger it on a schedule. The recommended way is using **Google Cloud Scheduler**.
-
-1.  **Deploy your application.** The scheduler needs a public URL to call.
-2.  Go to the **Google Cloud Scheduler** in your Google Cloud Console.
-3.  Create a new job with the following settings:
-    *   **Target type**: `HTTP`
-    *   **URL**: `https://<your-deployed-app-url>/api/cron/send-reminders` (You will need to create this API route that calls the `sendReminder` action for each user).
-    *   **Frequency**: A cron schedule like `0 * * * *` to run it every hour.
-    *   **Authentication**: You should secure this endpoint, for example, by requiring a secret key in the header that your scheduler job provides.
-
-*Note: A full implementation of the cron job API route is beyond the scope of this file but involves fetching all users and calling the `sendReminder(userId)` action for each.*
 
 ## 🗂️ Project Structure
 
@@ -155,7 +152,8 @@ water4weightloss/
 ├── src/
 │   ├── app/            # Next.js app router pages
 │   ├── components/     # Reusable React components
-│   ├── lib/            # Helper functions, Firebase config (client & admin)
+│   ├── lib/            # Client-side helpers, Firebase config (client)
+│   ├── server/         # Server-side only modules (e.g., Firebase Admin)
 │   ├── ai/             # Genkit AI flows
 │   └── services/       # Third-party service clients (e.g., Twilio)
 ├── .env.local          # Environment variables (DO NOT COMMIT)
