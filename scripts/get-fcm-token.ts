@@ -1,5 +1,5 @@
 
-import { adminDb } from '../src/server/firebase-admin';
+import { getAdminDb } from '../src/server/firebase-admin';
 import { UserData } from '../src/lib/user-data';
 
 async function getFcmToken(userId: string): Promise<string | null> {
@@ -9,6 +9,7 @@ async function getFcmToken(userId: string): Promise<string | null> {
     }
 
     try {
+        const adminDb = await getAdminDb();
         const userDocRef = adminDb.collection('users').doc(userId);
         const userDocSnap = await userDocRef.get();
 

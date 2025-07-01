@@ -579,7 +579,7 @@ const getCreateDbInstructions = () => (
                     <Card className="bg-card/70 backdrop-blur-xl border border-white/10">
                         <CardHeader>
                         <CardTitle className="flex items-center justify-between">
-                            <span>Today's Hydration</span>
+                            <span>Today&rsquo;s Hydration</span>
                             <Droplets className="text-primary" />
                         </CardTitle>
                         <CardDescription>{userData.hydration}ml / {userData.dailyGoal}ml</CardDescription>
@@ -672,7 +672,7 @@ const getCreateDbInstructions = () => (
                                         <Flame className="w-5 h-5 text-amber-500" />
                                         <p className="font-medium text-sm sm:text-base">Daily Hydration Streak</p>
                                     </div>
-                                    <p className="font-bold text-lg sm:text-xl text-primary">{userData.streak} <span className="text-sm font-medium text-muted-foreground">{userData.streak === 1 ? 'day' : 'days'}</span></p>
+                                    <p className="font-bold text-lg sm:text-xl text-primary">{userData.streak} <span className="text-sm font-medium text-muted-foreground">{userData.streak === 1 ? `day` : `days`}</span></p>
                                 </div>
                             )}
                             {userData.appSettings.progressMilestones && (

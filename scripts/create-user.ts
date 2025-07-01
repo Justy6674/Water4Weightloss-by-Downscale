@@ -1,5 +1,5 @@
 
-import { adminDb } from '../src/server/firebase-admin';
+import { getAdminDb } from '../src/server/firebase-admin';
 import { defaultUserData } from '../src/lib/user-data';
 import * as admin from 'firebase-admin';
 
@@ -10,6 +10,7 @@ async function createUser(userId: string) {
     }
 
     try {
+        const adminDb = await getAdminDb();
         const userDocRef = adminDb.collection('users').doc(userId);
         await userDocRef.set({
             ...defaultUserData,

@@ -1,7 +1,7 @@
 
 'use server';
 
-import { adminDb, adminMessaging } from '@/server/firebase-admin';
+import { getAdminDb, getAdminMessaging } from '@/server/firebase-admin';
 import * as admin from 'firebase-admin';
 import { sendSms } from '@/services/send-sms';
 import { type UserData, defaultUserData, type WeightReading, type BloodPressureReading } from '@/lib/user-data';
@@ -48,6 +48,7 @@ export async function ensureUserDocument(userId: string): Promise<void> {
         console.error("ensureUserDocument called without a userId.");
         return;
     }
+    const adminDb = await getAdminDb();
     const userDocRef = adminDb.collection('users').doc(userId);
 
     try {
@@ -74,6 +75,7 @@ export async function ensureUserDocument(userId: string): Promise<void> {
  * This function also ensures the returned data is serializable for Next.js.
  */
 export async function getUserData(userId: string): Promise<UserData> {
+    const adminDb = await getAdminDb();
     const userDocRef = adminDb.collection('users').doc(userId);
     try {
         await ensureUserDocument(userId);
@@ -105,6 +107,7 @@ export async function updateUserData(userId: string, data: Partial<UserData>): P
     if (!userId) {
         throw new Error("Update failed: No user ID provided.");
     };
+    const adminDb = await getAdminDb();
     const userDocRef = adminDb.collection('users').doc(userId);
     try {
         await userDocRef.set({
@@ -125,6 +128,7 @@ export async function deleteUserData(userId: string): Promise<void> {
     if (!userId) {
         throw new Error("Cannot delete data: No user ID provided.");
     }
+    const adminDb = await getAdminDb();
     const userDocRef = adminDb.collection('users').doc(userId);
     try {
         await userDocRef.delete();
@@ -143,6 +147,7 @@ export async function savePhoneNumberAndSendConfirmation(userId: string, phone: 
     throw new Error('User ID and phone number are required.');
   }
 
+  const adminDb = await getAdminDb();
   const userDocRef = adminDb.collection('users').doc(userId);
   try {
     await userDocRef.update({
@@ -169,6 +174,7 @@ export async function addBloodPressureReading(userId: string, newReading: Omit<B
     if (!userId) {
         throw new Error("Update failed: No user ID provided.");
     }
+    const adminDb = await getAdminDb();
     const userDocRef = adminDb.collection('users').doc(userId);
     try {
         const readingWithTimestamp = {
@@ -192,6 +198,7 @@ export async function addWeightReading(userId: string, newReading: Omit<WeightRe
     if (!userId) {
         throw new Error("Update failed: No user ID provided.");
     }
+    const adminDb = await getAdminDb();
     const userDocRef = adminDb.collection('users').doc(userId);
     try {
         const readingWithTimestamp = {
@@ -216,6 +223,7 @@ export async function saveFcmToken(userId: string, token: string): Promise<void>
     if (!userId || !token) {
         throw new Error("User ID and token are required.");
     }
+    const adminDb = await getAdminDb();
     const userDocRef = adminDb.collection('users').doc(userId);
     try {
         await userDocRef.update({
@@ -236,6 +244,7 @@ export async function sendTestNotification(userId: string): Promise<{success: bo
         throw new Error("User ID is required.");
     }
 
+    const adminDb = await getAdminDb();
     const userDocRef = adminDb.collection('users').doc(userId);
     const userDocSnap = await userDocRef.get();
 
@@ -259,6 +268,7 @@ export async function sendTestNotification(userId: string): Promise<{success: bo
     };
 
     try {
+        const adminMessaging = await getAdminMessaging();
         const response = await adminMessaging.sendMulticast(message);
         console.log('Successfully sent message:', response);
         if (response.failureCount > 0) {
@@ -288,6 +298,7 @@ export async function sendReminder(userId: string) {
         return { success: false, message: "User ID is required." };
     }
 
+    const adminDb = await getAdminDb();
     const userDocRef = adminDb.collection('users').doc(userId);
     const userDocSnap = await userDocRef.get();
 
@@ -345,6 +356,7 @@ export async function sendReminder(userId: string) {
             notification: { title: 'Hydration Reminder', body: messageBody },
             tokens: userData.fcmTokens,
         };
+        const adminMessaging = await getAdminMessaging();
         await adminMessaging.sendMulticast(message);
         pushSent = true;
     }
