@@ -31,3 +31,4 @@ service-account.json
 .env
 .env.*          # .env.local, etc.
 *.key.json
+.vercel
