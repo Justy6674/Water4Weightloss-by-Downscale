@@ -6,8 +6,9 @@ import Link from "next/link"
 import Image from "next/image"
 import { useState, useEffect, useMemo, useRef, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { onAuthStateChanged, type User } from "firebase/auth"
+import { type User } from "firebase/auth"
 import { auth, db, messaging } from "@/lib/firebase"
+import { useAuth } from "@/contexts/AuthContext"
 import { onMessage } from "firebase/messaging"
 import { doc, getDoc, setDoc, serverTimestamp, Timestamp } from "firebase/firestore"
 import { Droplets, Settings, Trash2, LogOut, ExternalLink, Cog, Flame, Star, Trophy } from "lucide-react"
@@ -32,6 +33,7 @@ import { Confetti } from "@/components/confetti"
 import { updateUserData, deleteUserData, addWeightReading, addBloodPressureReading } from "@/lib/actions"
 import { type UserData, type Tone, defaultUserData, type WeightReading, type BloodPressureReading } from "@/lib/user-data"
 import { AppSettings } from "@/components/app-settings"
+import { ErrorBoundaryWrapper } from "@/components/ErrorBoundary"
 import { isSameDay, isYesterday, parseISO } from 'date-fns';
 import { Separator } from "@/components/ui/separator"
 
@@ -41,8 +43,7 @@ type MilestoneInfo = { milestoneStatus: MilestoneStatus, nextMilestoneInfo: stri
 function DashboardContents() {
   const { toast } = useToast()
   const router = useRouter()
-  const [user, setUser] = useState<User | null>(null)
-  const [loadingUser, setLoadingUser] = useState(true)
+  const { user, loading: loadingUser } = useAuth()
   const [userData, setUserData] = useState<UserData | null>(null)
   const [loadingError, setLoadingError] = useState<{title: string, description: React.ReactNode} | null>(null);
   const [manualAmount, setManualAmount] = useState("")
@@ -104,16 +105,10 @@ const getCreateDbInstructions = () => (
 );
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-      } else {
-        router.push('/login');
-      }
-      setLoadingUser(false);
-    });
-    return () => unsubscribe();
-  }, [router]);
+    if (!loadingUser && !user) {
+      router.push('/login');
+    }
+  }, [loadingUser, user, router]);
 
   useEffect(() => {
     const loadData = async (userId: string) => {
@@ -420,7 +415,17 @@ const getCreateDbInstructions = () => (
       if (newWeightReading) {
         await addWeightReading(user.uid, newWeightReading);
       }
-      const otherMetrics = { waist: metrics.waist, height: metrics.height, gender: metrics.gender };
+      const otherMetrics = { 
+        weight: userData.bodyMetrics.weight,
+        waist: metrics.waist || userData.bodyMetrics.waist, 
+        height: metrics.height || userData.bodyMetrics.height, 
+        gender: metrics.gender || userData.bodyMetrics.gender,
+        phone: userData.bodyMetrics.phone,
+        medication: userData.bodyMetrics.medication,
+        medicationFrequency: userData.bodyMetrics.medicationFrequency,
+        medicationDose: userData.bodyMetrics.medicationDose,
+        medicationReminder: userData.bodyMetrics.medicationReminder,
+      };
       if(user) {
         await updateUserData(user.uid, { bodyMetrics: otherMetrics });
       }
@@ -518,7 +523,7 @@ const getCreateDbInstructions = () => (
             <Image src="/logo.png" alt="Water4Weightloss Logo" width={40} height={40} className="sm:w-[50px] sm:h-[50px]" data-ai-hint="water droplet" />
             <div>
               <h1 className="text-xl sm:text-2xl font-headline font-bold text-secondary tracking-tight">Water4Weightloss</h1>
-              <p className="text-muted-foreground text-xs sm:text-sm">Welcome, {user.email}</p>
+              <p className="text-muted-foreground text-xs sm:text-sm">Welcome, {user?.email}</p>
             </div>
         </div>
         
@@ -751,7 +756,7 @@ const getCreateDbInstructions = () => (
             </AlertDialogHeader>
             <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDeleteAccount} className={Button.toString({ variant: "destructive" })}>Delete Data</AlertDialogAction>
+                <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete Data</AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -760,5 +765,9 @@ const getCreateDbInstructions = () => (
 }
 
 export default function Dashboard() {
-  return <DashboardContents />
+  return (
+    <ErrorBoundaryWrapper name="Dashboard">
+      <DashboardContents />
+    </ErrorBoundaryWrapper>
+  );
 }

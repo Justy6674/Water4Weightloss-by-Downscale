@@ -17,7 +17,6 @@ import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { 
   signInWithEmailAndPassword, 
-  onAuthStateChanged, 
   signInWithPopup,
   GoogleAuthProvider,
   sendPasswordResetEmail,
@@ -25,8 +24,10 @@ import {
 } from "firebase/auth"
 import { FirebaseError } from "firebase/app"
 import { auth } from "@/lib/firebase"
+import { useAuth } from "@/contexts/AuthContext"
 import { User as UserIcon, Lock, Terminal, Phone } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { ErrorBoundaryWrapper } from "@/components/ErrorBoundary"
 
 const GoogleIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px">
@@ -44,21 +45,14 @@ function LoginPageContents() {
     const [rememberMe, setRememberMe] = useState(true)
     const [isLoading, setIsLoading] = useState(false)
     const [isGoogleLoading, setIsGoogleLoading] = useState(false)
-    const [user, setUser] = useState<User | null>(null)
-    const [checkingAuth, setCheckingAuth] = useState(true);
     const [authError, setAuthError] = useState<React.ReactNode | null>(null);
     const router = useRouter()
     const { toast } = useToast()
+    const { user, loading: checkingAuth } = useAuth()
     
     useEffect(() => {
         const savedPreference = JSON.parse(localStorage.getItem('rememberMe') || 'true');
         setRememberMe(savedPreference);
-        
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-          setUser(currentUser);
-          setCheckingAuth(false);
-        });
-        return () => unsubscribe();
     }, []);
 
     useEffect(() => {
@@ -293,5 +287,9 @@ function LoginPageContents() {
 }
 
 export default function LoginPage() {
-    return <LoginPageContents />
+    return (
+        <ErrorBoundaryWrapper name="LoginPage">
+            <LoginPageContents />
+        </ErrorBoundaryWrapper>
+    );
 }

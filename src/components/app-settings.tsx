@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { type UserData, type Tone } from '@/lib/user-data';
 import { getMessaging, getToken } from 'firebase/messaging';
 import { app } from '@/lib/firebase';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '@/contexts/AuthContext';
 import { saveFcmToken, sendTestNotification, savePhoneNumberAndSendConfirmation } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
@@ -22,11 +22,16 @@ interface AppSettingsProps {
 }
 
 export function AppSettings({ userData, onUpdate }: AppSettingsProps) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { toast } = useToast();
   const settings = userData.appSettings;
   const [phone, setPhone] = useState(userData.bodyMetrics.phone || '');
   const [isSavingPhone, setIsSavingPhone] = useState(false);
+
+  // Don't render if still loading authentication
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   const handleSettingChange = (key: keyof UserData['appSettings'], value: any, writeToDb: boolean = true) => {
     onUpdate({ appSettings: { ...settings, [key]: value } }, writeToDb);

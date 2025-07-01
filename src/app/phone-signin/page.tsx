@@ -15,11 +15,13 @@ import { Input } from "@/components/ui/input"
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
-import { RecaptchaVerifier, signInWithPhoneNumber, onAuthStateChanged, type User, type ConfirmationResult } from "firebase/auth"
+import { RecaptchaVerifier, signInWithPhoneNumber, type User, type ConfirmationResult } from "firebase/auth"
 import { FirebaseError } from "firebase/app"
 import { auth } from "@/lib/firebase"
+import { useAuth } from "@/contexts/AuthContext"
 import { Phone, MessageSquare, Terminal } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { ErrorBoundaryWrapper } from "@/components/ErrorBoundary"
 
 declare global {
     interface Window {
@@ -31,21 +33,12 @@ function PhoneSignInPageContents() {
     const [phoneNumber, setPhoneNumber] = useState("")
     const [otp, setOtp] = useState("")
     const [isLoading, setIsLoading] = useState(false)
-    const [user, setUser] = useState<User | null>(null)
-    const [checkingAuth, setCheckingAuth] = useState(true);
     const [authError, setAuthError] = useState<string | null>(null);
     const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
     const router = useRouter()
     const { toast } = useToast()
+    const { user, loading: checkingAuth } = useAuth()
     const recaptchaContainerRef = useRef<HTMLDivElement>(null)
-
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-          setUser(currentUser);
-          setCheckingAuth(false);
-        });
-        return () => unsubscribe();
-    }, []);
 
     useEffect(() => {
       if (user) {
@@ -227,5 +220,9 @@ function PhoneSignInPageContents() {
 }
 
 export default function PhoneSignInPage() {
-    return <PhoneSignInPageContents />
+    return (
+        <ErrorBoundaryWrapper name="PhoneSignInPage">
+            <PhoneSignInPageContents />
+        </ErrorBoundaryWrapper>
+    );
 }

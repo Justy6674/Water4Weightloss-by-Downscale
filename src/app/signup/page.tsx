@@ -14,27 +14,20 @@ import { Input } from "@/components/ui/input"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
-import { createUserWithEmailAndPassword, onAuthStateChanged, type User } from "firebase/auth"
+import { createUserWithEmailAndPassword, type User } from "firebase/auth"
 import { FirebaseError } from "firebase/app"
 import { auth } from "@/lib/firebase"
+import { useAuth } from "@/contexts/AuthContext"
 import { Mail, Lock } from "lucide-react"
+import { ErrorBoundaryWrapper } from "@/components/ErrorBoundary"
 
 function SignupPageContents() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [isLoading, setIsLoading] = useState(false)
-    const [user, setUser] = useState<User | null>(null);
-    const [checkingAuth, setCheckingAuth] = useState(true);
     const router = useRouter()
     const { toast } = useToast()
-
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-          setUser(currentUser);
-          setCheckingAuth(false);
-        });
-        return () => unsubscribe();
-    }, []);
+    const { user, loading: checkingAuth } = useAuth()
 
     useEffect(() => {
         if (user) {
@@ -147,5 +140,9 @@ function SignupPageContents() {
 }
 
 export default function SignupPage() {
-    return <SignupPageContents />
+    return (
+        <ErrorBoundaryWrapper name="SignupPage">
+            <SignupPageContents />
+        </ErrorBoundaryWrapper>
+    );
 }
