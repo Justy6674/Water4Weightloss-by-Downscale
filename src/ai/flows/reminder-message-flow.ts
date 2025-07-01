@@ -34,26 +34,24 @@ const promptTemplate = `You are an AI assistant that sends brief, effective hydr
   Return a JSON object matching this schema: { "message": "The concise, personalized reminder message." }
 
   Use the following information to craft the reminder:
-  - User's Name: ${'input.userName'}
-  - Current Hydration: ${'input.hydrationPercentage'}% of daily goal
-  - Time Since Last Drink: ${'input.timeSinceLastDrink'}
-  - Preferred Tone: ${'input.preferredTone'}
-  - Time of Day: ${'input.timeOfDay'}
+  - User's Name: __USER_NAME__
+  - Current Hydration: __HYDRATION_PERCENTAGE__% of daily goal
+  - Time Since Last Drink: __TIME_SINCE_LAST_DRINK__
+  - Preferred Tone: __PREFERRED_TONE__
+  - Time of Day: __TIME_OF_DAY__
 
-  TASK: Generate a reminder message with the specified tone. For example, a funny reminder could be "Are you a camel? It's been ${'input.timeSinceLastDrink'} since your last drink!". A supportive one could be "Hey ${'input.userName'}, just a gentle reminder to take a sip of water and keep up the great work!".
+  TASK: Generate a reminder message with the specified tone. For example, a funny reminder could be "Are you a camel? It's been __TIME_SINCE_LAST_DRINK__ since your last drink!". A supportive one could be "Hey __USER_NAME__, just a gentle reminder to take a sip of water and keep up the great work!".
   `;
 
 export async function generateReminder(input: ReminderInput): Promise<ReminderOutput> {
   console.log('DIRECT AI SDK: Generating reminder with input:', JSON.stringify(input, null, 2));
 
   const prompt = promptTemplate
-    .replace('${"input.userName"}', input.userName || 'there')
-    .replace('${"input.hydrationPercentage"}', String(input.hydrationPercentage))
-    .replace('${"input.timeSinceLastDrink"}', input.timeSinceLastDrink)
-    .replace('${"input.preferredTone"}', input.preferredTone)
-    .replace('${"input.timeOfDay"}', input.timeOfDay)
-    .replace('${"input.timeSinceLastDrink"}', input.timeSinceLastDrink)
-    .replace('${"input.userName"}', input.userName || 'there');
+    .replace(/__USER_NAME__/g, input.userName || 'there')
+    .replace(/__HYDRATION_PERCENTAGE__/g, String(input.hydrationPercentage))
+    .replace(/__TIME_SINCE_LAST_DRINK__/g, input.timeSinceLastDrink)
+    .replace(/__PREFERRED_TONE__/g, input.preferredTone)
+    .replace(/__TIME_OF_DAY__/g, input.timeOfDay);
 
   try {
     const result = await model.generateContent(prompt);
@@ -62,7 +60,10 @@ export async function generateReminder(input: ReminderInput): Promise<ReminderOu
 
     console.log('DIRECT AI SDK SUCCESS: Received raw response from Gemini:', jsonString);
 
-    const parsedOutput = ReminderOutputSchema.parse(JSON.parse(jsonString));
+    // Clean the jsonString to remove markdown code block markers
+    const cleanedJsonString = jsonString.replace(/```json/g, '').replace(/```/g, '').trim();
+
+    const parsedOutput = ReminderOutputSchema.parse(JSON.parse(cleanedJsonString));
     
     console.log('DIRECT AI SDK SUCCESS: Parsed and validated output:', parsedOutput);
     return parsedOutput;

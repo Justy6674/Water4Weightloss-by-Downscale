@@ -1,45 +1,47 @@
 
 'use server';
 
-import { cert, getApp, getApps, initializeApp } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
-import { getMessaging } from 'firebase-admin/messaging';
+import { cert, getApp, getApps, initializeApp, type App } from 'firebase-admin/app';
+import { getFirestore, type Firestore } from 'firebase-admin/firestore';
+import { getMessaging, type Messaging } from 'firebase-admin/messaging';
 
-function initializeAdminApp() {
-    const json = process.env.SERVICE_ACCOUNT_JSON;
+let adminApp: App;
+let adminDb: Firestore;
+let adminMessaging: Messaging;
 
-    if (!json) {
-        console.error("Firebase Admin Init Failed: SERVICE_ACCOUNT_JSON environment variable is not set.");
-        throw new Error('SERVICE_ACCOUNT_JSON env-var is missing. This is required for deployment.');
-    }
+try {
+    const existingApp = getApps().find(app => app.name === 'firebase-admin-app');
+    if (existingApp) {
+        adminApp = existingApp;
+    } else {
+        const serviceAccountJson = process.env.SERVICE_ACCOUNT_JSON;
 
-    try {
-        const creds = JSON.parse(json);
+        if (!serviceAccountJson) {
+            throw new Error("CRITICAL: The SERVICE_ACCOUNT_JSON environment variable is not set.");
+        }
 
-        if (!creds.project_id || !creds.private_key || !creds.client_email) {
-             console.error("Firebase Admin Init Failed: Parsed credentials object is missing required fields (project_id, private_key, client_email).");
-             throw new Error('The provided service account JSON is malformed or incomplete.');
+        let serviceAccount;
+        try {
+            // With a correctly formatted multi-line environment variable, no string replacement is needed.
+            serviceAccount = JSON.parse(serviceAccountJson);
+        } catch (e) {
+            console.error("CRITICAL: Failed to parse SERVICE_ACCOUNT_JSON. Ensure it is a valid, multi-line JSON string in your .env.local file.", e);
+            throw new Error("CRITICAL: The SERVICE_ACCOUNT_JSON environment variable is not valid JSON.");
         }
         
-        // This is the critical part. The private_key from a one-line env var has its newlines escaped.
-        // The Firebase Admin SDK needs the newlines to be actual newline characters.
-        creds.private_key = creds.private_key.replace(/\\n/g, '\n');
-
-        const appName = 'firebase-admin-app';
-        const existingApp = getApps().find(app => app.name === appName);
-        if (existingApp) {
-            return existingApp;
-        }
-
-        return initializeApp({ credential: cert(creds) }, appName);
-
-    } catch (e: any) {
-        console.error("Firebase Admin Init Failed: Could not parse SERVICE_ACCOUNT_JSON. Ensure it's a valid, single-line JSON string.", e.message);
-        throw new Error('Failed to parse service account JSON. Check server logs for details.');
+        adminApp = initializeApp({
+            credential: cert(serviceAccount),
+            databaseURL: `https://${serviceAccount.project_id}.firebaseio.com`
+        }, 'firebase-admin-app');
     }
+
+    adminDb = getFirestore(adminApp);
+    adminMessaging = getMessaging(adminApp);
+    
+} catch (error) {
+    console.error("CRITICAL FAILURE: Could not initialize Firebase Admin SDK.", error);
+    throw error;
 }
 
-const admin = initializeAdminApp();
-
-export const adminDb = getFirestore(admin);
-export const adminMessaging = getMessaging(admin);
+export { adminDb, adminMessaging, adminApp };
+export { adminApp as admin };

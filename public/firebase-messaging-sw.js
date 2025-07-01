@@ -4,14 +4,13 @@ importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-com
 
 // Initialize the Firebase app in the service worker by passing in the messagingSenderId.
 // This is a PUBLIC value, so it's safe to be here.
-// IMPORTANT: Replace this with your project's configuration
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyAvomIk-8jXk_NJP4NJBNZ50KBRQ6M3Des",
+  authDomain: "water4weightloss-by-downscale.firebaseapp.com",
+  projectId: "water4weightloss-by-downscale",
+  storageBucket: "water4weightloss-by-downscale.firebasestorage.app",
+  messagingSenderId: "820622158878",
+  appId: "1:820622158878:web:4dba334d369bbb708a520f",
 };
 
 firebase.initializeApp(firebaseConfig);
