@@ -4,10 +4,12 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Droplets } from "lucide-react";
+import EnvDebug from "@/components/EnvDebug";
 
 export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
+      <EnvDebug />
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 items-center">
           <Link href="/" className="flex items-center gap-2 font-bold">
