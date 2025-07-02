@@ -1,4 +1,3 @@
-
 'use server';
 
 import { getAdminDb, getAdminMessaging } from '@/server/firebase-admin';
@@ -8,6 +7,29 @@ import { type UserData, defaultUserData, type WeightReading, type BloodPressureR
 import { generateReminder } from '@/ai/flows/reminder-message-flow';
 import { differenceInHours, isToday } from 'date-fns';
 
+/**
+ * Simple test action to debug Firebase Admin initialization
+ */
+export async function testFirebaseAdmin(): Promise<{ success: boolean; message: string }> {
+  try {
+    console.log('Testing Firebase Admin initialization...');
+    const adminDb = await getAdminDb();
+    console.log('Firebase Admin DB initialized successfully');
+    
+    // Try a simple operation
+    const testDoc = adminDb.collection('test').doc('test');
+    await testDoc.set({ test: true, timestamp: admin.firestore.FieldValue.serverTimestamp() });
+    console.log('Test write operation completed');
+    
+    return { success: true, message: 'Firebase Admin is working correctly' };
+  } catch (error) {
+    console.error('Firebase Admin test failed:', error);
+    return { 
+      success: false, 
+      message: error instanceof Error ? error.message : 'Unknown error occurred' 
+    };
+  }
+}
 
 /**
  * Ensures that any Firestore Timestamp objects are converted to ISO strings,
