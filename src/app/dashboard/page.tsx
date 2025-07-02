@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -302,31 +301,44 @@ const getCreateDbInstructions = () => (
     if (!userData) return;
     setIsLoadingMotivation(true)
     try {
-      const { milestoneStatus, nextMilestoneInfo } = getMilestoneContext();
+      // TEMPORARILY DISABLED: AI motivation system has server errors
+      // const { milestoneStatus, nextMilestoneInfo } = getMilestoneContext();
+      // 
+      // const input: MotivationInput = {
+      //   hydrationPercentage: Math.round(hydrationPercentage),
+      //   streak: userData.streak,
+      //   lastDrinkSizeMl: drinkSize,
+      //   timeOfDay: getTimeOfDay(),
+      //   preferredTone: userData.motivationTone,
+      //   milestoneStatus,
+      //   nextMilestoneInfo,
+      //   isOnMedication: !!userData.bodyMetrics.medication,
+      // }
+      // const result = await generateMotivation(input)
+      // setMotivation(result.message)
       
-      const input: MotivationInput = {
-        hydrationPercentage: Math.round(hydrationPercentage),
-        streak: userData.streak,
-        lastDrinkSizeMl: drinkSize,
-        timeOfDay: getTimeOfDay(),
-        preferredTone: userData.motivationTone,
-        milestoneStatus,
-        nextMilestoneInfo,
-        isOnMedication: !!userData.bodyMetrics.medication,
+      // Fallback motivational messages based on progress
+      const percentage = Math.round(hydrationPercentage);
+      let message = "Keep going! Every sip counts towards your health goals. 💧";
+      
+      if (percentage >= 100) {
+        message = "🎉 Amazing! You've hit your daily hydration goal! Your body is thanking you.";
+      } else if (percentage >= 75) {
+        message = "You're so close to your goal! Just a few more glasses to go. 💪";
+      } else if (percentage >= 50) {
+        message = "Great progress! You're halfway to optimal hydration. Keep it up!";
+      } else if (percentage >= 25) {
+        message = "Good start! Your hydration journey is building momentum. 🌊";
       }
-      const result = await generateMotivation(input)
-      setMotivation(result.message)
+      
+      setMotivation(message);
     } catch (error) {
       console.error("Failed to generate motivation:", error)
-      toast({
-        variant: "destructive",
-        title: "AI Error",
-        description: "Could not get a motivational message.",
-      })
+      setMotivation("Stay hydrated! Every glass of water is a step towards better health. 💧");
     } finally {
       setIsLoadingMotivation(false)
     }
-  }, [userData, hydrationPercentage, getMilestoneContext, getTimeOfDay, toast]);
+  }, [userData, hydrationPercentage]);
 
   useEffect(() => {
     if (userData && !initialMotivationFetched.current) {
@@ -336,7 +348,7 @@ const getCreateDbInstructions = () => (
   }, [userData, fetchMotivation]);
 
 
-  const handleAddWater = (amount: number) => {
+  const handleAddWater = async (amount: number) => {
     if (!userData || !user || amount <= 0) return;
     const oldHydration = userData.hydration;
     const newHydration = Math.min(userData.dailyGoal, userData.hydration + amount);
@@ -368,8 +380,24 @@ const getCreateDbInstructions = () => (
       }
     }
     
+    // Update UI optimistically
     setUserData(prevData => ({ ...prevData!, ...updates }));
-    updateUserData(user.uid, updates);
+    
+    try {
+      // Save to database
+      await updateUserData(user.uid, updates);
+      toast({ title: "💧 Water Logged!", description: `Added ${amount}ml to your daily total.` });
+    } catch (error) {
+      // Revert UI changes if database save fails
+      setUserData(prevData => ({ ...prevData!, hydration: oldHydration, lastDrinkSize: userData.lastDrinkSize }));
+      console.error("Failed to save water intake:", error);
+      toast({ 
+        variant: "destructive", 
+        title: "Save Failed", 
+        description: "Could not save your water intake. Please try again." 
+      });
+    }
+    
     fetchMotivation(amount);
   }
 
