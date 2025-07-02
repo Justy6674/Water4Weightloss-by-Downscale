@@ -4,6 +4,7 @@ import { Inter, Roboto, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from '@/contexts/AuthContext';
+import { EnvDebugger } from '@/components/env-debug';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -46,6 +47,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`dark ${inter.variable} ${roboto.variable} ${jetbrainsMono.variable}`}>
       <body className="font-body antialiased flex flex-col min-h-screen">
+        <EnvDebugger />
         <AuthProvider>
           <main className="flex-grow">
             {children}
