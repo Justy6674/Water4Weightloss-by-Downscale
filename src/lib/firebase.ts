@@ -4,10 +4,10 @@ import { getAuth, connectAuthEmulator, Auth } from "firebase/auth";
 import { getMessaging, isSupported, Messaging } from "firebase/messaging";
 import { validateClientEnv } from './env-validation';
 
-let app: FirebaseApp | null = null;
-let auth: Auth | null = null;
-let db: Firestore | null = null;
-let messaging: Messaging | null = null;
+let _app: FirebaseApp | null = null;
+let _auth: Auth | null = null;
+let _db: Firestore | null = null;
+let _messaging: Messaging | null = null;
 let initialized = false;
 
 // Lazy initialization function - only runs when needed
@@ -33,14 +33,14 @@ function initializeFirebase(): void {
     };
 
     // Initialize Firebase
-    app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-    auth = getAuth(app);
-    db = getFirestore(app);
+    _app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+    _auth = getAuth(_app);
+    _db = getFirestore(_app);
 
     // Initialize messaging with feature detection
     isSupported().then((supported) => {
-      if (supported && app) {
-        messaging = getMessaging(app);
+      if (supported && _app) {
+        _messaging = getMessaging(_app);
       } else {
         console.warn('Firebase messaging is not supported in this browser');
       }
@@ -53,13 +53,13 @@ function initializeFirebase(): void {
       const authEmulatorUrl = process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST;
       const firestoreEmulatorHost = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST;
       
-      if (authEmulatorUrl && auth && !(auth as any)._delegate._config.emulator) {
-        connectAuthEmulator(auth, `http://${authEmulatorUrl}`, { disableWarnings: true });
+      if (authEmulatorUrl && _auth && !(_auth as any)._delegate._config.emulator) {
+        connectAuthEmulator(_auth, `http://${authEmulatorUrl}`, { disableWarnings: true });
       }
       
-      if (firestoreEmulatorHost && db && !(db as any)._delegate._databaseId.projectId.includes('demo-')) {
+      if (firestoreEmulatorHost && _db && !(_db as any)._delegate._databaseId.projectId.includes('demo-')) {
         const [host, port] = firestoreEmulatorHost.split(':');
-        connectFirestoreEmulator(db, host, parseInt(port));
+        connectFirestoreEmulator(_db, host, parseInt(port));
       }
     }
 
@@ -78,40 +78,40 @@ function initializeFirebase(): void {
 
 // Getter functions that ensure initialization
 export function getFirebaseApp(): FirebaseApp {
-  if (!app) {
+  if (!_app) {
     initializeFirebase();
-    if (!app) {
+    if (!_app) {
       throw new Error('Firebase app failed to initialize');
     }
   }
-  return app;
+  return _app;
 }
 
 export function getFirebaseAuth(): Auth {
-  if (!auth) {
+  if (!_auth) {
     initializeFirebase();
-    if (!auth) {
+    if (!_auth) {
       throw new Error('Firebase auth failed to initialize');
     }
   }
-  return auth;
+  return _auth;
 }
 
 export function getFirebaseDb(): Firestore {
-  if (!db) {
+  if (!_db) {
     initializeFirebase();
-    if (!db) {
+    if (!_db) {
       throw new Error('Firebase firestore failed to initialize');
     }
   }
-  return db;
+  return _db;
 }
 
 export function getFirebaseMessaging(): Messaging | null {
   if (!initialized) {
     initializeFirebase();
   }
-  return messaging;
+  return _messaging;
 }
 
 // Legacy exports for backward compatibility - these will lazy-load
@@ -133,4 +133,4 @@ export const db = new Proxy({} as Firestore, {
   }
 });
 
-export { messaging };
+export { _messaging as messaging };
