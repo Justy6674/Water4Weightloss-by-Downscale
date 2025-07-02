@@ -21,49 +21,58 @@ function initializeFirebaseAdmin() {
       return;
     }
 
-    // Get service account from environment
-    const serviceAccountJson = process.env.SERVICE_ACCOUNT_JSON;
-    if (!serviceAccountJson) {
-      throw new Error('SERVICE_ACCOUNT_JSON environment variable not found');
+    // Use individual environment variables (proper approach for Vercel)
+    const projectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+    const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+
+    if (!projectId || !clientEmail || !privateKey) {
+      throw new Error(`Missing Firebase Admin environment variables:
+        - FIREBASE_PROJECT_ID: ${projectId ? 'SET' : 'MISSING'}
+        - FIREBASE_CLIENT_EMAIL: ${clientEmail ? 'SET' : 'MISSING'}
+        - FIREBASE_PRIVATE_KEY: ${privateKey ? 'SET' : 'MISSING'}`);
     }
 
-    // Parse the service account JSON
-    let serviceAccount;
-    try {
-      // Handle both escaped and unescaped JSON
-      const cleanJson = serviceAccountJson.replace(/\\n/g, '\n');
-      serviceAccount = JSON.parse(cleanJson);
-    } catch (parseError) {
-      throw new Error(`Failed to parse SERVICE_ACCOUNT_JSON: ${parseError}`);
-    }
+    // Replace \n characters in private key (common issue with env vars)
+    const formattedPrivateKey = privateKey.replace(/\\n/g, '\n');
 
-    // Validate required fields
-    if (!serviceAccount.project_id || !serviceAccount.private_key || !serviceAccount.client_email) {
-      throw new Error('Invalid service account JSON - missing required fields');
-    }
-
-    // Initialize Firebase Admin
+    // Initialize Firebase Admin with individual credentials
     adminApp = initializeApp({
-      credential: cert(serviceAccount),
-      databaseURL: `https://${serviceAccount.project_id}-default-rtdb.firebaseio.com/`,
-      projectId: serviceAccount.project_id
+      credential: cert({
+        projectId,
+        clientEmail,
+        privateKey: formattedPrivateKey,
+      }),
+      projectId,
     });
 
     adminDb = getFirestore(adminApp);
     adminMessaging = getMessaging(adminApp);
 
-    console.log('Firebase Admin initialized successfully');
+    console.log('Firebase Admin initialized successfully with individual env vars');
   } catch (error) {
     console.error('Firebase Admin initialization failed:', error);
     throw error;
   }
 }
 
-// Initialize on import
-try {
-  initializeFirebaseAdmin();
-} catch (error) {
-  console.error('CRITICAL: Firebase Admin failed to initialize:', error);
+// Store on global to prevent re-initialization in development
+if (typeof global !== 'undefined') {
+  if (!global.firebaseAdmin) {
+    try {
+      initializeFirebaseAdmin();
+      global.firebaseAdmin = true;
+    } catch (error) {
+      console.error('CRITICAL: Firebase Admin failed to initialize:', error);
+    }
+  }
+} else {
+  // Not in a global context, initialize normally
+  try {
+    initializeFirebaseAdmin();
+  } catch (error) {
+    console.error('CRITICAL: Firebase Admin failed to initialize:', error);
+  }
 }
 
 export async function getAdminApp() {

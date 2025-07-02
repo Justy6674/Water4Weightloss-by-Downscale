@@ -1,40 +1,47 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET() {
-  try {
-    const envInfo = {
-      hasServiceAccount: !!process.env.SERVICE_ACCOUNT_JSON,
-      serviceAccountLength: process.env.SERVICE_ACCOUNT_JSON?.length || 0,
-      hasGoogleAI: !!process.env.GOOGLE_AI_API_KEY,
-      hasGemini: !!process.env.GEMINI_API_KEY,
-      nodeEnv: process.env.NODE_ENV,
-      vercelEnv: process.env.VERCEL_ENV,
-      availableKeys: Object.keys(process.env)
-        .filter(key => key.includes('FIREBASE') || key.includes('SERVICE') || key.includes('GOOGLE') || key.includes('GEMINI'))
-    }
+export async function GET(request: NextRequest) {
+  // Check for Firebase Admin environment variables (individual approach)
+  const firebaseProjectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+  const firebaseClientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const firebasePrivateKey = process.env.FIREBASE_PRIVATE_KEY;
 
-    // Try to parse service account if present
-    if (process.env.SERVICE_ACCOUNT_JSON) {
-      try {
-        const cleanJson = process.env.SERVICE_ACCOUNT_JSON.replace(/\\n/g, '\n');
-        const parsed = JSON.parse(cleanJson);
-        envInfo.serviceAccountValid = !!(parsed.project_id && parsed.private_key && parsed.client_email);
-        envInfo.projectId = parsed.project_id;
-        envInfo.clientEmail = parsed.client_email;
-      } catch (error) {
-        envInfo.serviceAccountValid = false;
-        envInfo.parseError = error instanceof Error ? error.message : 'Unknown parse error';
-      }
-    }
+  // Check AI environment variables
+  const geminiApiKey = process.env.GEMINI_API_KEY;
+  const googleAiApiKey = process.env.GOOGLE_AI_API_KEY;
 
-    return NextResponse.json(envInfo)
-  } catch (error) {
-    return NextResponse.json(
-      { 
-        error: error instanceof Error ? error.message : 'Unknown error',
-        hasServiceAccount: !!process.env.SERVICE_ACCOUNT_JSON
-      },
-      { status: 500 }
-    )
-  }
+  // Get all available environment variable keys
+  const availableKeys = Object.keys(process.env).filter(key => 
+    key.startsWith('FIREBASE_') || 
+    key.startsWith('NEXT_PUBLIC_FIREBASE_') ||
+    key.includes('GEMINI') ||
+    key.includes('GOOGLE_AI') ||
+    key.includes('SERVICE_ACCOUNT')
+  );
+
+  const debugInfo = {
+    // Firebase Admin individual vars
+    hasFirebaseProjectId: !!firebaseProjectId,
+    hasFirebaseClientEmail: !!firebaseClientEmail,
+    hasFirebasePrivateKey: !!firebasePrivateKey,
+    firebaseProjectId: firebaseProjectId || 'MISSING',
+    privateKeyLength: firebasePrivateKey ? firebasePrivateKey.length : 0,
+    privateKeyStartsWith: firebasePrivateKey ? firebasePrivateKey.substring(0, 30) + '...' : 'MISSING',
+
+    // AI vars
+    hasGeminiApiKey: !!geminiApiKey,
+    hasGoogleAiApiKey: !!googleAiApiKey,
+
+    // Environment info
+    nodeEnv: process.env.NODE_ENV,
+    vercelEnv: process.env.VERCEL_ENV,
+    
+    // Available keys
+    availableKeys: availableKeys,
+
+    // Firebase Admin validation
+    firebaseAdminValid: !!(firebaseProjectId && firebaseClientEmail && firebasePrivateKey),
+  };
+
+  return NextResponse.json(debugInfo);
 } 
