@@ -46,6 +46,11 @@ function initializeFirebase(): void {
   }
 }
 
+// Auto-initialize Firebase when this module is imported in browser
+if (typeof window !== 'undefined') {
+  initializeFirebase();
+}
+
 // Getter functions that ensure initialization
 export function getFirebaseApp(): FirebaseApp {
   if (!_app) {
@@ -84,23 +89,8 @@ export function getFirebaseMessaging(): Messaging | null {
   return _messaging;
 }
 
-// Legacy exports for backward compatibility - these will lazy-load
-export const app = new Proxy({} as FirebaseApp, {
-  get(target, prop) {
-    return getFirebaseApp()[prop as keyof FirebaseApp];
-  }
-});
-
-export const auth = new Proxy({} as Auth, {
-  get(target, prop) {
-    return getFirebaseAuth()[prop as keyof Auth];
-  }
-});
-
-export const db = new Proxy({} as Firestore, {
-  get(target, prop) {
-    return getFirebaseDb()[prop as keyof Firestore];
-  }
-});
-
-export { _messaging as messaging };
+// Direct exports - no Proxy pattern
+export const app = getFirebaseApp();
+export const auth = getFirebaseAuth();
+export const db = getFirebaseDb();
+export const messaging = getFirebaseMessaging();
