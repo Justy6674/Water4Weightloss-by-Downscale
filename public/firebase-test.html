@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Firebase Test</title>
+    <style>
+        body { 
+            font-family: monospace; 
+            background: black; 
+            color: white; 
+            padding: 20px; 
+        }
+        .result { 
+            margin: 10px 0; 
+            padding: 10px; 
+            background: #333; 
+            border-radius: 5px;
+        }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>🔥 Firebase Direct Test</h1>
+    <div id="results"></div>
+
+    <script type="module">
+        const results = document.getElementById('results');
+        
+        function addResult(text, isSuccess = true) {
+            const div = document.createElement('div');
+            div.className = `result ${isSuccess ? 'success' : 'error'}`;
+            div.textContent = text;
+            results.appendChild(div);
+        }
+
+        try {
+            addResult('✅ Starting Firebase test...');
+            
+            // Import Firebase using exact same config as the app
+            const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js');
+            const { getAuth, signInAnonymously } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js');
+            
+            addResult('✅ Firebase modules loaded');
+            
+            // Use exact same config
+            const firebaseConfig = {
+                apiKey: "AIzaSyAvomIk-8jXk_NJP4NJBNZ50KBRQ6M3Des",
+                authDomain: "water4weightloss-by-downscale.firebaseapp.com",
+                projectId: "water4weightloss-by-downscale",
+                storageBucket: "water4weightloss-by-downscale.appspot.com",
+                messagingSenderId: "820622158878",
+                appId: "1:820622158878:web:4dba334d369bbb708a520f"
+            };
+            
+            const app = initializeApp(firebaseConfig);
+            addResult('✅ Firebase app initialized');
+            
+            const auth = getAuth(app);
+            addResult('✅ Firebase auth initialized');
+            
+            // Test anonymous sign-in
+            const userCredential = await signInAnonymously(auth);
+            addResult(`✅ Anonymous sign-in successful! UID: ${userCredential.user.uid}`);
+            
+            addResult('🎉 Firebase is working perfectly!');
+            
+        } catch (error) {
+            addResult(`❌ Firebase test failed: ${error.message}`, false);
+            console.error('Firebase test error:', error);
+        }
+    </script>
+</body>
+</html> 
