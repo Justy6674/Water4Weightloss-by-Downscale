@@ -3,12 +3,29 @@ import { getFirestore, connectFirestoreEmulator, Firestore } from "firebase/fire
 import { getAuth, connectAuthEmulator, Auth } from "firebase/auth";
 import { getMessaging, isSupported, Messaging } from "firebase/messaging";
 import { validateClientEnv } from './env-validation';
+import getConfig from 'next/config';
 
 let _app: FirebaseApp | null = null;
 let _auth: Auth | null = null;
 let _db: Firestore | null = null;
 let _messaging: Messaging | null = null;
 let initialized = false;
+
+// Get runtime config as fallback
+function getEnvVar(key: string): string | undefined {
+  // First try process.env
+  if (process.env[key]) {
+    return process.env[key];
+  }
+  
+  // Fallback to Next.js runtime config
+  try {
+    const { publicRuntimeConfig } = getConfig() || { publicRuntimeConfig: {} };
+    return publicRuntimeConfig[key];
+  } catch {
+    return undefined;
+  }
+}
 
 // Lazy initialization function - only runs when needed
 function initializeFirebase(): void {
@@ -21,16 +38,23 @@ function initializeFirebase(): void {
       return;
     }
 
-    const env = validateClientEnv();
-    
     const firebaseConfig = {
-      apiKey: env.NEXT_PUBLIC_FIREBASE_API_KEY,
-      authDomain: env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-      projectId: env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-      storageBucket: env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-      messagingSenderId: env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-      appId: env.NEXT_PUBLIC_FIREBASE_APP_ID,
+      apiKey: getEnvVar('NEXT_PUBLIC_FIREBASE_API_KEY'),
+      authDomain: getEnvVar('NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN'),
+      projectId: getEnvVar('NEXT_PUBLIC_FIREBASE_PROJECT_ID'),
+      storageBucket: getEnvVar('NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET'),
+      messagingSenderId: getEnvVar('NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID'),
+      appId: getEnvVar('NEXT_PUBLIC_FIREBASE_APP_ID'),
     };
+
+    // Check if all required config is present
+    const missingVars = Object.entries(firebaseConfig)
+      .filter(([key, value]) => !value)
+      .map(([key]) => key);
+
+    if (missingVars.length > 0) {
+      throw new Error(`Missing Firebase config: ${missingVars.join(', ')}`);
+    }
 
     // Initialize Firebase
     _app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
